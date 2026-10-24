@@ -92,12 +92,26 @@ func (c *Client) CreateVerification(
 	ctx context.Context,
 	in appcompliance.CreateVerificationInput,
 ) (*appcompliance.CreateVerificationResult, error) {
-	payload := struct {
-		WorkflowID string `json:"workflow_id"`
-		VendorData string `json:"vendor_data"`
-	}{
-		WorkflowID: c.workflowID,
-		VendorData: in.UserID.String(),
+	payload := map[string]interface{}{
+		"workflow_id": c.workflowID,
+		"vendor_data":  in.UserID.String(),
+	}
+	if strings.TrimSpace(in.Country) != "" {
+		payload["expected_details"] = map[string]interface{}{
+			"id_country":   strings.ToUpper(strings.TrimSpace(in.Country)),
+			"nationality":  strings.ToUpper(strings.TrimSpace(in.Country)),
+		}
+		if strings.TrimSpace(in.ResidenceCountry) != "" {
+			if ed, ok := payload["expected_details"].(map[string]interface{}); ok {
+				ed["country"] = strings.ToUpper(strings.TrimSpace(in.ResidenceCountry))
+			}
+		}
+	} else if strings.TrimSpace(in.ResidenceCountry) != "" {
+		payload["expected_details"] = map[string]interface{}{
+			"id_country":  strings.ToUpper(strings.TrimSpace(in.ResidenceCountry)),
+			"nationality": strings.ToUpper(strings.TrimSpace(in.ResidenceCountry)),
+			"country":     strings.ToUpper(strings.TrimSpace(in.ResidenceCountry)),
+		}
 	}
 
 	body, err := json.Marshal(payload)

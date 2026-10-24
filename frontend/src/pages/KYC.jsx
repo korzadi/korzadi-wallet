@@ -13,6 +13,29 @@ const LABELS = {
   rejected: ['Rechazado', 'No pudimos verificar tu identidad. Puedes intentarlo de nuevo.'],
 };
 
+const COUNTRIES = [
+  { code: 'AR', name: 'Argentina' },
+  { code: 'BR', name: 'Brasil' },
+  { code: 'CL', name: 'Chile' },
+  { code: 'CO', name: 'Colombia' },
+  { code: 'MX', name: 'México' },
+  { code: 'PE', name: 'Perú' },
+  { code: 'ES', name: 'España' },
+  { code: 'US', name: 'Estados Unidos' },
+  { code: 'GB', name: 'Reino Unido' },
+  { code: 'FR', name: 'Francia' },
+  { code: 'DE', name: 'Alemania' },
+  { code: 'IT', name: 'Italia' },
+  { code: 'PT', name: 'Portugal' },
+  { code: 'EC', name: 'Ecuador' },
+  { code: 'VE', name: 'Venezuela' },
+  { code: 'UY', name: 'Uruguay' },
+  { code: 'PY', name: 'Paraguay' },
+  { code: 'BO', name: 'Bolivia' },
+  { code: 'PA', name: 'Panamá' },
+  { code: 'CR', name: 'Costa Rica' },
+];
+
 export default function KYC() {
   const [status, setStatus] = useState('');
   const [country, setCountry] = useState('');
@@ -32,6 +55,10 @@ export default function KYC() {
   useEffect(() => { load(); }, []);
 
   const start = async () => {
+    if (!country && !residence) {
+      setError('Selecciona tu país para continuar con la verificación.');
+      return;
+    }
     setStarting(true); setError('');
     try {
       const { data } = await walletApi.startKYC({
@@ -59,12 +86,22 @@ export default function KYC() {
 
       {!loading && !verified && !inReview && (
         <>
-          <label className="kz-label">País de nacionalidad</label>
-          <input className="kz-input" placeholder="Ej: Colombia" value={country} onChange={(e) => setCountry(e.target.value)} />
+          <label className="kz-label">País de emisión de tu documento</label>
+          <select className="kz-input" value={country} onChange={(e) => setCountry(e.target.value)}>
+            <option value="">Selecciona un país</option>
+            {COUNTRIES.map((c) => (
+              <option key={c.code} value={c.code}>{c.name}</option>
+            ))}
+          </select>
           <label className="kz-label">País de residencia</label>
-          <input className="kz-input" placeholder="Ej: Colombia" value={residence} onChange={(e) => setResidence(e.target.value)} />
+          <select className="kz-input" value={residence} onChange={(e) => setResidence(e.target.value)}>
+            <option value="">Selecciona un país (opcional)</option>
+            {COUNTRIES.map((c) => (
+              <option key={c.code} value={c.code}>{c.name}</option>
+            ))}
+          </select>
           <button className="kz-btn" style={{ marginTop: 22 }} onClick={start} disabled={starting}>
-            {starting ? 'Abriendo verificación…' : 'Verificar identidad'}
+            {starting ? 'Iniciando verificación…' : 'Iniciar verificación desde este dispositivo'}
           </button>
         </>
       )}

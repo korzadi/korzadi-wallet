@@ -79,3 +79,122 @@ docker-compose.override.yml
 .env
 .env.*
 !.env.example
+
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+!.env.sample
+!.env.template
+
+# Private keys and wallet credentials
+*.pem
+*.key
+*.p12
+*.pfx
+*.keystore
+*.jks
+secrets/
+secret/
+credentials/
+private-keys/
+
+# Cloud and infrastructure credentials
+.aws/
+.azure/
+.gcloud/
+terraform.tfstate
+terraform.tfstate.*
+*.tfvars
+
+# Certificates
+*.crt
+*.cer
+*.der
+
+# Logs and local runtime files
+*.log
+npm-debug.log*
+yarn-debug.log*
+
+# ==========================================
+# KORZADI WALLET - SECRETOS Y CREDENCIALES
+# ==========================================
+
+# Variables de entorno
+.env
+.env.*
+!.env.example
+!.env.sample
+!.env.template
+
+# Secretos y credenciales
+secrets/
+secret/
+credentials/
+private-keys/
+private_keys/
+privatekeys/
+.private/
+credentials.json
+secrets.json
+service-account*.json
+
+# Claves privadas y almacenes de claves
+*.pem
+*.key
+*.p12
+*.pfx
+*.pk8
+*.keystore
+*.jks
+*.wallet
+*.seed
+*.mnemonic
+*.asc
+
+# Certificados y material TLS privado
+*.key.enc
+*.pem.enc
+*.crt.enc
+*.p12.enc
+
+# Claves de proveedores y servicios
+*-credentials.json
+*-service-account.json
+firebase-adminsdk-*.json
+google-credentials.json
+
+# Cloud y proveedores de infraestructura
+.aws/
+.azure/
+.gcloud/
+.kube/
+terraform.tfstate
+terraform.tfstate.*
+*.tfvars
+*.tfvars.json
+
+# Tokens, sesiones y credenciales locales
+.token
+.tokens
+*.token
+*.secret
+*.secrets
+*.credentials
+auth.json
+token.json
+tokens.json
+credentials.local.json
+
+# Configuración local de IDE y herramientas
+.vscode/
+.idea/
+
+# Logs y archivos temporales
+*.log
+npm-debug.log*
+yarn-debug.log*
+coverage/
+tmp/
+temp/
