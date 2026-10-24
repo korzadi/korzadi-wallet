@@ -1,0 +1,81 @@
+
+# 2026-10-09 12:21:57.458837
++n
+
+# 2026-10-09 12:24:23.710150
++Trabaja exclusivamente en los depósitos de Korzadi Wallet.
++
++Repositorio: /home/korzadi/korzadi-wallet
++Backend: /home/korzadi/korzadi-wallet/backend
++
++OBJETIVO:
++Completar los depósitos de USDT y USDC en:
++
++1. BNB Smart Chain — BEP-20.
++2. Ethereum — ERC-20.
++3. TRON — TRC-20, únicamente cuando el contrato oficial del activo esté verificado.
++
++REGLAS:
++
++- Inspecciona el código real antes de modificarlo.
++- Conserva la arquitectura y reutiliza las implementaciones existentes.
++- No toques retiros, Exchange, Card ni frontend.
++- No generes claves ni wallets reales.
++- No transmitas transacciones ni muevas fondos.
++- No ejecutes migraciones ni operaciones financieras reales.
++- No declares soporte por la mera existencia de una configuración.
++- No inventes contratos ni resultados de pruebas.
++- No ejecutes git add, git reset, git clean ni commits.
++- No sobrescribas archivos existentes sin comprender su función.
++
++PRIMERA TAREA:
++Audita el flujo real:
++watcher → validación del contrato y la red → registro del depósito → confirmaciones → ledger → idempotencia.
++
++Examina los archivos Go, las migraciones y las pruebas relacionadas. Identifica qué funciona, qué falta y qué riesgos existen.
++
++Todavía no modifiques código. Devuelve un informe breve con rutas exactas, problemas demostrables y el orden mínimo de correcciones. No inventes resultados de pruebas que no hayas ejecutado.
+
+# 2026-10-09 12:28:40.518914
++exit
+
+# 2026-10-09 12:29:20.274442
++Trabaja directamente sobre el repositorio local que tienes disponible en este VPS. No me pidas que te proporcione archivos: búscalos tú con las herramientas disponibles.
++
++Audita exclusivamente el sistema de depósitos de Korzadi Wallet para USDT y USDC en BNB Smart Chain (BEP-20), Ethereum (ERC-20) y TRON (TRC-20), verificando los contratos oficiales.
++
++Inspecciona los archivos reales, las migraciones, los servicios, los watchers, los repositorios, la configuración de arranque y las pruebas.
++
++Sigue el flujo completo: detección → validación de red y contrato → registro → confirmaciones → ledger → idempotencia.
++
++Por ahora, SOLO AUDITA. NO modifiques ni crees archivos. No trabajes en retiros, Exchange, Card ni frontend. No generes claves, no firmes ni transmitas transacciones, no muevas fondos y no ejecutes migraciones.
++
++Devuelve:
++
++1. Archivos concretos encontrados.
++2. Estado real de cada una de las seis combinaciones de activo y red.
++3. Errores demostrables y pruebas existentes.
++4. Correcciones mínimas necesarias, por prioridad.
++5. Comandos de verificación seguros.
++
++No declares que algo funciona sin evidencia del código o las pruebas. Si no puedes leer el repositorio o ejecutar alguna herramienta, explica exactamente el impedimento.
+
+# 2026-10-09 12:44:04.480212
++Inspecciona directamente el repositorio local y audita exclusivamente los depósitos de USDT y USDC en BNB Smart Chain (BEP-20), Ethereum (ERC-20) y TRON (TRC-20).
++
++Usa tus herramientas para buscar y leer los archivos existentes. No me pidas que te proporcione archivos ni estructura del proyecto.
++
++SOLO AUDITORÍA. No modifiques archivos, no ejecutes migraciones, no generes claves, no firmes ni transmitas transacciones, no muevas fondos.
++
++Examina los watchers, servicios de depósitos, contratos de tokens, registro de activos, confirmaciones, repositorios, ledger, idempotencia, migraciones, arranque y pruebas.
++
++Entrega:
++
++1. Evidencia de los archivos y funciones que intervienen.
++2. Una tabla de las seis combinaciones USDT/USDC × BEP-20/ERC-20.
++3. Estado separado de USDT y USDC en TRC-20, verificando sus contratos oficiales.
++4. Errores y riesgos demostrables.
++5. Correcciones mínimas necesarias.
++6. Pruebas seguras recomendadas.
++
++No declares soporte sin evidencia. Si no puedes leer automáticamente los archivos, explica la limitación exacta. No cambies nada.

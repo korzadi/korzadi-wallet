@@ -1,0 +1,230 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-korzadi_wallet}
+      POSTGRES_USER: ${POSTGRES_USER:-korzadi}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?debe definirse en .env}
+    volumes:
+      - korzadi_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-korzadi} -d ${POSTGRES_DB:-korzadi_wallet}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD:?debe definirse en .env}
+    command: ["sh", "-c", "redis-server --requirepass \"$$REDIS_PASSWORD\" --appendonly no"]
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli -a \"$$REDIS_PASSWORD\" ping | grep -q PONG"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: runtime   # producción: sin custody-keygen / gasstation-keygen / custody-reencrypt
+    restart: unless-stopped
+    # HTTP (20s) + workers (SHUTDOWN_WORKER_TIMEOUT_SECONDS, 60s) + margen: sin esto Docker
+    # mata el proceso a mitad de una firma/broadcast.
+    stop_grace_period: 90s
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER:-korzadi}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-korzadi_wallet}?sslmode=disable
+      JWT_SECRET: ${JWT_SECRET:?debe definirse en .env}
+      TWO_FACTOR_ENCRYPTION_KEY: ${TWO_FACTOR_ENCRYPTION_KEY:?debe definirse en .env (openssl rand -hex 32)}
+      KORZADIVPN_HMAC_SECRET: ${KORZADIVPN_HMAC_SECRET:-}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-https://wallet.korzadi.com}
+      # Fase C: correo transaccional (verificación y restablecimiento de contraseña).
+      APP_BASE_URL: ${APP_BASE_URL:-}
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USERNAME: ${SMTP_USERNAME:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      SMTP_FROM: ${SMTP_FROM:-}
+      SMTP_REQUIRE_TLS: ${SMTP_REQUIRE_TLS:-true}
+      EMAIL_DEV_LOG_LINKS: ${EMAIL_DEV_LOG_LINKS:-false}
+      # Fase D: espera de seguridad para direcciones de retiro nuevas (0 la desactiva).
+      WITHDRAWAL_NEW_DESTINATION_COOLDOWN: ${WITHDRAWAL_NEW_DESTINATION_COOLDOWN:-24h}
+      KYC_ENABLED: ${KYC_ENABLED:-false}
+      KYC_PROVIDER: ${KYC_PROVIDER:-}
+      KYC_WEBHOOK_SECRET: ${DIDIT_WEBHOOK_SECRET:-}
+      DIDIT_API_KEY: ${DIDIT_API_KEY:-}
+      DIDIT_WEBHOOK_SECRET: ${DIDIT_WEBHOOK_SECRET:-}
+      DIDIT_BASE_URL: ${DIDIT_BASE_URL:-https://verification.didit.me}
+      DIDIT_WORKFLOW_ID: ${DIDIT_WORKFLOW_ID:-}
+      TRUSTED_PROXIES: ${TRUSTED_PROXIES:-}
+      # Varias réplicas / apagado ordenado
+      SHUTDOWN_WORKER_TIMEOUT_SECONDS: ${SHUTDOWN_WORKER_TIMEOUT_SECONDS:-60}
+      MIGRATE_LOCK_TIMEOUT_SECONDS: ${MIGRATE_LOCK_TIMEOUT_SECONDS:-120}
+      ADVISORY_LOCK_MAX_CONNS: ${ADVISORY_LOCK_MAX_CONNS:-8}
+      HOT_LOCK_WAIT_SECONDS: ${HOT_LOCK_WAIT_SECONDS:-30}
+      # Registrar claves de custodia enviadas por API (por defecto OFF: se generan en el servidor)
+      CUSTODY_ADMIN_KEY_IMPORT_ENABLED: ${CUSTODY_ADMIN_KEY_IMPORT_ENABLED:-false}
+      BTC_NETWORK: ${BTC_NETWORK:-mainnet}
+      REDIS_ADDR: redis:6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD:?debe definirse en .env}
+      # Claves de custodia: define CUSTODY_ENCRYPTION_KEYS (id=hex,id2=hex) +
+      # CUSTODY_ACTIVE_KEY_ID, o la variable histórica CUSTODY_ENCRYPTION_KEY.
+      # El backend aborta el arranque si no hay ninguna válida.
+      CUSTODY_ENCRYPTION_KEYS: ${CUSTODY_ENCRYPTION_KEYS:-}
+      CUSTODY_ACTIVE_KEY_ID: ${CUSTODY_ACTIVE_KEY_ID:-}
+      CUSTODY_ENCRYPTION_KEY: ${CUSTODY_ENCRYPTION_KEY:-}
+      TRON_NETWORK: ${TRON_NETWORK:-testnet}
+      TRON_DEPOSIT_WATCHER_ENABLED: ${TRON_DEPOSIT_WATCHER_ENABLED:-false}
+      TRON_API_KEY: ${TRON_API_KEY:-}
+      TRON_USDT_CONTRACT: ${TRON_USDT_CONTRACT:?debe definirse en .env}
+      TRON_NODEREAL_URL: ${TRON_NODEREAL_URL:?debe definirse en .env}
+      BSC_RPC_URL: ${BSC_RPC_URL:?debe definirse en .env}
+      BSC_CHAIN_ID: ${BSC_CHAIN_ID:-56}
+      USDT_BSC_CONTRACT: ${USDT_BSC_CONTRACT:?debe definirse en .env}
+      USDT_DECIMALS: ${USDT_DECIMALS:-18}
+      BSC_CONFIRMATIONS_REQUIRED: ${BSC_CONFIRMATIONS_REQUIRED:-15}
+      BSC_RPC_TIMEOUT: ${BSC_RPC_TIMEOUT:-10s}
+      BSC_RPC_MAX_RETRIES: ${BSC_RPC_MAX_RETRIES:-3}
+      BSC_RPC_BACKOFF_BASE: ${BSC_RPC_BACKOFF_BASE:-250ms}
+      BSC_RPC_BACKOFF_MAX: ${BSC_RPC_BACKOFF_MAX:-5s}
+      ETH_RPC_URL: ${ETH_RPC_URL:-}
+      ETH_CONFIRMATIONS_REQUIRED: ${ETH_CONFIRMATIONS_REQUIRED:-}
+      USDT_ETH_CONTRACT: ${USDT_ETH_CONTRACT:-}
+      USDT_ETH_DECIMALS: ${USDT_ETH_DECIMALS:-6}
+      USDC_ETH_CONTRACT: ${USDC_ETH_CONTRACT:-}
+      USDC_ETH_DECIMALS: ${USDC_ETH_DECIMALS:-6}
+      POLYGON_RPC_URL: ${POLYGON_RPC_URL:-}
+      POLYGON_CONFIRMATIONS_REQUIRED: ${POLYGON_CONFIRMATIONS_REQUIRED:-}
+      USDT_POLYGON_CONTRACT: ${USDT_POLYGON_CONTRACT:-}
+      USDT_POLYGON_DECIMALS: ${USDT_POLYGON_DECIMALS:-6}
+      USDC_POLYGON_CONTRACT: ${USDC_POLYGON_CONTRACT:-}
+      USDC_POLYGON_DECIMALS: ${USDC_POLYGON_DECIMALS:-6}
+      ARBITRUM_RPC_URL: ${ARBITRUM_RPC_URL:-}
+      ARBITRUM_CONFIRMATIONS_REQUIRED: ${ARBITRUM_CONFIRMATIONS_REQUIRED:-}
+      USDT_ARBITRUM_CONTRACT: ${USDT_ARBITRUM_CONTRACT:-}
+      USDT_ARBITRUM_DECIMALS: ${USDT_ARBITRUM_DECIMALS:-6}
+      USDC_ARBITRUM_CONTRACT: ${USDC_ARBITRUM_CONTRACT:-}
+      USDC_ARBITRUM_DECIMALS: ${USDC_ARBITRUM_DECIMALS:-6}
+      OPTIMISM_RPC_URL: ${OPTIMISM_RPC_URL:-}
+      OPTIMISM_CONFIRMATIONS_REQUIRED: ${OPTIMISM_CONFIRMATIONS_REQUIRED:-}
+      USDT_OPTIMISM_CONTRACT: ${USDT_OPTIMISM_CONTRACT:-}
+      USDT_OPTIMISM_DECIMALS: ${USDT_OPTIMISM_DECIMALS:-6}
+      USDC_OPTIMISM_CONTRACT: ${USDC_OPTIMISM_CONTRACT:-}
+      USDC_OPTIMISM_DECIMALS: ${USDC_OPTIMISM_DECIMALS:-6}
+      BASE_RPC_URL: ${BASE_RPC_URL:-}
+      BASE_CONFIRMATIONS_REQUIRED: ${BASE_CONFIRMATIONS_REQUIRED:-}
+      USDT_BASE_CONTRACT: ${USDT_BASE_CONTRACT:-}
+      USDT_BASE_DECIMALS: ${USDT_BASE_DECIMALS:-6}
+      USDC_BASE_CONTRACT: ${USDC_BASE_CONTRACT:-}
+      USDC_BASE_DECIMALS: ${USDC_BASE_DECIMALS:-6}
+      BTC_RPC_URL: ${BTC_RPC_URL:-}
+      BTC_RPC_USER: ${BTC_RPC_USER:-}
+      BTC_RPC_PASS: ${BTC_RPC_PASS:-}
+      BTC_CONFIRMATIONS_REQUIRED: ${BTC_CONFIRMATIONS_REQUIRED:-}
+      GIN_MODE: release
+      WITHDRAWALS_ENABLED: ${WITHDRAWALS_ENABLED:-false}
+      WITHDRAWALS_MAINNET_ENABLED: ${WITHDRAWALS_MAINNET_ENABLED:-false}
+      WITHDRAWAL_LIMIT_MAX_USDT: ${WITHDRAWAL_LIMIT_MAX_USDT:-1}
+      WITHDRAWAL_LIMIT_DAILY_USDT: ${WITHDRAWAL_LIMIT_DAILY_USDT:-1}
+      PORT: 8060
+    ports:
+      - "127.0.0.1:8060:8060"
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "-", "http://127.0.0.1:8060/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: https://wallet.korzadi.com
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:8061:80"
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "-", "http://127.0.0.1:80"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  postgres-backup:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      PGPASSWORD: ${POSTGRES_PASSWORD:?debe definirse en .env}
+    volumes:
+      - korzadi_backups:/backups
+    entrypoint: >
+      sh -c "
+      while true; do
+        FILENAME=/backups/korzadi_wallet_$$(date +%Y%m%d_%H%M%S).sql.gz;
+        pg_dump -h postgres -U ${POSTGRES_USER:-korzadi} -d ${POSTGRES_DB:-korzadi_wallet} | gzip > $$FILENAME;
+        echo \"Backup creado: $$FILENAME\";
+        find /backups -name '*.sql.gz' -mtime +14 -delete;
+        sleep 86400;
+      done
+      "
+
+  offsite-backup:
+    image: rclone/rclone:latest
+    restart: unless-stopped
+    depends_on:
+      - postgres-backup
+    environment:
+      RCLONE_CONFIG_REMOTE_TYPE: ${RCLONE_REMOTE_TYPE:-}
+      RCLONE_CONFIG_REMOTE_PROVIDER: ${RCLONE_REMOTE_PROVIDER:-}
+      RCLONE_CONFIG_REMOTE_ACCESS_KEY_ID: ${RCLONE_ACCESS_KEY_ID:-}
+      RCLONE_CONFIG_REMOTE_SECRET_ACCESS_KEY: ${RCLONE_SECRET_ACCESS_KEY:-}
+      RCLONE_CONFIG_REMOTE_ENDPOINT: ${RCLONE_ENDPOINT:-}
+      RCLONE_DESTINATION: ${RCLONE_DESTINATION:-}
+    volumes:
+      - korzadi_backups:/backups:ro
+    entrypoint: >
+      sh -c "
+      while true; do
+        if [ -z \"$$RCLONE_CONFIG_REMOTE_TYPE\" ]; then
+          echo 'offsite-backup: RCLONE_REMOTE_TYPE no configurado, saltando subida externa (ver infrastructure/backup/README.md)';
+        else
+          rclone sync /backups \"remote:$$RCLONE_DESTINATION\" --min-age 5m && echo 'offsite-backup: sincronizado correctamente';
+        fi;
+        sleep 21600;
+      done
+      "
+
+  ledger-tests:
+    image: golang:1.25-alpine
+    working_dir: /app
+    volumes:
+      - ./backend:/app
+    environment:
+      DATABASE_URL: postgres://korzadi:${POSTGRES_PASSWORD}@postgres:5432/korzadi_wallet?sslmode=disable
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: sh -c "go mod download && go test -tags=integration ./tests -v"
+    profiles:
+      - tests
+
+volumes:
+  korzadi_pgdata:
+  korzadi_backups:
+

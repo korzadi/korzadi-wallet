@@ -1,0 +1,13 @@
+DROP TABLE IF EXISTS screening_results;
+DROP TABLE IF EXISTS screening_requests;
+DROP TABLE IF EXISTS compliance_holds;
+DROP TABLE IF EXISTS compliance_flags;
+DROP TABLE IF EXISTS risk_level_history;
+DROP TABLE IF EXISTS risk_profiles;
+DROP TABLE IF EXISTS compliance_idempotency;
+DROP TABLE IF EXISTS kyc_webhook_events;
+DROP TABLE IF EXISTS kyc_status_history;
+DROP TABLE IF EXISTS kyc_cases;
+DROP FUNCTION IF EXISTS compliance_forbid_mutation();
+DELETE FROM user_roles WHERE role_id IN (SELECT id FROM roles WHERE name IN ('compliance_reviewer','compliance_admin'));
+DELETE FROM roles WHERE name IN ('compliance_reviewer','compliance_admin');

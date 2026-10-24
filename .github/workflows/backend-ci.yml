@@ -1,0 +1,63 @@
+name: backend-ci
+
+on:
+  push:
+    paths:
+      - "backend/**"
+      - "docker-compose.test.yml"
+      - ".github/workflows/backend-ci.yml"
+  pull_request:
+    paths:
+      - "backend/**"
+      - "docker-compose.test.yml"
+      - ".github/workflows/backend-ci.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: backend-ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: backend/go.mod
+          cache: true
+          cache-dependency-path: backend/go.sum
+
+      - name: Download Go modules
+        run: go mod download
+
+      - name: Build all Go packages
+        run: go build ./...
+
+      - name: Vet all Go packages
+        run: go vet ./...
+
+      - name: Unit tests
+        run: go test -p 2 ./...
+
+      - name: Race tests
+        run: go test -race -p 1 ./...
+
+      - name: Start isolated Postgres and Redis
+        working-directory: .
+        run: docker compose -f docker-compose.test.yml up -d --wait postgres-test redis-test
+
+      - name: Integration tests (fake chain RPC only)
+        working-directory: .
+        run: docker compose -f docker-compose.test.yml --profile tests run --build --rm integration-tests
+
+      - name: Tear down isolated test dependencies
+        if: always()
+        working-directory: .
+        run: docker compose -f docker-compose.test.yml down --volumes --remove-orphans

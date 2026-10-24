@@ -1,0 +1,394 @@
+.aa-stepup{display:flex;align-items:center;gap:12px;padding:14px 16px;margin-bottom:20px;border:1px solid var(--ad-border);border-radius:12px;background:var(--ad-panel)}
+.aa-stepup>svg{color:var(--ad-blue);flex:none}
+.aa-stepup-copy{flex:1;min-width:0}
+.aa-stepup-copy strong,.aa-stepup-copy small{display:block}
+.aa-stepup-copy strong{font-size:12px}
+.aa-stepup-copy small{font-size:11px;color:var(--ad-muted);margin-top:4px}
+.aa-stepup input,.aa-field input,.aa-field select{width:100%;min-width:0;padding:10px 11px;border:1px solid var(--ad-border);border-radius:8px;background:var(--ad-bg);color:var(--ad-text);font:inherit;outline:none}
+.aa-stepup input{width:150px}
+.aa-stepup input:focus,.aa-field input:focus,.aa-field select:focus{border-color:var(--ad-blue)}
+.aa-form{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:15px;padding:20px}
+.aa-field{display:grid;gap:7px;min-width:0}
+.aa-field>span{font-size:11px;color:var(--ad-muted);font-weight:650}
+.aa-primary,.aa-secondary,.aa-actions button{align-self:end;padding:10px 13px;border:1px solid var(--ad-border);border-radius:8px;background:var(--ad-panel2);color:var(--ad-text);font:inherit;font-size:12px;font-weight:650;cursor:pointer}
+.aa-primary{background:var(--ad-blue);color:white;border-color:var(--ad-blue)}
+.aa-secondary:hover,.aa-actions button:hover{border-color:var(--ad-blue)}
+.aa-primary:disabled,.aa-secondary:disabled,.aa-actions button:disabled{opacity:.5;cursor:not-allowed}
+.aa-check{display:flex;align-items:center;gap:9px;color:var(--ad-text);font-size:12px}
+.aa-check input{accent-color:var(--ad-blue)}
+.aa-actions{display:flex;gap:6px}
+.aa-actions button{padding:7px 8px;white-space:nowrap}
+.aa-policy-summary{padding:16px 20px;border-top:1px solid var(--ad-border);font-size:12px}
+.aa-policy-summary p{color:var(--ad-muted);line-height:1.6}
+@media(max-width:900px){.aa-form{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:600px){.aa-stepup{align-items:flex-start;flex-wrap:wrap}.aa-stepup-copy{flex-basis:calc(100% - 40px)}.aa-stepup input{width:100%}.aa-form{grid-template-columns:1fr;padding:15px}.aa-actions{flex-wrap:wrap}}
+
+/* KORZADI ADMIN ADVANCED VISUAL FINISH START */
+
+.aa-stepup {
+  gap: 14px;
+  padding: 16px 18px;
+  border-radius: 14px;
+  box-shadow: 0 5px 18px rgba(0, 0, 0, .08);
+}
+
+.aa-stepup > svg {
+  width: 21px;
+  height: 21px;
+}
+
+.aa-stepup-copy strong {
+  font-size: 13px;
+  letter-spacing: .01em;
+}
+
+.aa-stepup-copy small {
+  line-height: 1.5;
+}
+
+.aa-form {
+  align-items: end;
+  gap: 18px;
+  padding: 22px;
+}
+
+.aa-field {
+  gap: 8px;
+}
+
+.aa-field > span {
+  font-size: 12px;
+  letter-spacing: .015em;
+}
+
+.aa-field input,
+.aa-field select,
+.aa-stepup input {
+  min-height: 42px;
+  border-radius: 10px;
+  transition: border-color .18s ease, box-shadow .18s ease;
+}
+
+.aa-field input:hover,
+.aa-field select:hover,
+.aa-stepup input:hover {
+  border-color: var(--ad-blue);
+}
+
+.aa-field input:focus-visible,
+.aa-field select:focus-visible,
+.aa-stepup input:focus-visible {
+  outline: 2px solid var(--ad-blue);
+  outline-offset: 2px;
+}
+
+.aa-primary,
+.aa-secondary,
+.aa-actions button {
+  min-height: 40px;
+  border-radius: 10px;
+  transition: background .18s ease, border-color .18s ease,
+    transform .18s ease, box-shadow .18s ease;
+}
+
+.aa-primary {
+  box-shadow: 0 4px 12px rgba(37, 99, 235, .18);
+}
+
+.aa-primary:hover:not(:disabled) {
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+}
+
+.aa-secondary:hover:not(:disabled),
+.aa-actions button:hover:not(:disabled) {
+  background: var(--ad-panel);
+  transform: translateY(-1px);
+}
+
+.aa-primary:focus-visible,
+.aa-secondary:focus-visible,
+.aa-actions button:focus-visible {
+  outline: 2px solid var(--ad-blue);
+  outline-offset: 3px;
+}
+
+.aa-check {
+  min-height: 38px;
+  line-height: 1.5;
+}
+
+.aa-check input {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 auto;
+}
+
+.aa-actions {
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.aa-actions button {
+  min-height: 34px;
+}
+
+.aa-policy-summary {
+  line-height: 1.7;
+}
+
+.aa-policy-summary p {
+  margin-top: 8px;
+}
+
+.admin-advanced .admin-table-wrap,
+.admin-content .admin-table-wrap {
+  max-width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: thin;
+}
+
+.admin-advanced .admin-table,
+.admin-content .admin-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.admin-advanced .admin-table th,
+.admin-advanced .admin-table td,
+.admin-content .admin-table th,
+.admin-content .admin-table td {
+  vertical-align: middle;
+}
+
+.admin-advanced .admin-table tbody tr,
+.admin-content .admin-table tbody tr {
+  transition: background .15s ease;
+}
+
+.admin-advanced .admin-table tbody tr:hover,
+.admin-content .admin-table tbody tr:hover {
+  background: var(--ad-panel);
+}
+
+.aa-field input:disabled,
+.aa-field select:disabled {
+  opacity: .6;
+  cursor: not-allowed;
+}
+
+@media (min-width: 1200px) {
+  .aa-form {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 20px;
+    padding: 24px;
+  }
+}
+
+@media (max-width: 900px) {
+  .aa-form {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 15px;
+  }
+}
+
+@media (max-width: 600px) {
+  .aa-stepup {
+    padding: 14px;
+    gap: 10px;
+  }
+
+  .aa-stepup-copy {
+    flex-basis: calc(100% - 36px);
+  }
+
+  .aa-stepup input {
+    width: 100%;
+  }
+
+  .aa-form {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 14px;
+    padding: 15px;
+  }
+
+  .aa-actions {
+    align-items: stretch;
+  }
+
+  .aa-actions button {
+    flex: 1 1 auto;
+  }
+
+  .aa-policy-summary {
+    padding: 14px 15px;
+  }
+
+  .admin-advanced .admin-table,
+  .admin-content .admin-table {
+    min-width: 620px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .aa-field input,
+  .aa-field select,
+  .aa-stepup input,
+  .aa-primary,
+  .aa-secondary,
+  .aa-actions button,
+  .admin-advanced .admin-table tbody tr,
+  .admin-content .admin-table tbody tr {
+    transition: none;
+  }
+
+  .aa-primary:hover:not(:disabled),
+  .aa-secondary:hover:not(:disabled),
+  .aa-actions button:hover:not(:disabled) {
+    transform: none;
+  }
+}
+
+/* KORZADI ADMIN ADVANCED VISUAL FINISH END */
+
+/* KORZADI GAS STATION — DISEÑO ESPECÍFICO */
+
+.aa-gas-page {
+  display: grid;
+  grid-template-columns: minmax(0, 1.65fr) minmax(280px, .85fr);
+  align-items: start;
+  gap: 20px;
+}
+
+.aa-gas-page > .admin-welcome {
+  grid-column: 1 / -1;
+  margin-bottom: 0;
+  padding: 8px 2px 14px;
+}
+
+.aa-gas-page > .admin-welcome h2 {
+  font-size: clamp(23px, 2.2vw, 32px);
+  letter-spacing: -.035em;
+}
+
+.aa-gas-page > .admin-welcome p {
+  max-width: 680px;
+  line-height: 1.7;
+}
+
+.aa-gas-page > .admin-panel {
+  min-width: 0;
+  height: 100%;
+  border: 1px solid var(--ad-border);
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 8px 26px rgba(0, 0, 0, .10);
+}
+
+.aa-gas-page > .admin-panel .admin-panel-heading {
+  padding: 20px 22px;
+  border-bottom: 1px solid var(--ad-border);
+}
+
+.aa-gas-page > .admin-panel .admin-panel-heading h2 {
+  font-size: 15px;
+  letter-spacing: -.01em;
+}
+
+.aa-gas-page > .admin-panel .admin-panel-heading p {
+  margin-top: 6px;
+  line-height: 1.6;
+}
+
+.aa-gas-page .aa-form {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 18px;
+  padding: 22px;
+  align-content: start;
+}
+
+.aa-gas-page .aa-field > span {
+  font-size: 12px;
+}
+
+.aa-gas-page .aa-field input {
+  min-height: 43px;
+}
+
+.aa-gas-page .aa-primary,
+.aa-gas-page .aa-secondary {
+  min-height: 43px;
+}
+
+.aa-gas-page .aa-policy-summary {
+  margin: 0 20px 20px;
+  padding: 16px;
+  border: 1px solid var(--ad-border);
+  border-radius: 10px;
+  overflow-wrap: anywhere;
+}
+
+.aa-gas-page .aa-policy-summary strong {
+  display: block;
+  margin-bottom: 8px;
+}
+
+.aa-gas-page .aa-policy-summary p {
+  line-height: 1.8;
+}
+
+.aa-gas-page .aa-check {
+  padding: 12px;
+  border: 1px solid var(--ad-border);
+  border-radius: 10px;
+}
+
+@media (min-width: 1200px) {
+  .aa-gas-page .aa-form {
+    padding: 24px;
+    gap: 20px;
+  }
+}
+
+@media (max-width: 900px) {
+  .aa-gas-page {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+  }
+
+  .aa-gas-page > .admin-welcome {
+    grid-column: auto;
+  }
+
+  .aa-gas-page > .admin-panel {
+    height: auto;
+  }
+}
+
+@media (max-width: 600px) {
+  .aa-gas-page {
+    gap: 14px;
+  }
+
+  .aa-gas-page > .admin-welcome h2 {
+    font-size: 23px;
+  }
+
+  .aa-gas-page > .admin-panel .admin-panel-heading {
+    padding: 16px;
+  }
+
+  .aa-gas-page .aa-form {
+    padding: 16px;
+    gap: 15px;
+  }
+
+  .aa-gas-page .aa-policy-summary {
+    margin: 0 16px 16px;
+  }
+}
+
+/* FIN DEL DISEÑO ESPECÍFICO DE GAS STATION */

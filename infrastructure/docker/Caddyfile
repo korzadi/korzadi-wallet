@@ -1,0 +1,24 @@
+wallet.korzadi.com {
+	handle /api/* {
+		reverse_proxy backend:8060
+	}
+	handle /health {
+		reverse_proxy backend:8060
+	}
+	handle {
+		reverse_proxy frontend:80
+	}
+
+	encode gzip
+
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "DENY"
+		Referrer-Policy "strict-origin-when-cross-origin"
+	}
+
+	log {
+		output file /var/log/caddy/wallet.korzadi.com.log
+	}
+}

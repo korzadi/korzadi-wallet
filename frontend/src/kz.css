@@ -1,0 +1,80 @@
+/* Diseño Korzadi Wallet (mockup). Se carga después de index.css. */
+:root{--kz-card:#08182f;--kz-card2:#0a1f3d;--kz-line:#17345a;--kz-blue:#1468ff;--kz-muted:#8da4c1;--kz-green:#18d98b;--kz-red:#ff5470}
+.kz{max-width:480px;min-height:100vh;margin:0 auto;padding:0 16px 96px;background:linear-gradient(180deg,#041023,#020a15)}
+.kz *{box-sizing:border-box}
+.kz a{color:inherit;text-decoration:none}
+.kz-top{display:flex;align-items:center;gap:10px;padding:20px 0 14px}
+.kz-top h1{flex:1;margin:0;font-size:17px;font-weight:600}
+.kz-brand{flex:1;display:flex;align-items:center;gap:8px;font-size:19px;font-weight:700}
+.kz-brand b{color:#2f7bff}
+.kz-logo{display:grid;place-items:center;width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#1468ff,#19c3ff);font-weight:800;font-size:16px}
+.kz-iconbtn{display:grid;place-items:center;width:36px;height:36px;border:0;border-radius:50%;background:transparent;color:#fff;cursor:pointer}
+.kz-avatar{display:grid;place-items:center;width:64px;height:64px;border-radius:50%;background:#12315c;color:#9cc2ff;font-weight:700;font-size:22px}
+.kz-avatar.sm{width:32px;height:32px;font-size:12px}
+.kz-card{background:var(--kz-card);border:1px solid var(--kz-line);border-radius:16px;padding:16px;margin-bottom:14px}
+.kz-balance small{color:var(--kz-muted);font-size:13px}
+.kz-balance .row{display:flex;justify-content:space-between;align-items:center}
+.kz-balance strong{display:block;margin:6px 0 2px;font-size:34px;font-weight:700}
+.kz-balance strong span{font-size:14px;font-weight:500;color:var(--kz-muted);margin-left:4px}
+.kz-actions{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:18px 0 22px}
+.kz-actions a{display:flex;flex-direction:column;align-items:center;gap:8px;font-size:13px}
+.kz-actions span{display:grid;place-items:center;width:52px;height:52px;border-radius:50%;background:#0d2a57;color:#3b8bff}
+.kz-sec{display:flex;justify-content:space-between;align-items:center;margin:4px 0 6px}
+.kz-sec h2{margin:0;font-size:15px;font-weight:600}
+.kz-sec a{color:#3b8bff;font-size:13px}
+.kz-row{display:flex;align-items:center;gap:12px;padding:13px 0;border-bottom:1px solid #0f2748;background:none;border-left:0;border-right:0;border-top:0;width:100%;color:#fff;text-align:left;cursor:pointer}
+.kz-row:last-child{border-bottom:0}
+.kz-row .main{flex:1;min-width:0}
+.kz-row .main strong,.kz-row .end strong{display:block;font-size:15px;font-weight:600}
+.kz-row small{display:block;margin-top:2px;color:var(--kz-muted);font-size:12px}
+.kz-row .end{text-align:right}
+.kz-coin{display:inline-grid;place-items:center;border-radius:50%;color:#fff;font-weight:700;flex:none}
+.kz-input{width:100%;padding:14px;border-radius:12px;border:1px solid var(--kz-line);background:#07172d;color:#fff;font-size:15px;outline:none}
+.kz-input:focus{border-color:var(--kz-blue)}
+.kz-label{display:block;margin:16px 0 8px;font-size:14px;font-weight:500}
+.kz-hint{margin-top:6px;color:var(--kz-muted);font-size:12px}
+.kz-btn{display:block;width:100%;padding:15px;border-radius:12px;border:1px solid var(--kz-blue);background:var(--kz-blue);color:#fff;font-weight:600;font-size:15px;text-align:center;cursor:pointer}
+.kz-btn.ghost{background:transparent;color:#cfe0ff}
+.kz-btn.danger{background:transparent;border-color:var(--kz-red);color:var(--kz-red)}
+.kz-btn:disabled{opacity:.5;cursor:not-allowed}
+.kz-pills{display:flex;gap:8px;overflow-x:auto;margin:6px 0 10px}
+.kz-pills button{flex:none;padding:8px 16px;border-radius:10px;border:1px solid var(--kz-line);background:transparent;color:#cfe0ff;font-size:13px;cursor:pointer}
+.kz-pills button.on{background:var(--kz-blue);border-color:var(--kz-blue);color:#fff}
+.kz-seg{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:6px;margin-bottom:12px}
+.kz-seg button{padding:11px;border-radius:10px;border:1px solid var(--kz-line);background:transparent;color:#cfe0ff;cursor:pointer}
+.kz-seg button.on{background:var(--kz-blue);border-color:var(--kz-blue);color:#fff}
+.kz-select{display:flex;align-items:center;gap:12px;width:100%;padding:12px 14px;border-radius:14px;border:1px solid var(--kz-line);background:var(--kz-card2);color:#fff;cursor:pointer;text-align:left}
+.kz-select .main{flex:1}.kz-select strong{display:block}.kz-select small{color:var(--kz-muted);font-size:12px}
+.kz-note{display:flex;gap:10px;padding:13px;border-radius:12px;border:1px solid var(--kz-line);background:#0a1f3d;color:#9cc2ff;font-size:12px;line-height:1.45;margin:14px 0}
+.kz-note.warn{border-color:#5a4a17;background:#2a2410;color:#f3d98a}
+.kz-err{margin:12px 0;padding:12px;border-radius:12px;background:#3a1520;border:1px solid #6b2434;color:#ff9aab;font-size:13px}
+.kz-ok{margin:12px 0;padding:12px;border-radius:12px;background:#0d3326;border:1px solid #14604a;color:#7ff0bf;font-size:13px}
+.kz-qr{display:grid;place-items:center;padding:14px;margin:14px auto;width:208px;background:#fff;border-radius:14px}
+.kz-addr{display:flex;align-items:center;gap:8px;padding:12px 14px;border:1px solid var(--kz-line);border-radius:12px;background:#07172d;font-size:14px;word-break:break-all}
+.kz-addr span{flex:1}
+.kz-radio{width:20px;height:20px;border-radius:50%;border:2px solid #3a5780;flex:none}
+.kz-radio.on{border-color:var(--kz-blue);box-shadow:inset 0 0 0 4px #07172d;background:var(--kz-blue)}
+.kz-badge{padding:3px 10px;border-radius:8px;background:#0d3326;color:var(--kz-green);font-size:12px;border:1px solid #14604a}
+.kz-badge.soon{background:#10264a;color:#8da4c1;border-color:var(--kz-line)}
+.kz-switch{position:relative;width:48px;height:28px;border-radius:14px;border:0;background:#26406b;cursor:pointer;flex:none}
+.kz-switch::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;transition:.15s}
+.kz-switch.on{background:var(--kz-green)}.kz-switch.on::after{left:23px}
+.kz-pos{color:var(--kz-green)}.kz-neg{color:var(--kz-red)}
+.kz-tx{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;flex:none}
+.kz-tx.in{background:#0d3326;color:var(--kz-green)}.kz-tx.out{background:#3a1520;color:var(--kz-red)}.kz-tx.buy{background:#0d2a57;color:#3b8bff}
+.kz-search{position:relative;margin-bottom:6px}.kz-search svg{position:absolute;left:12px;top:15px;color:var(--kz-muted)}.kz-search input{padding-left:38px}
+.kz-empty{padding:28px 0;text-align:center;color:var(--kz-muted);font-size:14px}
+.kz-tabs{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:100%;max-width:480px;display:grid;grid-template-columns:repeat(4,1fr);padding:8px 8px calc(8px + env(safe-area-inset-bottom));background:#061326;border-top:1px solid var(--kz-line)}
+.kz-tabs a{display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px;color:var(--kz-muted);font-size:11px}
+.kz-tabs a.active{color:#3b8bff}
+.kz-welcome{max-width:480px;min-height:100vh;margin:0 auto;padding:0 28px 28px;display:flex;flex-direction:column;justify-content:center;text-align:center;background:radial-gradient(circle at 50% 30%,#0b2a5c,#030b18 62%)}
+.kz-welcome .big{display:grid;place-items:center;width:96px;height:96px;margin:0 auto 22px;border-radius:26px;background:linear-gradient(135deg,#1468ff,#19c3ff);font-size:58px;font-weight:800}
+.kz-welcome h1{margin:0 0 26px;font-size:32px;font-weight:600}.kz-welcome h1 b{color:#2f7bff}
+.kz-welcome h2{margin:0 0 10px;font-size:18px}.kz-welcome p{margin:0 auto 22px;max-width:280px;color:#b7c8e2;line-height:1.5}
+.kz-welcome .btns{display:grid;gap:12px;margin-top:26px}.kz-welcome small{margin-top:30px;color:var(--kz-muted)}
+@media (min-width:520px){.kz{border-left:1px solid #0f2748;border-right:1px solid #0f2748}}
+
+.kz-welcome a{color:inherit;text-decoration:none}
+.kz-pills{scrollbar-width:none}.kz-pills::-webkit-scrollbar{display:none}
+.kz-pills button{padding:8px 12px}
+.btn-primary{display:flex;align-items:center;justify-content:center;gap:8px}

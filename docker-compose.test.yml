@@ -1,0 +1,52 @@
+# Entorno efímero para integración. Sin ruta de salida: los tests hablan solo
+# con Postgres/Redis locales y los RPC se sustituyen por fakes en Go.
+name: korzadi-wallet-itest
+services:
+  postgres-test:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: korzadi_wallet_test
+      POSTGRES_USER: wallet_test
+      POSTGRES_PASSWORD: integration_only_password
+    tmpfs:
+      - /var/lib/postgresql/data:size=512m
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U wallet_test -d korzadi_wallet_test"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+    networks: [integration]
+
+  redis-test:
+    image: redis:7-alpine
+    command: ["redis-server", "--requirepass", "integration_only_password", "--save", "", "--appendonly", "no"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "integration_only_password", "ping"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+    networks: [integration]
+
+  integration-tests:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: integration-tests
+    working_dir: /app
+    environment:
+      DATABASE_URL: postgres://wallet_test:integration_only_password@postgres-test:5432/korzadi_wallet_test?sslmode=disable
+      REDIS_ADDR: redis-test:6379
+      REDIS_PASSWORD: integration_only_password
+      GOPROXY: "off"
+    command: ["go", "test", "-p", "1", "-tags=integration", "./tests"]
+    depends_on:
+      postgres-test:
+        condition: service_healthy
+      redis-test:
+        condition: service_healthy
+    networks: [integration]
+    profiles: [tests]
+
+networks:
+  integration:
+    internal: true
