@@ -41,3 +41,4 @@ korzadi-wallet/
 - [`docs/INTEGRATIONS.md`](docs/INTEGRATIONS.md) — integración futura con KorzadiVPN
 - [`docs/EXTERNAL_PROVIDERS.md`](docs/EXTERNAL_PROVIDERS.md) — capa de proveedores (payment/crypto/KYC)
 - [`docs/ROADMAP.md`](docs/ROADMAP.md) — qué es real hoy y qué queda pendiente
+# korzadi-wallet
