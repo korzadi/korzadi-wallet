@@ -16,6 +16,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/joho/godotenv"
+	"github.com/shopspring/decimal"
 
 	"korzadi-wallet/backend/internal/application/accountaccess"
 	appaffiliate "korzadi-wallet/backend/internal/application/affiliate"
@@ -31,6 +32,7 @@ import (
 	appkorzadivpn "korzadi-wallet/backend/internal/application/integrations/korzadivpn"
 	appledger "korzadi-wallet/backend/internal/application/ledger"
 	"korzadi-wallet/backend/internal/application/lifecycle"
+	appp2p "korzadi-wallet/backend/internal/application/p2p"
 	appreconciliation "korzadi-wallet/backend/internal/application/reconciliation"
 	apprecovery "korzadi-wallet/backend/internal/application/recovery"
 	appsecurity "korzadi-wallet/backend/internal/application/security"
@@ -42,6 +44,7 @@ import (
 	appwatcher "korzadi-wallet/backend/internal/application/watcher"
 	"korzadi-wallet/backend/internal/domain"
 	"korzadi-wallet/backend/internal/http/handlers"
+	p2phandler "korzadi-wallet/backend/internal/http/handlers/p2p"
 	"korzadi-wallet/backend/internal/http/middleware"
 	"korzadi-wallet/backend/internal/http/router"
 	"korzadi-wallet/backend/internal/infrastructure/assetregistry"
@@ -384,6 +387,10 @@ func main() {
 		}
 		return roleRepo.GetRolesForUser(context.Background(), id)
 	}
+
+	// ---- P2P Market ----
+	p2pRepo := postgres.NewP2PRepository(pool)
+	p2pSvc := appp2p.New(p2pRepo, ledgerRepo, reservationRepo, userWalletAccountRepo, walletRepo, notificationRepo, decimal.NewFromInt(100)) // 1% commission
 
 	affiliateService := appaffiliate.NewService(affiliateRepo, walletRepo, ledgerRepo, auditRepo)
 	korzadiVPNService := appkorzadivpn.NewService(paymentOrderRepo, walletRepo, ledgerRepo, auditRepo)
@@ -1053,6 +1060,24 @@ func main() {
 	if complianceCfg.WorkersEnabled {
 		sup.Go("compliance-worker", appcompliance.NewWorker(complianceSvc, complianceCfg.WorkerInterval).Run)
 	}
+
+	// P2P Market: expiration worker (runs every 5 minutes by default)
+	sup.Go("p2p-expiration", func(ctx context.Context) {
+		ticker := time.NewTicker(5 * time.Minute)
+		defer ticker.Stop()
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case <-ticker.C:
+				if cnt, err := p2pSvc.ExpireOrders(ctx, 100); err != nil {
+					log.Printf("p2p expiration error: %v", err)
+				} else if cnt > 0 {
+					log.Printf("p2p: %d orden(es) expirada(s) y escrow devuelto", cnt)
+				}
+			}
+		}
+	})
 	log.Printf("recovery: worker iniciado (enabled=%v intervalo=%s — detección siempre activa)",
 		recoveryCfg.Enabled, recoveryCfg.PollInterval)
 
@@ -1149,6 +1174,7 @@ func main() {
 		Crypto:             handlers.NewCryptoHandler(cryptoService),
 		Security:           handlers.NewSecurityHandler(securitySvc),
 		Compliance:         handlers.NewComplianceHandler(complianceSvc, complianceRolesFn),
+		P2P:                p2phandler.New(p2pSvc),
 	}
 
 	cfg := router.Config{

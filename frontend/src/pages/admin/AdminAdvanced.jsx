@@ -15,6 +15,7 @@ const sections = [
   ['hot-wallet', 'Hot Wallet'],
   ['treasury', 'Tesorería'],
   ['gas', 'Gas Station'],
+  ['p2p', 'P2P'],
   ['security', 'Seguridad'],
 ];
 
@@ -24,6 +25,7 @@ const titles = {
   'hot-wallet': 'Hot Wallet',
   treasury: 'Políticas de tesorería',
   gas: 'Gas Station',
+  p2p: 'Mercado P2P',
   security: 'Centro de seguridad',
 };
 
@@ -170,6 +172,13 @@ export default function AdminAdvanced() {
         result.items = arr(r.data, 'items');
       } else if (section === 'gas') {
         result.items = [];
+      } else if (section === 'p2p') {
+        const [ordersRes, offersRes] = await Promise.all([
+          request('get', '/api/admin/p2p/orders?limit=100&offset=0', undefined, true),
+          request('get', '/api/admin/p2p/offers?limit=100&offset=0', undefined, true),
+        ]);
+        result.orders = Array.isArray(ordersRes.data) ? ordersRes.data : [];
+        result.offers = Array.isArray(offersRes.data) ? offersRes.data : [];
       } else {
         const [f, p, ev] = await Promise.all([
           request('get', '/api/admin/security/freezes', undefined, true),
@@ -220,6 +229,39 @@ export default function AdminAdvanced() {
         action, reason: why.trim(),
       }, true);
     }, 'Solicitud enviada al servidor.');
+  };
+
+  const resolveP2PDispute = (order) => {
+    const action = window.prompt('Acción: "release" (liberar al comprador) o "refund" (devolver al vendedor)', 'release');
+    if (!['release', 'refund'].includes(action)) {
+      setError('Acción no válida. Usa "release" o "refund".');
+      return;
+    }
+    const why = window.prompt('Motivo de la resolución (10–500 caracteres):');
+    if (!why || why.trim().length < 10 || why.trim().length > 500) {
+      setError('El motivo debe tener entre 10 y 500 caracteres.');
+      return;
+    }
+    if (!confirm(`Confirmas "${action}" para la orden ${order.id}? Esta operación mueve fondos en escrow.`)) return;
+    run(async () => {
+      await request('post', `/api/admin/p2p/orders/${encodeURIComponent(order.id)}/resolve`, {
+        action, reason: why.trim(),
+      }, true);
+    }, 'Disputa P2P resuelta.');
+  };
+
+  const suspendP2POffer = (offer) => {
+    const why = window.prompt('Motivo de la suspensión (5–500 caracteres):');
+    if (!why || why.trim().length < 5 || why.trim().length > 500) {
+      setError('El motivo debe tener entre 5 y 500 caracteres.');
+      return;
+    }
+    if (!confirm(`Suspender la oferta ${offer.id}? Se cancelará y no podrá recibir nuevas órdenes.`)) return;
+    run(async () => {
+      await request('post', `/api/admin/p2p/offers/${encodeURIComponent(offer.id)}/suspend`, {
+        reason: why.trim(),
+      }, true);
+    }, 'Oferta P2P suspendida.');
   };
 
   const changeWalletStatus = (wallet) => {
@@ -556,6 +598,36 @@ export default function AdminAdvanced() {
               </form>
             </section>
           </div>}
+
+          {section === 'p2p' && <>
+            <div className="admin-welcome"><div><span className="admin-eyebrow">MERCADO P2P</span><h2>Órdenes y ofertas</h2><p>Las resoluciones de disputa mueven fondos en escrow. Verifica la orden antes de actuar.</p></div><div className="admin-welcome-icon"><Activity size={24} /></div></div>
+            <section className="admin-panel">
+              <div className="admin-panel-heading"><div><h2>Órdenes</h2><p>Últimas 100 órdenes, nuevas primero.</p></div><span className="admin-count">{(data.orders || []).length} registros</span></div>
+              <Table columns={[
+                {label:'ID',render:r=><code title={r.id}>{short(r.id, 12)}</code>},
+                {label:'Par',render:r=>`${r.asset_code || '—'} / ${r.fiat_currency || '—'}`},
+                {label:'Cantidad',key:'amount'},
+                {label:'Estado',render:r=><span className={`admin-status ${/released/.test(r.status) ? 'success' : /cancel|expired/.test(r.status) ? 'danger' : ''}`}>{r.status || '—'}</span>},
+                {label:'Comprador',render:r=><code title={r.buyer_id}>{short(r.buyer_id, 10)}</code>},
+                {label:'Vendedor',render:r=><code title={r.seller_id}>{short(r.seller_id, 10)}</code>},
+                {label:'Creada',render:r=>r.created_at ? new Date(r.created_at).toLocaleString() : '—'},
+                {label:'Acciones',render:r=>r.status === 'disputed' ? <div className="aa-actions"><button disabled={busy} onClick={()=>resolveP2PDispute(r)}>Resolver disputa</button></div> : '—'},
+              ]} rows={data.orders || []} empty="No hay órdenes P2P." />
+            </section>
+            <section className="admin-panel">
+              <div className="admin-panel-heading"><div><h2>Ofertas</h2><p>Incluye ofertas activas, pausadas y canceladas.</p></div><span className="admin-count">{(data.offers || []).length} registros</span></div>
+              <Table columns={[
+                {label:'ID',render:r=><code title={r.id}>{short(r.id, 12)}</code>},
+                {label:'Usuario',render:r=><code title={r.user_id}>{short(r.user_id, 10)}</code>},
+                {label:'Par',render:r=>`${r.asset_code || '—'} / ${r.fiat_currency || '—'}`},
+                {label:'Lado',key:'side'},
+                {label:'Precio',key:'price_per_unit'},
+                {label:'Disponible',render:r=>`${r.available_amount} / ${r.total_amount}`},
+                {label:'Estado',render:r=><span className={`admin-status ${r.status === 'active' ? 'success' : r.status === 'cancelled' ? 'danger' : 'neutral'}`}>{r.status || '—'}</span>},
+                {label:'Acciones',render:r=>(r.status === 'active' || r.status === 'paused') ? <div className="aa-actions"><button disabled={busy} onClick={()=>suspendP2POffer(r)}>Suspender</button></div> : '—'},
+              ]} rows={data.offers || []} empty="No hay ofertas P2P." />
+            </section>
+          </>}
 
           {section === 'security' && <>
             <div className="admin-welcome"><div><span className="admin-eyebrow">PROTECCIÓN OPERATIVA</span><h2>Centro de seguridad</h2><p>Las congelaciones afectan operaciones reales. Usa un motivo claro y verifica el alcance.</p></div><div className="admin-welcome-icon"><ShieldCheck size={24} /></div></div>

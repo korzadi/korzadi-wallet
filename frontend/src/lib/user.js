@@ -5,7 +5,7 @@ export function getUser() {
   const email = u.email || '';
   const name = [u.first_name, u.last_name].filter(Boolean).join(' ') || (email ? email.split('@')[0] : 'Mi cuenta');
   const initials = name.split(/\s+/).filter(Boolean).slice(0, 2).map((p) => p[0].toUpperCase()).join('') || 'K';
-  return { name, email, initials };
+  return { id: u.id || '', name, email, initials };
 }
 
 export const NETWORKS = {

@@ -94,4 +94,63 @@ export const walletApi = {
   // Affiliate
   affiliate: () =>
     api.get('/api/affiliate'),
+
+  // P2P Market
+  p2pOffers: (params = {}) =>
+    api.get('/api/p2p/offers', { params }),
+
+  p2pGetOffer: (id) =>
+    api.get(`/api/p2p/offers/${id}`),
+
+  p2pMyOffers: () =>
+    api.get('/api/p2p/offers/mine'),
+
+  p2pCreateOffer: (data) =>
+    api.post('/api/p2p/offers', data, {
+      headers: { 'Idempotency-Key': idempotencyKey() },
+    }),
+
+  p2pUpdateOffer: (id, data) =>
+    api.patch(`/api/p2p/offers/${id}`, data, {
+      headers: { 'Idempotency-Key': idempotencyKey() },
+    }),
+
+  p2pMyOrders: () =>
+    api.get('/api/p2p/orders'),
+
+  p2pCreateOrder: (data) =>
+    api.post('/api/p2p/orders', data, {
+      headers: { 'Idempotency-Key': idempotencyKey() },
+    }),
+
+  p2pGetOrder: (id) =>
+    api.get(`/api/p2p/orders/${id}`),
+
+  p2pMarkPaid: (id) =>
+    api.post(`/api/p2p/orders/${id}/pay`, {}, {
+      headers: { 'Idempotency-Key': idempotencyKey() },
+    }),
+
+  p2pRelease: (id) =>
+    api.post(`/api/p2p/orders/${id}/release`, {}, {
+      headers: { 'Idempotency-Key': idempotencyKey() },
+    }),
+
+  p2pCancel: (id) =>
+    api.post(`/api/p2p/orders/${id}/cancel`, {}, {
+      headers: { 'Idempotency-Key': idempotencyKey() },
+    }),
+
+  p2pOpenDispute: (id, data) =>
+    api.post(`/api/p2p/orders/${id}/dispute`, data, {
+      headers: { 'Idempotency-Key': idempotencyKey() },
+    }),
+
+  p2pMessages: (id) =>
+    api.get(`/api/p2p/orders/${id}/messages`),
+
+  p2pSendMessage: (id, message) =>
+    api.post(`/api/p2p/orders/${id}/messages`, { message }, {
+      headers: { 'Idempotency-Key': idempotencyKey() },
+    }),
 };

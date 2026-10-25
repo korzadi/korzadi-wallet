@@ -1,10 +1,11 @@
-import { Bell, ChevronLeft, Home, WalletCards, ArrowLeftRight, UserRound } from 'lucide-react';
+import { Bell, ChevronLeft, Home, WalletCards, ArrowLeftRight, UserRound, Handshake } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { getUser } from '../lib/user';
 
 const nav = [
   { to: '/dashboard', label: 'Inicio', icon: Home },
   { to: '/assets', label: 'Activos', icon: WalletCards },
+  { to: '/p2p', label: 'P2P', icon: Handshake },
   { to: '/transactions', label: 'Transacciones', icon: ArrowLeftRight },
   { to: '/profile', label: 'Perfil', icon: UserRound },
 ];

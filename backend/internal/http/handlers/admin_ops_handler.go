@@ -55,13 +55,13 @@ type HotBalanceReader func(ctx context.Context, network, address string) (usdtBa
 // políticas. Se monta SOLO bajo super_admin + 2FA (ver router.RegisterAdminOpsRoutes)
 // y toda acción —exitosa o rechazada— queda en la auditoría.
 type AdminOpsHandler struct {
-	withdrawals    withdrawalReviewer
-	custody        custodyAdmin
-	treasury       treasuryAdmin
-	gasPolicies    gasPolicyAdmin
-	audit          domain.AuditLogger
-	keygen         KeyGenerator
-	allowKeyImport bool
+	withdrawals      withdrawalReviewer
+	custody          custodyAdmin
+	treasury         treasuryAdmin
+	gasPolicies      gasPolicyAdmin
+	audit            domain.AuditLogger
+	keygen           KeyGenerator
+	allowKeyImport   bool
 	hotBalanceReader HotBalanceReader
 }
 
@@ -76,65 +76,65 @@ func (h *AdminOpsHandler) AllowKeyImport(v bool) *AdminOpsHandler { h.allowKeyIm
 
 // WithHotWalletReader conecta la lectura de balances reales de las redes.
 func (h *AdminOpsHandler) WithHotWalletReader(fn HotBalanceReader) *AdminOpsHandler {
-    h.hotBalanceReader = fn
-    return h
+	h.hotBalanceReader = fn
+	return h
 }
 
 // HotWalletBalances devuelve balances on-chain de las wallets HOT activas con USDT.
 func (h *AdminOpsHandler) HotWalletBalances(c *gin.Context) {
-    wt := custody.WalletType("HOT")
-    st := custody.Status("active")
-    wallets, err := h.custody.List(c.Request.Context(), custody.ListFilter{
-        WalletType: &wt,
-        Status: &st,
-    })
-    if err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "hot_wallet_list_failed"})
-        return
-    }
+	wt := custody.WalletType("HOT")
+	st := custody.Status("active")
+	wallets, err := h.custody.List(c.Request.Context(), custody.ListFilter{
+		WalletType: &wt,
+		Status:     &st,
+	})
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "hot_wallet_list_failed"})
+		return
+	}
 
-    items := make([]gin.H, 0, len(wallets))
-    for _, w := range wallets {
-        network := strings.ToUpper(string(w.Network))
-        if w.AssetCode != "USDT" {
-            continue
-        }
-        if network != "TRON" && network != "ETHEREUM" && network != "BSC" {
-            continue
-        }
+	items := make([]gin.H, 0, len(wallets))
+	for _, w := range wallets {
+		network := strings.ToUpper(string(w.Network))
+		if w.AssetCode != "USDT" {
+			continue
+		}
+		if network != "TRON" && network != "ETHEREUM" && network != "BSC" {
+			continue
+		}
 
-        item := gin.H{
-            "id": w.ID,
-            "network": w.Network,
-            "address": w.Address,
-            "asset_code": w.AssetCode,
-            "status": w.Status,
-        }
+		item := gin.H{
+			"id":         w.ID,
+			"network":    w.Network,
+			"address":    w.Address,
+			"asset_code": w.AssetCode,
+			"status":     w.Status,
+		}
 
-        if h.hotBalanceReader == nil {
-            item["error"] = "balance_reader_not_configured"
-        } else {
-            usdt, native, readErr := h.hotBalanceReader(c.Request.Context(), network, w.Address)
-            if readErr != nil {
-                // No fingir un saldo de cero cuando falla el RPC.
-                item["error"] = "onchain_balance_unavailable"
-            } else {
-                item["usdt_balance"] = usdt
-                item["native_balance"] = native
-                switch network {
-                case "TRON":
-                    item["native_asset"] = "TRX"
-                case "ETHEREUM":
-                    item["native_asset"] = "ETH"
-                case "BSC":
-                    item["native_asset"] = "BNB"
-                }
-            }
-        }
-        items = append(items, item)
-    }
+		if h.hotBalanceReader == nil {
+			item["error"] = "balance_reader_not_configured"
+		} else {
+			usdt, native, readErr := h.hotBalanceReader(c.Request.Context(), network, w.Address)
+			if readErr != nil {
+				// No fingir un saldo de cero cuando falla el RPC.
+				item["error"] = "onchain_balance_unavailable"
+			} else {
+				item["usdt_balance"] = usdt
+				item["native_balance"] = native
+				switch network {
+				case "TRON":
+					item["native_asset"] = "TRX"
+				case "ETHEREUM":
+					item["native_asset"] = "ETH"
+				case "BSC":
+					item["native_asset"] = "BNB"
+				}
+			}
+		}
+		items = append(items, item)
+	}
 
-    c.JSON(http.StatusOK, gin.H{"items": items})
+	c.JSON(http.StatusOK, gin.H{"items": items})
 }
 
 const minAdminReason = 5

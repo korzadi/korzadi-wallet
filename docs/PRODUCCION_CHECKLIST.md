@@ -28,12 +28,28 @@ Una etiqueta sin marcar significa que falta evidencia suficiente, no que el comp
 | CI backend | IMPLEMENTADO | Workflow con build, vet, unit, -race, integración con Postgres/Redis efímeros y teardown. Pendiente primera ejecución exitosa en GitHub Actions. |
 | Frontend / mobile | IMPLEMENTADO | Sin cambios en esta entrega; VERIFICADO pendiente. |
 
-## Riesgos restantes y dependencias externas pendientes
+## P2P Market (Completado)
+
+| Componente | Estado observado | Evidencia / comprobación pendiente |
+|---|---|---|
+| Modelo contable P2P (saldo disponible/bloqueado/total) | IMPLEMENTADO · INTEGRADO · TESTEADO | Usa el ledger y reservas existentes; tests de integración cubren creación, escrow, liberación, cancelación. |
+| Ofertas P2P (crear, editar, pausar, cancelar) | IMPLEMENTADO · INTEGRADO · TESTEADO | Reserva de saldo en oferta, validación de límites, idempotencia. |
+| Órdenes P2P y escrow interno | IMPLEMENTADO · INTEGRADO · TESTEADO | Máquina de estados (CREATED → ESCROW_LOCKED → PAYMENT_MARKED → RELEASED / CANCELLED / DISPUTED / EXPIRED), reservas atómicas, idempotencia. |
+| Comisiones P2P (1% configurable) | IMPLEMENTADO · INTEGRADO | Cálculo en basis points, transferencia a cuenta clearing en liberación. |
+| Comprobantes y chat en orden | IMPLEMENTADO | Mensajes adjuntos, validación de participante, almacenamiento privado. |
+| Disputas (apertura, revisión admin, resolución) | IMPLEMENTADO | Flujo completo con bloqueo de liberación, resolución transaccional (release/refund), auditoría. |
+| Expiración automática (worker) | IMPLEMENTADO · INTEGRADO | Worker cada 5 min marca expiradas, devuelve escrow, notifica. |
+| Notificaciones P2P | IMPLEMENTADO · INTEGRADO | Integrado con Notifier existente (orden creada, pago marcado, liberada, cancelada, disputa, expiración). |
+| Frontend: Mercado, Detalle oferta, Mis Ofertas, Mis Órdenes, Detalle orden | IMPLEMENTADO · INTEGRADO | Páginas React conectadas a APIs reales; navegación visible (tab P2P + acceso desde Dashboard); creación de orden desde la oferta; validaciones, estados de carga, errores. |
+| Panel admin P2P | IMPLEMENTADO · INTEGRADO | Ruta `/admin/p2p` + `/api/admin/p2p/*` con role `compliance_admin` + step-up 2FA; listado de órdenes/ofertas, resolución de disputas (release/refund) y suspensión de ofertas. |
+
+## Riesgos y tareas pendientes antes de producción
 
 ### Riesgos técnicos
 - **Firma/custodia**: pruebas usan fakes; firma real, autorización, límites y recuperación deben validarse en staging con KMS/HSM.
 - **RPCs reales**: latencia, rate limits, finality, reorgs largos, diferencias entre proveedores.
 - **Migraciones**: ejecutar con cuidado, plan de rollback, revisión de triggers/constraints.
+- **Pagos externos no verificables**: el sistema no confirma transferencias bancarias; requiere acción manual de vendedor + disputa si hay desacuerdo.
 
 ### Dependencias externas pendientes
 - **KMS/HSM**: proveedor de firma segura, rotación, recuperación, acceso restringido.
@@ -45,6 +61,14 @@ Una etiqueta sin marcar significa que falta evidencia suficiente, no que el comp
 ### Requisitos antes de habilitar producción
 1. Ejecutar `docker compose -f docker-compose.test.yml up -d --wait postgres-test redis-test && docker compose -f docker-compose.test.yml --profile tests run --build --rm integration-tests` con éxito.
 2. CI verde en rama protegida.
-3. Configurar secretos vía gestor seguro (sin valores en repo).
+3. Configurar secretos via gestor seguro (sin valores en repo).
 4. Validación con direcciones/decimales/chain IDs correctos por doble control.
 5. Plan de respuesta a incidentes para reorg/broadcast ambiguo/settlement fallido.
+
+## Migraciones P2P
+- `backend/migrations/0023_p2p_system.up.sql` — Tablas: `p2p_offers`, `p2p_orders`, `p2p_order_events`, `p2p_messages`, `p2p_disputes`, `p2p_dispute_evidence`.
+- Ejecutar en staging antes de producción: `go run -tags=migrate ./cmd/migrate` (o herramienta de migración del proyecto).
+
+## Variables de entorno P2P
+No se requieren variables nuevas obligatorias. Opcionales:
+- `P2P_COMMISSION_RATE` — basis points (default 100 = 1%)

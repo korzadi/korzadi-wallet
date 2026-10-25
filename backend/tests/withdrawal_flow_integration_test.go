@@ -72,8 +72,14 @@ func TestConcurrent_DebitCreditWithdrawal_NoDoubleSpend(t *testing.T) {
 	}
 	ch1 := make(chan res, 1)
 	ch2 := make(chan res, 1)
-	go func() { _, err := ledger.ExecuteTransaction(ctx, domain.TxTypeTransfer, idem1, nil, "t1", nil, entries1); ch1 <- res{err} }()
-	go func() { _, err := ledger.ExecuteTransaction(ctx, domain.TxTypeTransfer, idem2, nil, "t2", nil, entries2); ch2 <- res{err} }()
+	go func() {
+		_, err := ledger.ExecuteTransaction(ctx, domain.TxTypeTransfer, idem1, nil, "t1", nil, entries1)
+		ch1 <- res{err}
+	}()
+	go func() {
+		_, err := ledger.ExecuteTransaction(ctx, domain.TxTypeTransfer, idem2, nil, "t2", nil, entries2)
+		ch2 <- res{err}
+	}()
 	r1 := <-ch1
 	r2 := <-ch2
 	// At least one should succeed if we have enough, but both try to spend from same account concurrently - need to be careful about locking

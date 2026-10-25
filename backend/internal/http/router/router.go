@@ -9,6 +9,7 @@ import (
 	appsecurity "korzadi-wallet/backend/internal/application/security"
 	"korzadi-wallet/backend/internal/application/twofactor"
 	"korzadi-wallet/backend/internal/http/handlers"
+	p2phandler "korzadi-wallet/backend/internal/http/handlers/p2p"
 	"korzadi-wallet/backend/internal/http/middleware"
 	"korzadi-wallet/backend/internal/infrastructure/authjwt"
 )
@@ -37,6 +38,8 @@ type Handlers struct {
 	Compliance *handlers.ComplianceHandler
 	// AdminOps (opcional): operaciones admin sensibles (super_admin + 2FA + auditoría).
 	AdminOps *handlers.AdminOpsHandler
+	// P2P: Peer-to-peer market
+	P2P *p2phandler.Handler
 }
 
 type Config struct {
@@ -273,6 +276,27 @@ func New(h Handlers, cfg Config) *gin.Engine {
 			RegisterComplianceRoutes(api, authed, h.Compliance, cfg.GetRolesForUser, stepUp, integrationLimiter.Middleware())
 		}
 
+		// P2P Market
+		if h.P2P != nil {
+			p2p := authed.Group("/p2p")
+			{
+				p2p.GET("/offers", h.P2P.ListOffers)
+				p2p.POST("/offers", h.P2P.CreateOffer)
+				p2p.GET("/offers/mine", h.P2P.MyOffers)
+				p2p.GET("/offers/:id", h.P2P.GetOffer)
+				p2p.PATCH("/offers/:id", h.P2P.UpdateOffer)
+				p2p.POST("/orders", h.P2P.CreateOrder)
+				p2p.GET("/orders", h.P2P.MyOrders)
+				p2p.GET("/orders/:id", h.P2P.GetOrder)
+				p2p.POST("/orders/:id/pay", h.P2P.MarkPaid)
+				p2p.POST("/orders/:id/release", h.P2P.Release)
+				p2p.POST("/orders/:id/cancel", h.P2P.Cancel)
+				p2p.POST("/orders/:id/dispute", h.P2P.OpenDispute)
+				p2p.GET("/orders/:id/messages", h.P2P.Messages)
+				p2p.POST("/orders/:id/messages", h.P2P.SendMessage)
+			}
+		}
+
 		integrations := api.Group("/integrations")
 		integrations.Use(integrationLimiter.Middleware())
 		{
@@ -281,6 +305,26 @@ func New(h Handlers, cfg Config) *gin.Engine {
 			{
 				vpn.POST("/payment", h.KorzadiVPN.Pay)
 			}
+		}
+	}
+
+	// Admin P2P routes (compliance_admin role required)
+	if h.P2P != nil && h.Compliance != nil {
+		var stepUp gin.HandlerFunc
+		if cfg.TwoFactorSvc != nil {
+			stepUp = handlers.TwoFAVerifyMiddleware(cfg.TwoFactorSvc)
+		}
+		adminP2P := api.Group("/admin/p2p")
+		adminP2P.Use(middleware.RequireRole(cfg.GetRolesForUser, "compliance_admin"))
+		if stepUp != nil {
+			adminP2P.Use(stepUp)
+		}
+		{
+			adminP2P.GET("/orders", h.P2P.AdminListOrders)
+			adminP2P.GET("/orders/:id", h.P2P.AdminGetOrder)
+			adminP2P.POST("/orders/:id/resolve", h.P2P.AdminResolveDispute)
+			adminP2P.GET("/offers", h.P2P.AdminListOffers)
+			adminP2P.POST("/offers/:id/suspend", h.P2P.AdminSuspendOffer)
 		}
 	}
 

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowUpRight, ArrowDownToLine, CreditCard, MoreHorizontal, Eye, EyeOff } from 'lucide-react';
+import { ArrowUpRight, ArrowDownToLine, CreditCard, MoreHorizontal, Eye, EyeOff, Handshake, ChevronRight } from 'lucide-react';
 import api from '../api/client';
 import WalletLayout from '../components/WalletLayout';
 import Coin from '../components/Coin';
@@ -50,6 +50,17 @@ export default function Dashboard() {
           <Link key={to} to={to}><span><Icon size={22} /></span>{label}</Link>
         ))}
       </div>
+
+      <Link to="/p2p" className="kz-card" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 12, textDecoration: 'none', color: 'inherit' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <span style={{ display: 'grid', placeItems: 'center', width: 40, height: 40, borderRadius: 12, background: '#10264a' }}><Handshake size={20} /></span>
+          <div>
+            <strong>Mercado P2P</strong>
+            <div className="kz-hint">Compra y vende cripto con otros usuarios</div>
+          </div>
+        </div>
+        <ChevronRight size={18} color="#888" />
+      </Link>
 
       <div className="kz-sec"><h2>Tus activos</h2><Link to="/assets">Ver todos ›</Link></div>
       <div>

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import {
-  Activity, ArrowLeft, CheckCircle2, Clock3, LayoutDashboard,
+  Activity, ArrowLeft, CheckCircle2, Clock3, Handshake, LayoutDashboard,
   LogOut, Menu, Moon, RefreshCw, ShieldCheck, Sun, Users,
   Wallet, Ban, FileText, AlertCircle
 } from 'lucide-react';
@@ -17,6 +17,7 @@ const routes = [
   { path: '/admin/custody', label: 'Custodia', icon: ShieldCheck },
   { path: '/admin/treasury', label: 'Tesorería', icon: Activity },
   { path: '/admin/gas', label: 'Gas Station', icon: CheckCircle2 },
+  { path: '/admin/p2p', label: 'P2P', icon: Handshake },
   { path: '/admin/security', label: 'Seguridad', icon: ShieldCheck },
   { path: '/admin/profile', label: 'Perfil', icon: Users },
   { path: '/admin/audit', label: 'Auditoría', icon: FileText },
@@ -30,6 +31,7 @@ const titles = {
   '/admin/custody': 'Custodia',
   '/admin/treasury': 'Tesorería',
   '/admin/gas': 'Gas Station',
+  '/admin/p2p': 'Mercado P2P',
   '/admin/security': 'Seguridad',
   '/admin/profile': 'Perfil del administrador',
   '/admin/audit': 'Registro de auditoría',
