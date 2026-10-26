@@ -176,6 +176,7 @@ func (h *WalletHandler) CreateTransfer(c *gin.Context) {
 		// Bloque 8: only consulted when the amount crosses this
 		// operation's step-up threshold; harmless (ignored) otherwise.
 		TwoFACode: c.GetHeader("X-2FA-Code"),
+		PinCode:    c.GetHeader("X-PIN-Code"),
 	}
 	// recipient is either a verified email or a raw internal user ID —
 	// never trust it as an arbitrary field name, resolve strictly one way

@@ -25,8 +25,14 @@ func createTestUserWithBalance(t *testing.T, ctx context.Context, pool *pgxpool.
 		t.Fatalf("wallet: %v", err)
 	}
 	accountID := uuid.New()
-	if _, err := pool.Exec(ctx, `INSERT INTO wallet_accounts(id,wallet_id,asset_code,account_type,balance_cache,locked_balance) VALUES ($1,$2,$3,'user',$4,0)`, accountID, walletID, asset, amount.String()); err != nil {
+	if _, err := pool.Exec(ctx, `INSERT INTO wallet_accounts(id,wallet_id,asset_code,account_type) VALUES ($1,$2,$3,'user')`, accountID, walletID, asset); err != nil {
 		t.Fatalf("account: %v", err)
+	}
+	if amount.IsPositive() {
+		if !amount.IsInteger() {
+			t.Fatalf("test balance %s must be an integer amount", amount)
+		}
+		testAdjustment(t, pool, postgres.NewLedgerRepository(pool), accountID, amount.IntPart())
 	}
 	t.Cleanup(func() {
 		p := testPool(t)
@@ -99,7 +105,7 @@ func TestP2P_CreateOrder_ReservesEscrow(t *testing.T) {
 	defer pool.Close()
 
 	seller := createTestUserWithBalance(t, ctx, pool, "USDT", decimal.NewFromInt(1000))
-	buyer := createTestUserWithBalance(t, ctx, pool, "ARS", decimal.NewFromInt(0))
+	buyer := createTestUserWithBalance(t, ctx, pool, "USD", decimal.NewFromInt(0))
 
 	repo := p2prepo.New(pool)
 	ledger := postgres.NewLedgerRepository(pool)
@@ -142,7 +148,7 @@ func TestP2P_Release_TransfersFunds(t *testing.T) {
 	defer pool.Close()
 
 	seller := createTestUserWithBalance(t, ctx, pool, "USDT", decimal.NewFromInt(1000))
-	buyer := createTestUserWithBalance(t, ctx, pool, "ARS", decimal.NewFromInt(0))
+	buyer := createTestUserWithBalance(t, ctx, pool, "USD", decimal.NewFromInt(0))
 
 	repo := p2prepo.New(pool)
 	ledger := postgres.NewLedgerRepository(pool)
@@ -189,7 +195,7 @@ func TestP2P_Cancel_ReturnsEscrow(t *testing.T) {
 	defer pool.Close()
 
 	seller := createTestUserWithBalance(t, ctx, pool, "USDT", decimal.NewFromInt(1000))
-	buyer := createTestUserWithBalance(t, ctx, pool, "ARS", decimal.NewFromInt(0))
+	buyer := createTestUserWithBalance(t, ctx, pool, "USD", decimal.NewFromInt(0))
 
 	repo := p2prepo.New(pool)
 	ledger := postgres.NewLedgerRepository(pool)

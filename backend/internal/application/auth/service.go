@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -15,15 +16,25 @@ import (
 const maxFailedLoginAttempts = 5
 const lockDuration = 15 * time.Minute
 
+// TwoFactorGate is the subset of twofactor.Service that the login flow needs.
+// Status must fail closed: an error means the login cannot be completed.
+type TwoFactorGate interface {
+	Status(ctx context.Context, userID uuid.UUID) (enabled bool, recoveryRemaining int, err error)
+	Verify(ctx context.Context, userID uuid.UUID, code string) (bool, error)
+}
+
 type Service struct {
-	users      domain.UserRepository
-	sessions   domain.SessionRepository
-	wallets    domain.WalletRepository
-	jwtMgr     *authjwt.Manager
-	audit      domain.AuditLogger
-	notifier   domain.Notifier
-	refreshTTL time.Duration
-	verifier   EmailVerifier // opcional (Fase C)
+	users        domain.UserRepository
+	sessions     domain.SessionRepository
+	wallets      domain.WalletRepository
+	jwtMgr       *authjwt.Manager
+	audit        domain.AuditLogger
+	notifier     domain.Notifier
+	refreshTTL   time.Duration
+	verifier     EmailVerifier // opcional (Fase C)
+	twoFactor    TwoFactorGate
+	challenges   LoginChallengeRepository
+	challengeTTL time.Duration
 }
 
 // EmailVerifier envía el enlace de verificación de correo a un usuario recién
@@ -42,7 +53,20 @@ func NewService(users domain.UserRepository, sessions domain.SessionRepository,
 	wallets domain.WalletRepository, jwtMgr *authjwt.Manager, audit domain.AuditLogger,
 	notifier domain.Notifier, refreshTTL time.Duration) *Service {
 	return &Service{users: users, sessions: sessions, wallets: wallets, jwtMgr: jwtMgr,
-		audit: audit, notifier: notifier, refreshTTL: refreshTTL}
+		audit: audit, notifier: notifier, refreshTTL: refreshTTL, challengeTTL: LoginChallengeTTL}
+}
+
+// WithTwoFactor wires the mandatory second-factor gate. Without it Login and
+// Refresh fail closed, so a deployment cannot accidentally skip 2FA.
+func (s *Service) WithTwoFactor(g TwoFactorGate) *Service {
+	s.twoFactor = g
+	return s
+}
+
+// WithLoginChallenges wires the persistent one-time challenge store.
+func (s *Service) WithLoginChallenges(r LoginChallengeRepository) *Service {
+	s.challenges = r
+	return s
 }
 
 type RegisterInput struct {
@@ -58,6 +82,13 @@ type AuthResult struct {
 	AccessToken  string
 	RefreshToken string
 	ExpiresAt    time.Time
+
+	// TwoFactorRequired is true when the password was correct but the account
+	// has 2FA enabled. In that case AccessToken/RefreshToken are empty and
+	// only TwoFactorToken may be used, exclusively at POST /api/auth/login/2fa.
+	TwoFactorRequired  bool
+	TwoFactorToken     string
+	TwoFactorExpiresAt time.Time
 }
 
 func (s *Service) Register(ctx context.Context, in RegisterInput, ip, userAgent string) (*AuthResult, error) {
@@ -105,7 +136,7 @@ func (s *Service) Register(ctx context.Context, in RegisterInput, ip, userAgent 
 		}
 	}
 
-	return s.issueTokens(ctx, user, ip, userAgent)
+	return s.issueTokens(ctx, user, ip, userAgent, false)
 }
 
 func (s *Service) Login(ctx context.Context, email, password, ip, userAgent string) (*AuthResult, error) {
@@ -137,15 +168,124 @@ func (s *Service) Login(ctx context.Context, email, password, ip, userAgent stri
 
 	_ = s.users.ResetFailedLogin(ctx, user.ID)
 
-	if s.audit != nil {
-		_ = s.audit.Log(ctx, &user.ID, "user", "login_success", "user", &user.ID, nil, ip)
+	// AUDIT FIX (CRITICAL): a user with 2FA used to receive a full session as
+	// soon as the password was valid. Check the 2FA state server-side BEFORE
+	// issuing anything, and fail closed if the state cannot be read.
+	if s.twoFactor == nil {
+		return nil, ErrTwoFactorUnavailable
 	}
-	if s.notifier != nil {
-		_ = s.notifier.Notify(ctx, user.ID, "new_login",
-			"Nuevo inicio de sesión", fmt.Sprintf("Se inició sesión en tu cuenta desde la IP %s.", ip))
+	enabled, _, err := s.twoFactor.Status(ctx, user.ID)
+	if err != nil {
+		return nil, ErrTwoFactorUnavailable
+	}
+	if enabled {
+		return s.issueLoginChallenge(ctx, user, ip, userAgent)
 	}
 
-	return s.issueTokens(ctx, user, ip, userAgent)
+	s.recordLoginSuccess(ctx, user.ID, ip)
+	return s.issueTokens(ctx, user, ip, userAgent, false)
+}
+
+// issueLoginChallenge creates a short-lived, single-use challenge. No access
+// token, refresh token or session row is created here.
+func (s *Service) issueLoginChallenge(ctx context.Context, user *domain.User, ip, userAgent string) (*AuthResult, error) {
+	if s.challenges == nil {
+		return nil, ErrTwoFactorUnavailable
+	}
+	plain, challenge, err := newLoginChallenge(user.ID, ip, userAgent, time.Now())
+	if err != nil {
+		return nil, err
+	}
+	if s.challengeTTL > 0 {
+		challenge.ExpiresAt = time.Now().Add(s.challengeTTL)
+	}
+	if err := s.challenges.Create(ctx, challenge); err != nil {
+		return nil, err
+	}
+	if s.audit != nil {
+		_ = s.audit.Log(ctx, &user.ID, "user", "login_2fa_challenge_issued", "user", &user.ID, nil, ip)
+	}
+	return &AuthResult{
+		User:               user,
+		TwoFactorRequired:  true,
+		TwoFactorToken:     plain,
+		TwoFactorExpiresAt: challenge.ExpiresAt,
+	}, nil
+}
+
+// CompleteTwoFactorLogin verifies the second factor against a challenge and
+// only then mints the normal session. The challenge is consumed atomically,
+// so a repeated/concurrent completion can win at most once.
+func (s *Service) CompleteTwoFactorLogin(ctx context.Context, challengeToken, code, ip, userAgent string) (*AuthResult, error) {
+	if s.twoFactor == nil || s.challenges == nil {
+		return nil, ErrTwoFactorUnavailable
+	}
+	challengeToken = strings.TrimSpace(challengeToken)
+	if challengeToken == "" {
+		return nil, ErrInvalidLoginChallenge
+	}
+
+	ch, err := s.challenges.FindByTokenHash(ctx, hashLoginToken(challengeToken))
+	if err != nil {
+		return nil, err
+	}
+	if ch == nil || ch.Purpose != LoginChallengePurpose || ch.Consumed ||
+		ch.Attempts >= ch.MaxAttempts {
+		return nil, ErrInvalidLoginChallenge
+	}
+	if !time.Now().Before(ch.ExpiresAt) {
+		return nil, ErrLoginChallengeExpired
+	}
+
+	user, err := s.users.FindByID(ctx, ch.UserID)
+	if err != nil || user == nil {
+		return nil, domain.ErrUserNotFound
+	}
+	if user.Status == domain.UserStatusBlocked || user.Status == domain.UserStatusDeleted {
+		_, _ = s.challenges.Consume(ctx, ch.ID)
+		return nil, domain.ErrAccountLocked
+	}
+
+	ok, err := s.twoFactor.Verify(ctx, user.ID, strings.TrimSpace(code))
+	if err != nil {
+		return nil, err
+	}
+	if !ok {
+		attempts, ferr := s.challenges.RegisterFailure(ctx, ch.ID)
+		if ferr != nil {
+			return nil, ferr
+		}
+		if attempts == 0 {
+			return nil, ErrInvalidLoginChallenge
+		}
+		if s.audit != nil {
+			_ = s.audit.Log(ctx, &user.ID, "user", "login_2fa_failed", "user", &user.ID, nil, ip)
+		}
+		return nil, domain.ErrInvalid2FACode
+	}
+
+	// The code was valid, but only one request may turn this challenge into a
+	// session. If another concurrent request already consumed it, refuse.
+	consumed, err := s.challenges.Consume(ctx, ch.ID)
+	if err != nil {
+		return nil, err
+	}
+	if !consumed {
+		return nil, ErrInvalidLoginChallenge
+	}
+
+	s.recordLoginSuccess(ctx, user.ID, ip)
+	return s.issueTokens(ctx, user, ip, userAgent, true)
+}
+
+func (s *Service) recordLoginSuccess(ctx context.Context, userID uuid.UUID, ip string) {
+	if s.audit != nil {
+		_ = s.audit.Log(ctx, &userID, "user", "login_success", "user", &userID, nil, ip)
+	}
+	if s.notifier != nil {
+		_ = s.notifier.Notify(ctx, userID, "new_login",
+			"Nuevo inicio de sesión", fmt.Sprintf("Se inició sesión en tu cuenta desde la IP %s.", ip))
+	}
 }
 
 func (s *Service) Refresh(ctx context.Context, refreshTokenPlain, ip, userAgent string) (*AuthResult, error) {
@@ -186,6 +326,25 @@ func (s *Service) Refresh(ctx context.Context, refreshTokenPlain, ip, userAgent 
 		return nil, domain.ErrAccountLocked
 	}
 
+	// AUDIT FIX (CRITICAL): if 2FA is enabled, only sessions created AFTER a
+	// successful second-factor check may rotate. Existing pre-2FA sessions are
+	// revoked instead of silently bypassing the requirement forever. A failure
+	// to read the 2FA state fails closed (no refresh).
+	if s.twoFactor == nil {
+		return nil, ErrTwoFactorUnavailable
+	}
+	enabled, _, err := s.twoFactor.Status(ctx, user.ID)
+	if err != nil {
+		return nil, ErrTwoFactorUnavailable
+	}
+	if enabled && !session.TwoFactorVerified {
+		_ = s.sessions.RevokeFamily(ctx, session.FamilyID)
+		if s.audit != nil {
+			_ = s.audit.Log(ctx, &user.ID, "user", "refresh_denied_2fa_not_verified", "session", &session.ID, nil, ip)
+		}
+		return nil, domain.Err2FARequired
+	}
+
 	// AUDIT FIX: atomic rotation when the repository supports it (the postgres
 	// one does). Losing the race means the token was already used: treat it as
 	// reuse and kill the family, exactly like the Revoked branch above.
@@ -204,7 +363,7 @@ func (s *Service) Refresh(ctx context.Context, refreshTokenPlain, ip, userAgent 
 		_ = s.sessions.Revoke(ctx, session.ID)
 	}
 
-	return s.issueTokensWithFamily(ctx, user, session.FamilyID, ip, userAgent)
+	return s.issueTokensWithFamily(ctx, user, session.FamilyID, ip, userAgent, session.TwoFactorVerified)
 }
 
 func (s *Service) Logout(ctx context.Context, refreshTokenPlain string) error {
@@ -216,11 +375,11 @@ func (s *Service) Logout(ctx context.Context, refreshTokenPlain string) error {
 	return s.sessions.RevokeFamily(ctx, session.FamilyID)
 }
 
-func (s *Service) issueTokens(ctx context.Context, user *domain.User, ip, userAgent string) (*AuthResult, error) {
-	return s.issueTokensWithFamily(ctx, user, uuid.New(), ip, userAgent)
+func (s *Service) issueTokens(ctx context.Context, user *domain.User, ip, userAgent string, twoFactorVerified bool) (*AuthResult, error) {
+	return s.issueTokensWithFamily(ctx, user, uuid.New(), ip, userAgent, twoFactorVerified)
 }
 
-func (s *Service) issueTokensWithFamily(ctx context.Context, user *domain.User, familyID uuid.UUID, ip, userAgent string) (*AuthResult, error) {
+func (s *Service) issueTokensWithFamily(ctx context.Context, user *domain.User, familyID uuid.UUID, ip, userAgent string, twoFactorVerified bool) (*AuthResult, error) {
 	access, exp, err := s.jwtMgr.GenerateAccessToken(user.ID)
 	if err != nil {
 		return nil, err
@@ -232,13 +391,14 @@ func (s *Service) issueTokensWithFamily(ctx context.Context, user *domain.User, 
 	}
 
 	session := &domain.Session{
-		ID:               uuid.New(),
-		UserID:           user.ID,
-		RefreshTokenHash: refreshHash,
-		FamilyID:         familyID,
-		UserAgent:        userAgent,
-		IPAddress:        ip,
-		ExpiresAt:        time.Now().Add(s.refreshTTL),
+		ID:                uuid.New(),
+		UserID:            user.ID,
+		RefreshTokenHash:  refreshHash,
+		FamilyID:          familyID,
+		UserAgent:         userAgent,
+		IPAddress:         ip,
+		ExpiresAt:         time.Now().Add(s.refreshTTL),
+		TwoFactorVerified: twoFactorVerified,
 	}
 	if err := s.sessions.Create(ctx, session); err != nil {
 		return nil, err

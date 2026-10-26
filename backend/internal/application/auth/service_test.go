@@ -123,7 +123,8 @@ func TestRegisterLoginRefreshAndLogout(t *testing.T) {
 	ctx := context.Background()
 	repos := newAuthMemory()
 	manager := authjwt.NewManager("test-only-secret-with-sufficient-length", time.Minute, time.Hour)
-	svc := NewService(&authUserRepo{repos}, &authSessionRepo{repos}, &authWalletRepo{repos}, manager, nil, nil, time.Hour)
+	svc := NewService(&authUserRepo{repos}, &authSessionRepo{repos}, &authWalletRepo{repos}, manager, nil, nil, time.Hour).
+		WithTwoFactor(&fakeTwoFactor{}).WithLoginChallenges(newMemChallenges())
 	registered, err := svc.Register(ctx, RegisterInput{Email: "unit@example.test", Password: "a-strong-test-password", FirstName: "Unit", LastName: "Test"}, "127.0.0.1", "test")
 	if err != nil {
 		t.Fatal(err)
@@ -164,7 +165,8 @@ func TestLoginFailureDoesNotIssueSession(t *testing.T) {
 	if err := (&authUserRepo{repos}).Create(ctx, u); err != nil {
 		t.Fatal(err)
 	}
-	svc := NewService(&authUserRepo{repos}, &authSessionRepo{repos}, &authWalletRepo{repos}, authjwt.NewManager("test-only-secret", time.Minute, time.Hour), nil, nil, time.Hour)
+	svc := NewService(&authUserRepo{repos}, &authSessionRepo{repos}, &authWalletRepo{repos}, authjwt.NewManager("test-only-secret", time.Minute, time.Hour), nil, nil, time.Hour).
+		WithTwoFactor(&fakeTwoFactor{}).WithLoginChallenges(newMemChallenges())
 	if _, err := svc.Login(ctx, u.Email, "wrong-password", "", ""); err != domain.ErrInvalidCredentials {
 		t.Fatalf("wrong password err=%v", err)
 	}

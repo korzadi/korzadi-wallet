@@ -62,6 +62,38 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		respondDomainError(c, err)
 		return
 	}
+	if result.TwoFactorRequired {
+		// No access/refresh token here: only the short-lived challenge.
+		c.JSON(http.StatusOK, gin.H{
+			"two_factor_required": true,
+			"challenge_token":     result.TwoFactorToken,
+			"expires_at":          result.TwoFactorExpiresAt,
+		})
+		return
+	}
+	c.JSON(http.StatusOK, authResponse(result))
+}
+
+type loginTwoFactorRequest struct {
+	ChallengeToken string `json:"challenge_token" binding:"required,max=256"`
+	Code           string `json:"code" binding:"required,max=32"`
+}
+
+// LoginTwoFactor completes a pending 2FA login. It is deliberately separate
+// from /security/2fa/confirm (which activates 2FA in an already-authenticated
+// session) and never accepts a normal access token or refresh token.
+func (h *AuthHandler) LoginTwoFactor(c *gin.Context) {
+	var req loginTwoFactorRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid_request", "message": "desafío y código 2FA requeridos"})
+		return
+	}
+	result, err := h.service.CompleteTwoFactorLogin(
+		c.Request.Context(), req.ChallengeToken, req.Code, c.ClientIP(), c.Request.UserAgent())
+	if err != nil {
+		respondDomainError(c, err)
+		return
+	}
 	c.JSON(http.StatusOK, authResponse(result))
 }
 
@@ -118,10 +150,13 @@ func respondDomainError(c *gin.Context, err error) {
 	if de, ok := err.(*domain.DomainError); ok {
 		status := http.StatusBadRequest
 		switch de.Code {
-		case "invalid_credentials", "invalid_refresh", "refresh_expired":
+		case "invalid_credentials", "invalid_refresh", "refresh_expired",
+			"invalid_2fa_challenge", "2fa_challenge_expired", "2fa_required":
 			status = http.StatusUnauthorized
 		case "account_locked", "refresh_reuse_detected", "invalid_2fa_code":
 			status = http.StatusForbidden
+		case "2fa_unavailable":
+			status = http.StatusServiceUnavailable
 		case "idempotency_key_reused", "idempotency_payload_mismatch":
 			status = http.StatusConflict
 		case "insufficient_funds":

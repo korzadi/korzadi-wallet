@@ -36,6 +36,7 @@ import (
 	appreconciliation "korzadi-wallet/backend/internal/application/reconciliation"
 	apprecovery "korzadi-wallet/backend/internal/application/recovery"
 	appsecurity "korzadi-wallet/backend/internal/application/security"
+	appprefs "korzadi-wallet/backend/internal/application/security/prefs"
 	appsweep "korzadi-wallet/backend/internal/application/sweep"
 	apptransfer "korzadi-wallet/backend/internal/application/transfer"
 	apptreasury "korzadi-wallet/backend/internal/application/treasury"
@@ -102,6 +103,9 @@ func main() {
 		appsecurity.RequiredSecret{Name: "JWT_SECRET", Value: jwtSecret, MinLength: 16},
 		appsecurity.RequiredSecret{Name: "TWO_FACTOR_ENCRYPTION_KEY", Value: twoFactorEncryptionKey, MinLength: 16},
 		appsecurity.RequiredSecret{Name: "DATABASE_URL", Value: dbURL},
+		// A1 FIX: validar secretos adicionales que pueden ser críticos y faltaban
+		appsecurity.RequiredSecret{Name: "CUSTODY_ENCRYPTION_KEYS", Value: os.Getenv("CUSTODY_ENCRYPTION_KEYS")},
+		appsecurity.RequiredSecret{Name: "REDIS_PASSWORD", Value: redisPassword},
 	); err != nil {
 		log.Fatalf("configuración de seguridad inválida: %v", err)
 	}
@@ -261,6 +265,10 @@ func main() {
 	transferService := apptransfer.NewService(walletRepo, ledgerRepo, transferRepo, ledgerAssetRepo, userRepo, auditRepo, notificationRepo)
 	depositService := appdeposit.NewService(walletRepo, depositRepo, ledgerRepo, paymentProvider, auditRepo)
 	twoFactorService := apptwofactor.NewService(twoFactorRepo, "Korzadi Wallet", encryptor)
+	// Login must fail closed without the 2FA gate and its one-time challenge
+	// store: a password alone can never mint a session for a 2FA account.
+	authService.WithTwoFactor(twoFactorService).
+		WithLoginChallenges(postgres.NewLoginChallengeRepository(pool))
 
 	// ---- Fase C: verificación de email, restablecimiento y cambio de contraseña ----
 	// SMTP_HOST/SMTP_PORT/SMTP_USERNAME/SMTP_PASSWORD/SMTP_FROM (+ APP_BASE_URL con la
@@ -295,6 +303,10 @@ func main() {
 	authService.WithEmailVerifier(accountService.BackgroundVerifier())
 	// Fase E: avisos al titular (bloqueo de 2FA, uso de códigos de recuperación, cambios).
 	twoFactorService.WithAlerter(accountService)
+
+	// ---- Preferencias de seguridad de usuario (PIN, bloqueo, biometría, alertas) ----
+	prefsRepo := postgres.NewPrefsRepository(pool)
+	prefsSvc := appprefs.NewService(prefsRepo, accountService)
 
 	// ---- Bloque 8: Security / Operational Controls / Limits ----
 	// Reuses userRepo (account status), roleRepo (roles/RBAC), auditRepo
@@ -1167,6 +1179,7 @@ func main() {
 		Fees:               feeHandler,
 		Withdrawal:         handlers.NewBlockchainWithdrawalHandler(withdrawalSvc),
 		TwoFactor:          handlers.NewTwoFactorHandler(twoFactorService, userRepo).WithPasswordConfirmer(accountService).WithAudit(auditRepo).WithSessions(sessionRepo),
+		SecurityPrefs:      handlers.NewSecurityPrefsHandler(prefsSvc, accountService),
 		Affiliate:          handlers.NewAffiliateHandler(affiliateService),
 		Admin:              handlers.NewAdminHandler(pool, userRepo, auditRepo, roleRepo),
 		KorzadiVPN:         handlers.NewKorzadiVPNHandler(korzadiVPNService),

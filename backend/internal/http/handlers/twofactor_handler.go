@@ -1,12 +1,17 @@
 package handlers
 
 import (
+	"bytes"
 	"context"
+	"encoding/base64"
 	"errors"
+	"image/png"
 	"net/http"
 	"strconv"
 	"time"
 
+	"github.com/boombuler/barcode"
+	"github.com/boombuler/barcode/qr"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 
@@ -80,14 +85,20 @@ func (h *TwoFactorHandler) Setup(c *gin.Context) {
 		return
 	}
 	// Claves nuevas (las que lee el frontend) + las históricas, por compatibilidad.
-	c.JSON(http.StatusOK, gin.H{
+	qrCode, qrErr := qrDataURL(result.OTPAuthURL)
+	resp := gin.H{
 		"secret":         result.SecretBase32,
 		"otpauth_url":    result.OTPAuthURL,
 		"recovery_codes": result.RecoveryCodes,
 		"SecretBase32":   result.SecretBase32,
 		"OTPAuthURL":     result.OTPAuthURL,
 		"RecoveryCodes":  result.RecoveryCodes,
-	})
+	}
+	if qrErr == nil {
+		resp["qr_code"] = qrCode
+		resp["qr_note"] = "Escanea este código con Google Authenticator o Authy, o usa la clave manual."
+	}
+	c.JSON(http.StatusOK, resp)
 }
 
 type confirmRequest struct {
@@ -237,4 +248,22 @@ func (h *TwoFactorHandler) auditLog(c *gin.Context, userID uuid.UUID, action str
 	if h.audit != nil {
 		_ = h.audit.Log(c.Request.Context(), &userID, "user", action, "user", &userID, md, c.ClientIP())
 	}
+}
+
+// qrDataURL genera una imagen PNG del código QR para la URL otpauth y la
+// devuelve como data URI para incrustar directamente en el frontend.
+func qrDataURL(content string) (string, error) {
+	bc, err := qr.Encode(content, qr.M, qr.Auto)
+	if err != nil {
+		return "", err
+	}
+	bc, err = barcode.Scale(bc, 300, 300)
+	if err != nil {
+		return "", err
+	}
+	var buf bytes.Buffer
+	if err := png.Encode(&buf, bc); err != nil {
+		return "", err
+	}
+	return "data:image/png;base64," + base64.StdEncoding.EncodeToString(buf.Bytes()), nil
 }

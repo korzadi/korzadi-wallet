@@ -102,6 +102,9 @@ type CreateTransferInput struct {
 	// operation's step-up threshold (Bloque 8 spec §12/§13); ignored
 	// otherwise. Empty is fine for a normal, low-value transfer.
 	TwoFACode string
+	// PinCode is an alternative step-up code (4-8 digit PIN) that can be
+	// provided when the user has a PIN configured and 2FA is not enabled.
+	PinCode string
 }
 
 // resolveRecipient turns whichever recipient identifier was supplied into
@@ -217,7 +220,7 @@ func (s *Service) Execute(ctx context.Context, in CreateTransferInput) (*domain.
 		}
 		reservation = res
 		if s.security.StepUp != nil {
-			if serr := s.security.StepUp.RequireForAmount(ctx, policy, in.Amount, in.SenderUserID, in.TwoFACode, in.IP); serr != nil {
+			if serr := s.security.StepUp.RequireForAmount(ctx, policy, in.Amount, in.SenderUserID, in.TwoFACode, in.PinCode, in.IP); serr != nil {
 				_ = s.security.Release(ctx, reservation.ID)
 				return nil, serr
 			}

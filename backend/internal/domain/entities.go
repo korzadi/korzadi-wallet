@@ -46,6 +46,10 @@ type Session struct {
 	IPAddress        string    `json:"ip_address,omitempty"`
 	ExpiresAt        time.Time `json:"expires_at"`
 	CreatedAt        time.Time `json:"created_at"`
+	// TwoFactorVerified is true only for sessions minted after a successful
+	// login 2FA challenge. Refresh refuses to rotate a false session when the
+	// user currently has 2FA enabled.
+	TwoFactorVerified bool `json:"-"`
 }
 
 // ---- Wallet ----

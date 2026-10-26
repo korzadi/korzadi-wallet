@@ -4,6 +4,7 @@ package tests
 
 import (
 	"context"
+	"errors"
 	"testing"
 
 	"github.com/google/uuid"
@@ -80,7 +81,17 @@ func TestTransferService_PostsBalancedLedgerAndEnforcesIDOR(t *testing.T) {
 
 	// The repository lookup is scoped to its owner in SQL; a different user
 	// cannot retrieve the successful transfer by its internal UUID.
-	if _, err := transfers.FindByIDForUser(ctx, result.ID, strangerID); err == nil {
+	strangerTransfer, err := transfers.FindByIDForUser(ctx, result.ID, strangerID)
+	if err != nil {
+		t.Fatalf("cross-user lookup error: %v", err)
+	}
+	if strangerTransfer != nil {
 		t.Fatal("cross-user transfer lookup unexpectedly succeeded")
+	}
+	if _, err := svc.GetForUser(ctx, result.ID, strangerID); !errors.Is(err, apptransfer.ErrTransferNotFound) {
+		t.Fatalf("cross-user service lookup error=%v, want ErrTransferNotFound", err)
+	}
+	if own, err := svc.GetForUser(ctx, result.ID, senderID); err != nil || own.ID != result.ID {
+		t.Fatalf("owner service lookup id=%v err=%v", own, err)
 	}
 }

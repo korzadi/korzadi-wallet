@@ -39,10 +39,29 @@ func TestWithdrawal_CompleteFlow_WithFakes(t *testing.T) {
 		wid, userID, "0x1234567890123456789012345678901234567890", "idem-"+wid.String()); err != nil {
 		t.Fatal(err)
 	}
+	var status string
+	if err := pool.QueryRow(ctx, `SELECT status FROM blockchain_withdrawals WHERE id=$1`, wid).Scan(&status); err != nil {
+		t.Fatal(err)
+	}
+	if status != "pending" {
+		t.Fatalf("withdrawal status=%q, want pending", status)
+	}
 
-	bal, _ := ledgerRepo.GetBalance(ctx, accountID)
-	if !bal.Equal(decimal.NewFromInt(90)) { // might be reserved differently
-		// just check it was created
+	// Creating the row directly does not reserve or debit funds; the funding
+	// adjustment must have used the account's own asset (USDT), never USD.
+	bal, err := ledgerRepo.GetBalance(ctx, accountID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !bal.Equal(decimal.NewFromInt(100)) {
+		t.Fatalf("balance=%s, want 100", bal)
+	}
+	var wrongAssetEntries int
+	if err := pool.QueryRow(ctx, `SELECT count(*) FROM ledger_entries WHERE wallet_account_id=$1 AND asset_code<>'USDT'`, accountID).Scan(&wrongAssetEntries); err != nil {
+		t.Fatal(err)
+	}
+	if wrongAssetEntries != 0 {
+		t.Fatalf("found %d ledger entries with the wrong asset for a USDT account", wrongAssetEntries)
 	}
 }
 

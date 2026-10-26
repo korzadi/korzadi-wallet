@@ -149,6 +149,12 @@ export const authAPI = {
   login: (data) =>
     api.post('/api/auth/login', data),
 
+  loginTwoFactor: (challengeToken, code) =>
+    api.post('/api/auth/login/2fa', {
+      challenge_token: challengeToken,
+      code,
+    }),
+
   refresh: () =>
     api.post('/api/auth/refresh', {
       refresh_token: localStorage.getItem('korzadi_refresh_token'),

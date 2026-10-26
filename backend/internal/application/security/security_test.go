@@ -478,20 +478,20 @@ func TestStepUpGuard_RequireForAmount(t *testing.T) {
 	guard := NewStepUpGuard(&fakeTwoFactor{validCode: "123456"}, nil)
 	userID := uuid.New()
 
-	// Below threshold: no code needed at all.
-	if err := guard.RequireForAmount(context.Background(), policy, decimal.NewFromInt(500), userID, "", ""); err != nil {
+	// Below threshold, no code needed at all.
+	if err := guard.RequireForAmount(context.Background(), policy, decimal.NewFromInt(500), userID, "", "", ""); err != nil {
 		t.Fatalf("monto bajo el umbral no debería requerir 2FA: %v", err)
 	}
 	// Above threshold, no code: must fail.
-	if err := guard.RequireForAmount(context.Background(), policy, decimal.NewFromInt(1500), userID, "", ""); !errors.Is(err, domain.Err2FARequired) {
+	if err := guard.RequireForAmount(context.Background(), policy, decimal.NewFromInt(1500), userID, "", "", ""); !errors.Is(err, domain.Err2FARequired) {
 		t.Fatalf("monto sobre el umbral sin código debería exigir 2FA, obtuve %v", err)
 	}
 	// Above threshold, wrong code: must fail differently.
-	if err := guard.RequireForAmount(context.Background(), policy, decimal.NewFromInt(1500), userID, "000000", ""); !errors.Is(err, ErrStepUpInvalid) {
+	if err := guard.RequireForAmount(context.Background(), policy, decimal.NewFromInt(1500), userID, "000000", "", ""); !errors.Is(err, ErrStepUpInvalid) {
 		t.Fatalf("código incorrecto debería dar ErrStepUpInvalid, obtuve %v", err)
 	}
 	// Above threshold, correct code: must pass.
-	if err := guard.RequireForAmount(context.Background(), policy, decimal.NewFromInt(1500), userID, "123456", ""); err != nil {
+	if err := guard.RequireForAmount(context.Background(), policy, decimal.NewFromInt(1500), userID, "123456", "", ""); err != nil {
 		t.Fatalf("código correcto sobre el umbral no debería fallar: %v", err)
 	}
 }

@@ -34,6 +34,9 @@ type Handlers struct {
 	// events) — may be nil if this deployment hasn't wired Bloque 8 yet,
 	// in which case its routes are simply not registered (see New below).
 	Security *handlers.SecurityHandler
+	// SecurityPrefs es la superficie de seguridad de usuario (PIN, bloqueo,
+	// biometría, alertas). Puede ser nil; sus routes no se registran.
+	SecurityPrefs *handlers.SecurityPrefsHandler
 	// Compliance is Bloque 9 (KYC/AML). Nil = routes not registered.
 	Compliance *handlers.ComplianceHandler
 	// AdminOps (opcional): operaciones admin sensibles (super_admin + 2FA + auditoría).
@@ -95,6 +98,9 @@ func New(h Handlers, cfg Config) *gin.Engine {
 		{
 			auth.POST("/register", h.Auth.Register)
 			auth.POST("/login", middleware.SecurityRateLimit(cfg.SecurityCounter, cfg.SecurityCfg, "login"), h.Auth.Login)
+			// Step 2 of login: only a valid, single-use challenge + TOTP/recovery
+			// code can mint a session. Never accepts access/refresh tokens.
+			auth.POST("/login/2fa", middleware.SecurityRateLimit(cfg.SecurityCounter, cfg.SecurityCfg, "2fa"), h.Auth.LoginTwoFactor)
 			auth.POST("/refresh", h.Auth.Refresh)
 			auth.POST("/logout", h.Auth.Logout)
 			if h.Account != nil {
@@ -251,6 +257,18 @@ func New(h Handlers, cfg Config) *gin.Engine {
 				if cfg.TwoFactorSvc != nil {
 					RegisterAdminOpsRoutes(admin, h.AdminOps, cfg.GetRolesForUser, handlers.TwoFAVerifyMiddleware(cfg.TwoFactorSvc))
 				}
+
+			if h.SecurityPrefs != nil {
+				sec := authed.Group("/security")
+				sec.Use(middleware.SecurityRateLimit(cfg.SecurityCounter, cfg.SecurityCfg, "security"))
+				{
+					sec.GET("/prefs", h.SecurityPrefs.GetPrefs)
+					sec.POST("/prefs", h.SecurityPrefs.UpdatePrefs)
+					sec.POST("/pin/setup", h.SecurityPrefs.SetupPin)
+					sec.POST("/pin/verify", h.SecurityPrefs.VerifyPin)
+					sec.POST("/pin/disable", h.SecurityPrefs.DisablePin)
+				}
+			}
 
 				superAdminOnly := admin.Group("")
 				superAdminOnly.Use(middleware.RequireRole(cfg.GetRolesForUser, "super_admin"))

@@ -4,6 +4,7 @@ package tests
 
 import (
 	"context"
+	"errors"
 	"testing"
 
 	"github.com/google/uuid"
@@ -96,8 +97,18 @@ func TestIDOR_TransferLookup_CrossUserDenied(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if _, err := transfers.FindByIDForUser(ctx, res.ID, strangerUserID); err == nil {
+	strangerTransfer, err := transfers.FindByIDForUser(ctx, res.ID, strangerUserID)
+	if err != nil {
+		t.Fatalf("cross-user lookup error: %v", err)
+	}
+	if strangerTransfer != nil {
 		t.Fatal("cross-user access allowed")
+	}
+	if _, err := svc.GetForUser(ctx, res.ID, strangerUserID); !errors.Is(err, apptransfer.ErrTransferNotFound) {
+		t.Fatalf("cross-user service lookup error=%v, want ErrTransferNotFound", err)
+	}
+	if own, err := svc.GetForUser(ctx, res.ID, senderUserID); err != nil || own.ID != res.ID {
+		t.Fatalf("owner service lookup id=%v err=%v", own, err)
 	}
 }
 
@@ -151,19 +162,30 @@ func TestBroadcastAmbiguous_SettlementFailed(t *testing.T) {
 	defer pool.Close()
 
 	userID := uuid.New()
-	pool.Exec(ctx, `INSERT INTO users(id,email,password_hash,first_name,last_name,status) VALUES ($1,$2,'x','A','B','active')`, userID, userID.String()+"@amb.test")
+	if _, err := pool.Exec(ctx, `INSERT INTO users(id,email,password_hash,first_name,last_name,status) VALUES ($1,$2,'x','A','B','active')`, userID, userID.String()+"@amb.test"); err != nil {
+		t.Fatal(err)
+	}
 	wid := uuid.New()
-	if _, err := pool.Exec(ctx, `INSERT INTO blockchain_withdrawals(id,user_id,network,asset_code,to_address,amount,status,idempotency_key) VALUES ($1,$2,'BSC','USDT',$3,1,'broadcasting',$4)`,
+	if _, err := pool.Exec(ctx, `INSERT INTO blockchain_withdrawals(id,user_id,network,asset_code,to_address,amount,status,idempotency_key) VALUES ($1,$2,'BSC','USDT',$3,1,'processing',$4)`,
 		wid, userID, "0x0000000000000000000000000000000000000001", "amb-"+wid.String()); err != nil {
 		t.Fatal(err)
 	}
-	if _, err := pool.Exec(ctx, `INSERT INTO withdrawal_events(withdrawal_id,type,from_status,to_status,metadata) VALUES ($1,'broadcast_ambiguous','broadcasting','broadcasting',$2)`,
+	if _, err := pool.Exec(ctx, `INSERT INTO withdrawal_events(withdrawal_id,event_type,from_status,to_status,detail) VALUES ($1,'broadcast_ambiguous','processing','processing',$2)`,
 		wid, []byte(`{"error":"timeout"}`)); err != nil {
 		t.Fatal(err)
 	}
 	var c int
-	pool.QueryRow(ctx, `SELECT count(*) FROM withdrawal_events WHERE withdrawal_id=$1 AND type='broadcast_ambiguous'`, wid).Scan(&c)
+	if err := pool.QueryRow(ctx, `SELECT count(*) FROM withdrawal_events WHERE withdrawal_id=$1 AND event_type='broadcast_ambiguous' AND from_status='processing' AND to_status='processing' AND detail->>'error'='timeout'`, wid).Scan(&c); err != nil {
+		t.Fatal(err)
+	}
 	if c != 1 {
 		t.Fatal("event not recorded")
+	}
+	var status string
+	if err := pool.QueryRow(ctx, `SELECT status FROM blockchain_withdrawals WHERE id=$1`, wid).Scan(&status); err != nil {
+		t.Fatal(err)
+	}
+	if status != "processing" {
+		t.Fatalf("ambiguous broadcast must stay processing, got %q", status)
 	}
 }

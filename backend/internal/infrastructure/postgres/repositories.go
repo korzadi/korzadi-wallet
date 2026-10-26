@@ -124,18 +124,18 @@ func NewSessionRepository(pool *pgxpool.Pool) *SessionRepository {
 
 func (r *SessionRepository) Create(ctx context.Context, s *domain.Session) error {
 	_, err := r.pool.Exec(ctx, `
-		INSERT INTO sessions (id, user_id, refresh_token_hash, family_id, revoked, user_agent, ip_address, expires_at)
-		VALUES ($1,$2,$3,$4,$5,$6,$7,$8)
-	`, s.ID, s.UserID, s.RefreshTokenHash, s.FamilyID, s.Revoked, s.UserAgent, nullIP(s.IPAddress), s.ExpiresAt)
+		INSERT INTO sessions (id, user_id, refresh_token_hash, family_id, revoked, user_agent, ip_address, expires_at, two_factor_verified)
+		VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
+	`, s.ID, s.UserID, s.RefreshTokenHash, s.FamilyID, s.Revoked, s.UserAgent, nullIP(s.IPAddress), s.ExpiresAt, s.TwoFactorVerified)
 	return err
 }
 
 func (r *SessionRepository) FindByRefreshHash(ctx context.Context, hash string) (*domain.Session, error) {
 	var s domain.Session
 	err := r.pool.QueryRow(ctx, `
-		SELECT id, user_id, refresh_token_hash, family_id, revoked, expires_at, created_at
+		SELECT id, user_id, refresh_token_hash, family_id, revoked, expires_at, created_at, two_factor_verified
 		FROM sessions WHERE refresh_token_hash=$1
-	`, hash).Scan(&s.ID, &s.UserID, &s.RefreshTokenHash, &s.FamilyID, &s.Revoked, &s.ExpiresAt, &s.CreatedAt)
+	`, hash).Scan(&s.ID, &s.UserID, &s.RefreshTokenHash, &s.FamilyID, &s.Revoked, &s.ExpiresAt, &s.CreatedAt, &s.TwoFactorVerified)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return nil, nil
 	}

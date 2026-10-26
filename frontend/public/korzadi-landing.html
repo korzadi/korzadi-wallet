@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Korzadi – Wallet Custodial + P2P</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#050B1F;--ink:#fff;--mut:#A9B8DA;--blue:#1A63F0;--cy:#33B5FF;--line:#1B2B5E;--card:#0B1633;--lbg:#F4F7FD;--lk:#0B1B3F;--lm:#41527C;--lb:#1558E0;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--lbg:#0A1226;--lk:#EAF0FF;--lm:#9FB0D6;--lb:#5C9BFF}}
+:root[data-theme="dark"]{--lbg:#0A1226;--lk:#EAF0FF;--lm:#9FB0D6;--lb:#5C9BFF}
+html{scroll-behavior:smooth;scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box;margin:0}
+body{font-family:Inter,system-ui,sans-serif;background:var(--bg);color:var(--ink);overflow-x:hidden;background-color:#050B1F}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:#050B1F;z-index:60}
+a{color:inherit;text-decoration:none}button{font-family:inherit;cursor:pointer}
+nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:50;display:flex;align-items:center;gap:28px;padding:14px 6vw;background:rgba(5,11,31,.85);backdrop-filter:blur(12px)}
+.logo{display:flex;align-items:center;gap:8px;font-weight:800;font-size:26px}
+.links{display:flex;gap:28px;margin:0 auto;font-size:14px;color:var(--mut)}
+.links a{padding:6px 0;border-bottom:2px solid transparent;transition:.3s}.links a:hover,.links .on{color:#fff;border-color:var(--cy)}
+.bt{border:1px solid var(--cy);background:none;color:#fff;border-radius:10px;padding:0 20px;min-height:44px;font-size:14px;font-weight:600;transition:.3s}
+.bt.f{background:var(--blue);border-color:var(--blue)}.bt:hover{transform:translateY(-2px);box-shadow:0 8px 24px #1a63f066}
+.nr{display:flex;gap:10px;margin-left:auto}.links+.nr{margin-left:0}
+.hero{position:relative;display:grid;grid-template-columns:1.05fr 1fr;gap:10px;align-items:center;padding:40px 6vw 30px;background:radial-gradient(ellipse at 78% 45%,#0D3AB5 0,transparent 55%),linear-gradient(180deg,#050B1F,#071443);overflow:hidden}
+.orb{position:absolute;border-radius:50%;filter:blur(70px);background:#1a63f0;opacity:.35;animation:pu 6s ease-in-out infinite}
+.pill{display:inline-flex;align-items:center;gap:8px;border:1px solid #2a4aa8;background:#0b1d57;border-radius:30px;padding:8px 16px;font-size:13px;margin-bottom:22px}
+h1{font-size:clamp(44px,6.4vw,76px);font-weight:800;display:flex;align-items:center;gap:12px;line-height:1}
+h2{font-size:clamp(30px,4.6vw,52px);font-weight:800;margin:14px 0 18px;line-height:1.1}
+.gr{background:linear-gradient(90deg,#2F8BFF,#33D0FF);-webkit-background-clip:text;background-clip:text;color:transparent}
+.sub{font-size:19px;line-height:1.5;color:#DCE5FA;max-width:460px}
+.tri{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:30px 0}
+.tri>div{display:flex;gap:10px;font-size:13px;color:var(--mut);line-height:1.5}.tri b{display:block;color:#fff;font-size:15px;margin-bottom:4px}
+.ic{flex:none;width:30px;height:30px;stroke:var(--cy);fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.cta{display:flex;gap:14px;flex-wrap:wrap}.cta .bt{min-height:52px;padding:0 30px;font-size:16px;border-radius:30px}
+.stage{position:relative;height:540px}
+.ph{position:absolute;width:250px;height:510px;border-radius:38px;border:7px solid #1B2547;background:#050B1F;box-shadow:0 30px 80px #0a2a9a99,inset 0 0 0 1px #3a4a80;padding:14px;font-size:11px;overflow:hidden;animation:fl 6s ease-in-out infinite}
+.stage .ph{left:2%;top:0;z-index:2}
+.lap{position:absolute;right:0;top:44px;width:66%;height:400px;transform:perspective(1200px) rotateY(-14deg) rotateX(6deg);border:6px solid #1B2547;border-radius:16px;background:#071033;padding:12px;display:grid;grid-template-columns:96px 1fr;gap:12px;font-size:10px;box-shadow:0 30px 80px #0a2a9a88;animation:fl2 7s ease-in-out infinite}
+.sd div{padding:8px;border-radius:8px;color:var(--mut)}.sd .on{background:var(--blue);color:#fff}
+.bal{font-size:22px;font-weight:700;margin:4px 0}.up{color:#34D399;font-size:10px}
+.sp{width:100%;height:42px}.dr{stroke-dasharray:1;stroke-dashoffset:1;animation:dr 2.2s .6s ease forwards}
+.acts{display:flex;justify-content:space-around;margin:10px 0;font-size:9px;color:var(--mut);text-align:center}
+.acts i{display:block;width:34px;height:34px;border-radius:50%;background:#12307f;margin:0 auto 4px}
+.row{display:flex;align-items:center;gap:8px;padding:7px 0;border-top:1px solid var(--line)}.row>div:nth-child(2){flex:1}.row b{display:block;font-size:11px}.row small{color:var(--mut);font-size:9px}.row .r{text-align:right}
+.co{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-weight:700;color:#fff;font-size:12px;flex:none}
+.pulse{animation:fk 1.2s}
+.pb{display:flex;gap:8px;margin-top:8px}.pb span{flex:1;background:var(--blue);border-radius:6px;padding:6px;text-align:center;font-size:10px}
+.strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:20px;padding:34px 6vw;background:#071030;border-top:1px solid var(--line)}
+.strip div{font-size:13px;color:var(--mut);line-height:1.5}.strip b{display:block;color:#fff;font-size:15px;margin:10px 0 6px}
+.lt{background:var(--lbg);color:var(--lk);display:grid;grid-template-columns:1fr 1.1fr 1fr;gap:20px;align-items:center;padding:50px 6vw;overflow:hidden}
+.lt h3{font-size:clamp(30px,3.6vw,42px);font-weight:800;color:var(--lb)}.lt h4{font-size:24px;font-weight:800;margin:12px 0 10px}
+.lt p{color:var(--lm);line-height:1.5;font-size:15px;margin:10px 0 16px}
+.ck{list-style:none;padding:0;display:grid;gap:10px;font-size:14px;color:var(--lm);margin-bottom:20px}.ck li{display:flex;gap:10px;align-items:center}
+.ck i{width:22px;height:22px;border-radius:50%;background:var(--lb);color:var(--lbg);display:grid;place-items:center;font-size:12px;font-style:normal;flex:none}
+.duo{position:relative;height:500px}.duo .ph{height:470px;width:230px;font-size:11px}.duo .a{left:2%;top:10px;transform:rotate(-4deg);animation-name:fl3}.duo .b{right:2%;top:50px;transform:rotate(3deg);animation-name:fl4;animation-delay:-2s}
+.of{border:1px solid var(--line);background:#0B1633;border-radius:10px;padding:8px;margin-top:8px;display:flex;align-items:center;gap:8px}.of div:nth-child(2){flex:1}.of b{font-size:11px}.of small{display:block;color:var(--mut);font-size:9px}
+.of button{background:var(--blue);color:#fff;border:0;border-radius:6px;padding:6px 10px;font-size:10px;min-height:28px}
+.ok{width:76px;height:76px;margin:50px auto 14px;border-radius:50%;background:#16B364;display:grid;place-items:center;animation:pop 2.4s ease infinite}
+.ok path{stroke-dasharray:1;stroke-dashoffset:1;animation:dr 1.2s .4s ease forwards}
+.bd{display:flex;gap:18px;flex-wrap:wrap;font-size:12px;color:var(--lm);margin:14px 0}.bd div{display:flex;gap:8px;align-items:center}.bd svg{stroke:var(--lb)}
+footer{display:flex;gap:14px;align-items:center;flex-wrap:wrap;padding:22px 6vw;background:var(--lbg);color:var(--lm);font-size:13px;border-top:1px solid #d5ddf0}
+.rv{opacity:0;transform:translateY(30px);transition:opacity .9s,transform .9s}.rv.in{opacity:1;transform:none}
+.u{animation:up .9s both}
+@keyframes up{from{opacity:0;transform:translateY(26px)}}
+@keyframes fl{50%{transform:translateY(-14px)}}
+@keyframes fl2{50%{transform:perspective(1200px) rotateY(-14deg) rotateX(6deg) translateY(-10px)}}
+@keyframes fl3{50%{transform:rotate(-4deg) translateY(-10px)}}@keyframes fl4{50%{transform:rotate(3deg) translateY(-12px)}}
+@keyframes dr{to{stroke-dashoffset:0}}@keyframes pu{50%{opacity:.6;transform:scale(1.15)}}
+@keyframes pop{0%,100%{box-shadow:0 0 0 0 #16b36466}50%{box-shadow:0 0 0 18px #16b36400}}
+@keyframes fk{0%{background:#1a63f055}100%{background:none}}
+@media(max-width:900px){.links{display:none}.hero,.lt{grid-template-columns:1fr}.lap{display:none}.stage{height:530px}.stage .ph{left:50%;margin-left:-125px}.tri{grid-template-columns:1fr}.duo{max-width:420px;margin:0 auto;width:100%}nav .bt:not(.f){display:none}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.rv{opacity:1;transform:none}.dr,.ok path{stroke-dashoffset:0}}
+.md{position:fixed;inset:0;z-index:100;display:none;place-items:center;padding:20px;background:rgba(3,7,20,.78);backdrop-filter:blur(8px)}.md.on{display:grid;animation:fi .3s}
+.mc{position:relative;width:100%;max-width:400px;max-height:100%;overflow:auto;background:#0B1633;color:#fff;border:1px solid #23387a;border-radius:20px;padding:26px;box-shadow:0 30px 90px #0a2a9a88;animation:up .5s both}
+.tb{display:flex;background:#071030;border-radius:12px;padding:4px;margin:18px 0 14px}.tb button{flex:1;min-height:42px;border:0;border-radius:9px;background:none;color:#A9B8DA;font-weight:600;font-size:14px;transition:.3s}.tb .on{background:#1A63F0;color:#fff}
+.fl{display:block;font-size:12px;color:#A9B8DA;margin:12px 0 6px}
+.ip{width:100%;min-height:46px;border-radius:10px;border:1px solid #2a3f85;background:#071030;color:#fff;padding:0 14px;font:inherit;font-size:15px}.ip:focus{outline:2px solid #33B5FF;outline-offset:1px}
+.er{color:#F87171;font-size:12px;min-height:16px;margin-top:8px}
+.cd{display:flex;gap:8px;justify-content:center;margin:18px 0 4px}.cd .ip{width:44px;text-align:center;padding:0;font-size:20px}
+.x{position:absolute;right:8px;top:8px;width:44px;height:44px;background:none;border:0;color:#A9B8DA;font-size:20px}
+@keyframes fi{from{opacity:0}}
+</style></head><body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><linearGradient id="kg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3FD0FF"/><stop offset="1" stop-color="#1F4DFF"/></linearGradient><symbol id="kz" viewBox="0 0 44 44"><path fill="url(#kg)" d="M2 2h9v40H2zM14 26L31 2h12L22 30zM17 25l26 17H30L14 34z"/></symbol></defs></svg>
+<nav><a class="logo" href="#"><svg width="38" height="38" aria-hidden="true"><use href="#kz"/></svg>Korzadi</a>
+<div class="links"><a class="on" href="#">Inicio</a><a href="#feat">Wallet</a><a href="#p2p">P2P</a><a href="#feat">Historial</a><a href="#seg">Soporte</a></div>
+<div class="nr"><button class="bt" onclick="op(1)">Iniciar sesión</button><button class="bt f" onclick="op(2)">Crear cuenta</button></div></nav>
+
+<section class="hero"><div class="orb" style="width:340px;height:340px;right:-60px;top:20px"></div><div class="orb" style="width:220px;height:220px;left:30%;bottom:-80px;animation-delay:-3s"></div>
+<div style="position:relative;z-index:3">
+<div class="pill u"><svg class="ic" style="width:18px;height:18px" viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/></svg>Wallet Custodial + P2P</div>
+<h1 class="u" style="animation-delay:.1s"><svg width="72" height="72" aria-hidden="true"><use href="#kz"/></svg>Korzadi</h1>
+<h2 class="u" style="animation-delay:.2s">Tu dinero, en <span class="gr">tus manos.</span></h2>
+<p class="sub u" style="animation-delay:.3s">Compra, vende, envía y recibe criptomonedas de forma rápida, segura y sencilla.</p>
+<div class="tri u" style="animation-delay:.4s"><div><svg class="ic" viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6zM9 12l2 2 4-4"/></svg><span><b>Custodia Segura</b>Tus fondos protegidos con tecnología de nivel bancario.</span></div><div><svg class="ic" viewBox="0 0 24 24"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg><span><b>P2P Rápido</b>Compra y vende entre usuarios, con múltiples métodos de pago.</span></div><div><svg class="ic" viewBox="0 0 24 24"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/></svg><span><b>Global</b>Opera en múltiples redes y países desde un solo lugar.</span></div></div>
+<div class="cta u" style="animation-delay:.5s"><button class="bt f" onclick="op(2)">Comenzar ahora →</button><button class="bt" onclick="document.getElementById('p2p').scrollIntoView()">▶ Ver cómo funciona</button></div></div>
+<div class="stage u" style="animation-delay:.3s">
+<div class="lap"><div class="sd"><div class="on">Inicio</div><div>Wallet</div><div>P2P</div><div>Historial</div><div>Seguridad</div><div>Configuración</div></div>
+<div><b style="font-size:15px">Hola, Alexander</b><div style="color:var(--mut)">Bienvenido a Korzadi</div><div style="margin:8px 0;display:flex;justify-content:space-between;align-items:end"><div>Saldo total (USD)<div class="bal">$<span class="cnt">2,458.32</span></div><div class="up">↑ +2.45% (24h)</div></div><svg width="150" height="46" viewBox="0 0 150 46"><polyline class="dr" pathLength="1" points="0,38 22,30 42,34 62,22 84,26 106,12 130,18 150,4" fill="none" stroke="#33B5FF" stroke-width="2"/></svg></div><div class="pb"><span>Depositar</span><span>Enviar</span><span>Recibir</span></div><b style="display:block;margin-top:10px">Operaciones recientes</b><div id="ops"></div></div></div>
+<div class="ph"><div style="display:flex;justify-content:space-between;align-items:center"><span style="display:flex;gap:6px;align-items:center;font-weight:700;font-size:14px"><svg width="22" height="22"><use href="#kz"/></svg>Korzadi</span><span style="color:var(--mut)">9:41</span></div>
+<div style="margin-top:12px;background:#0B1B4A;border-radius:12px;padding:10px"><span style="color:var(--mut)">Saldo total (USD)</span><div class="bal">$<span class="cnt">2,458.32</span></div><div style="display:flex;justify-content:space-between;align-items:end"><span class="up">↑ +2.45% (24h)</span><svg width="90" height="34" viewBox="0 0 90 34"><polyline class="dr" pathLength="1" points="0,28 14,22 28,26 42,14 58,18 72,8 90,3" fill="none" stroke="#33B5FF" stroke-width="2"/></svg></div></div>
+<div class="acts"><div><i></i>Depositar</div><div><i></i>Enviar</div><div><i></i>Recibir</div><div><i></i>P2P</div></div>
+<b>Mis activos</b><div id="as"></div></div></div></section>
+
+<section class="strip" id="feat">
+<div class="rv"><svg class="ic" viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6zM9 12l2 2 4-4"/></svg><b>Custodia Segura</b>Fondos protegidos con tecnología de nivel bancario, multifirma y monitoreo 24/7.</div>
+<div class="rv" style="transition-delay:.1s"><svg class="ic" viewBox="0 0 24 24"><path d="M16 20v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2M9.5 10a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7M21 20v-2a4 4 0 0 0-3-3.9M16 3.1a3.5 3.5 0 0 1 0 6.8"/></svg><b>P2P Rápido y Confiable</b>Compra y vende cripto directo entre usuarios, con múltiples métodos de pago.</div>
+<div class="rv" style="transition-delay:.2s"><svg class="ic" viewBox="0 0 24 24"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg><b>Transacciones Instantáneas</b>Envía y recibe cripto en minutos, sin complicaciones.</div>
+<div class="rv" style="transition-delay:.3s"><svg class="ic" viewBox="0 0 24 24"><path d="M12 5c4.4 0 8 1 8 2.5S16.4 10 12 10 4 9 4 7.5 7.6 5 12 5zM4 7.5v4C4 13 7.6 14 12 14s8-1 8-2.5v-4M4 11.5v4C4 17 7.6 18 12 18s8-1 8-2.5v-4"/></svg><b>Múltiples Criptomonedas</b>Soporta las principales redes y activos digitales.</div>
+<div class="rv" style="transition-delay:.4s"><svg class="ic" viewBox="0 0 24 24"><path d="M8 2h8a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zM11 18h2"/></svg><b>Disponible en Todo Momento</b>App móvil y versión web. Tu wallet, donde la necesites.</div>
+<div class="rv" style="transition-delay:.5s"><svg class="ic" viewBox="0 0 24 24"><path d="M4 14v-2a8 8 0 0 1 16 0v2M4 14h3v5H5a1 1 0 0 1-1-1zM20 14h-3v5h2a1 1 0 0 0 1-1z"/></svg><b>Soporte 24/7</b>Un equipo siempre listo para ayudarte.</div></section>
+
+<section class="lt" id="p2p"><div class="rv"><h3>P2P sin límites</h3><p style="font-size:17px">Conecta con miles de usuarios, elige el mejor precio y paga como prefieras.</p>
+<ul class="ck"><li><i>✓</i>Compra y vende USDT, BTC, ETH y más</li><li><i>✓</i>Múltiples métodos de pago (banco, tarjeta, efectivo, etc.)</li><li><i>✓</i>Sistema de escrow para mayor seguridad</li><li><i>✓</i>Calificaciones y reputación de usuarios</li></ul><button class="bt f" style="min-height:48px;border-radius:30px;padding:0 30px" onclick="op(1)">Ir al P2P →</button></div>
+<div class="duo rv"><div class="ph a"><b>P2P</b><div class="pb"><span>Comprar</span><span style="background:#12307f">Vender</span></div><div id="of"></div></div>
+<div class="ph b" style="text-align:center"><div class="ok"><svg width="40" height="40" viewBox="0 0 24 24"><path pathLength="1" d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div><b style="font-size:15px">¡Compra exitosa!</b><div style="color:var(--mut);margin:6px 0 18px">Has recibido 200.00 USDT</div><div class="pb"><span style="padding:10px">Ver detalle</span></div><div style="color:#5C9BFF;margin-top:12px">Volver al inicio</div></div></div>
+<div class="rv" id="seg"><div class="logo" style="color:var(--lk);font-size:44px"><svg width="52" height="52" aria-hidden="true"><use href="#kz"/></svg>Korzadi</div><h4>Seguridad y confianza en cada operación</h4><p>Somos una plataforma custodial, donde tus fondos están protegidos y siempre bajo tu control. Combinamos la libertad del P2P con la seguridad de una wallet profesional.</p>
+<div class="bd"><div><svg class="ic" style="width:26px;height:26px" viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6zM9 12l2 2 4-4"/></svg>KYC/AML<br>Verificado</div><div><svg class="ic" style="width:26px;height:26px" viewBox="0 0 24 24"><path d="M6 11h12v9H6zM8 11V8a4 4 0 0 1 8 0v3"/></svg>Cifrado de extremo<br>a extremo</div><div><svg class="ic" style="width:26px;height:26px" viewBox="0 0 24 24"><path d="M4 14v-2a8 8 0 0 1 16 0v2M4 14h3v5H5a1 1 0 0 1-1-1zM20 14h-3v5h2a1 1 0 0 0 1-1z"/></svg>Soporte 24/7<br>en español</div></div></div></section>
+<footer><b style="display:flex;gap:6px;align-items:center;color:var(--lk)"><svg width="22" height="22"><use href="#kz"/></svg>Korzadi</b>Más que una wallet, es tu puente al mundo cripto.</footer>
+<div class="md" id="md" role="dialog" aria-modal="true" aria-labelledby="mt"><div class="mc"><button class="x" onclick="cl()" aria-label="Cerrar">✕</button>
+<div class="logo" style="font-size:22px"><svg width="30" height="30" aria-hidden="true"><use href="#kz"/></svg>Korzadi</div>
+<div id="s1"><div class="tb"><button id="t1" class="on" onclick="tab(1)">Iniciar sesión</button><button id="t2" onclick="tab(2)">Crear cuenta</button></div><h3 id="mt" style="font-size:20px">Bienvenido de nuevo</h3>
+<form id="f" onsubmit="sub(event)" novalidate>
+<div id="nm" hidden><label class="fl" for="n">Nombre completo</label><input class="ip" id="n" autocomplete="name"></div>
+<label class="fl" for="e">Correo electrónico</label><input class="ip" id="e" type="email" autocomplete="email" placeholder="tu@correo.com">
+<label class="fl" for="p">Contraseña</label><div style="position:relative"><input class="ip" id="p" type="password" autocomplete="current-password"><button type="button" id="vw" aria-label="Mostrar contraseña" style="position:absolute;right:0;top:0;min-width:56px;height:46px;background:none;border:0;color:#33B5FF;font-size:13px;font-weight:600">Ver</button></div>
+<div id="cf" hidden><label class="fl" for="p2">Confirmar contraseña</label><input class="ip" id="p2" type="password" autocomplete="new-password"></div>
+<div class="er" id="er" role="alert"></div><button class="bt f" id="sb" style="width:100%;min-height:48px;margin-top:6px">Iniciar sesión</button></form></div>
+<div id="s2" hidden><h3 style="font-size:20px;margin-top:20px">Verificación en 2 pasos</h3><p id="s2p" style="color:#A9B8DA;font-size:14px;margin-top:8px;line-height:1.5">Ingresa el código de 6 dígitos de tu app de autenticación.</p><div class="cd" id="cd"></div><input class="ip" id="kzrecovery" type="text" autocomplete="one-time-code" maxlength="19" placeholder="XXXX-XXXX-XXXX-XXXX" aria-label="Código de recuperación" hidden><div class="er" id="er2" role="alert" style="text-align:center"></div><button class="bt f" onclick="ver()" style="width:100%;min-height:48px;margin-top:6px">Verificar</button><button class="bt" type="button" id="kztoggle" onclick="kzToggleRecovery()" style="width:100%;min-height:44px;margin-top:8px;background:none;color:#33B5FF">Usar código de recuperación</button><button class="bt" type="button" onclick="kzCancelLogin2FA()" style="width:100%;min-height:44px;margin-top:2px;background:none;color:#A9B8DA">Volver</button></div>
+<div id="s3" hidden style="text-align:center"><div class="ok" style="margin-top:34px"><svg width="40" height="40" viewBox="0 0 24 24" aria-hidden="true"><path pathLength="1" d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div><h3 style="font-size:20px">¡Listo!</h3><p id="ms" style="color:#A9B8DA;margin:8px 0 18px;font-size:14px;line-height:1.5"></p><button class="bt f" onclick="cl()" style="width:100%;min-height:48px">Ir a mi wallet</button></div></div></div>
+<script>
+var A=[["USDT","Tether","$1,250.00","1,250.00 USDT","#26A17B","₮"],["BTC","Bitcoin","$640.32","0.0087 BTC","#F7931A","₿"],["ETH","Ethereum","$420.15","0.1643 ETH","#627EEA","Ξ"],["BNB","BNB","$180.21","0.312 BNB","#F3BA2F","B"]];
+var O=[["Compra USDT (P2P)","Hace 12 min","+250.00 USDT","#26A17B","₮","#34D399"],["Venta BTC (P2P)","Hace 32 min","+0.0021 BTC","#F7931A","₿","#34D399"],["Envío ETH","Hace 45 min","-0.015 ETH","#627EEA","Ξ","#F87171"]];
+var F=[["CryptoFast","1.00 USDT = 1.00 USD","Límite: 50 – 5,000 USD","#3B6BFF","C"],["GlobalTraders","1.00 USDT = 1.00 USD","Límite: 100 – 10,000 USD","#3B6BFF","G"],["CoinDirect","1.00 USDT = 1.03 USD","Límite: 200 – 8,000 USD","#F7931A","D"]];
+function $(i){return document.getElementById(i)}
+$("as").innerHTML=A.map(function(a){return '<div class="row"><div class="co" style="background:'+a[4]+'">'+a[5]+'</div><div><b>'+a[0]+'</b><small>'+a[1]+'</small></div><div class="r"><b>'+a[2]+'</b><small>'+a[3]+'</small></div></div>'}).join("");
+$("ops").innerHTML=O.map(function(o){return '<div class="row"><div class="co" style="background:'+o[3]+'">'+o[4]+'</div><div><b>'+o[0]+'</b><small>'+o[1]+'</small></div><div class="r" style="color:'+o[5]+'"><b>'+o[2]+'</b></div></div>'}).join("");
+$("of").innerHTML=F.map(function(f){return '<div class="of"><div class="co" style="background:'+f[3]+'">'+f[4]+'</div><div><b>'+f[0]+'</b><small>'+f[1]+'</small><small>'+f[2]+'</small></div><button>Comprar</button></div>'}).join("");
+document.querySelectorAll(".cnt").forEach(function(el){var t=2458.32,s=performance.now();(function f(n){var p=Math.min((n-s)/1800,1),v=t*(1-Math.pow(1-p,3));el.textContent=v.toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});if(p<1)requestAnimationFrame(f)})(s)});
+setInterval(function(){var r=document.querySelectorAll("#as .row");var x=r[Math.floor(Math.random()*r.length)];x.classList.remove("pulse");void x.offsetWidth;x.classList.add("pulse")},2500);
+var io=new IntersectionObserver(function(e){e.forEach(function(x){if(x.isIntersecting){x.target.classList.add("in");io.unobserve(x.target)}})},{threshold:.15});
+document.querySelectorAll(".rv").forEach(function(e){io.observe(e)});
+var mode=1,last=null;
+function show(id){["s1","s2","s3"].forEach(function(x){$(x).hidden=x!=id})}
+function op(m){last=document.activeElement;$("md").classList.add("on");document.body.style.overflow="hidden";tab(m);setTimeout(function(){$("e").focus()},60)}
+function cl(){$("md").classList.remove("on");document.body.style.overflow="";if(last)last.focus()}
+function tab(m){mode=m;$("t1").className=m==1?"on":"";$("t2").className=m==2?"on":"";$("nm").hidden=$("cf").hidden=m==1;$("mt").textContent=m==1?"Bienvenido de nuevo":"Crea tu cuenta";$("sb").textContent=m==1?"Iniciar sesión":"Crear cuenta";$("p").autocomplete=m==1?"current-password":"new-password";$("er").textContent="";show("s1")}
+$("vw").onclick=function(){var p=$("p"),h=p.type=="password";p.type=h?"text":"password";this.textContent=h?"Ocultar":"Ver"};
+var cs=[];for(var i=0;i<6;i++){(function(i){var c=document.createElement("input");c.className="ip";c.maxLength=1;c.inputMode="numeric";c.setAttribute("aria-label","Dígito "+(i+1));c.oninput=function(){c.value=c.value.replace(/\D/g,"");if(c.value&&cs[i+1])cs[i+1].focus()};c.onkeydown=function(e){if(e.key=="Backspace"&&!c.value&&cs[i-1])cs[i-1].focus()};c.onpaste=function(e){var t=(e.clipboardData.getData("text")||"").replace(/\D/g,"").slice(0,6);if(t){e.preventDefault();cs.forEach(function(x,k){x.value=t[k]||""});cs[Math.min(t.length,5)].focus()}};cs.push(c);$("cd").appendChild(c)})(i)}
+function sub(ev){ev.preventDefault();var e=$("e").value.trim(),p=$("p").value,er="";if(mode==2&&$("n").value.trim().length<2)er="Escribe tu nombre completo.";else if(!/^\S+@\S+\.\S+$/.test(e))er="Ingresa un correo válido.";else if(p.length<8)er="La contraseña debe tener al menos 8 caracteres.";else if(mode==2&&p!==$("p2").value)er="Las contraseñas no coinciden.";$("er").textContent=er;if(er)return;show("s2");cs.forEach(function(x){x.value=""});cs[0].focus()}
+function ver(){if(cs.some(function(x){return !x.value})){$("er2").textContent="Ingresa los 6 dígitos.";return}$("er2").textContent="";$("ms").textContent=mode==1?"Sesión verificada. Esto es una demostración: todavía no está conectada al backend.":"Tu cuenta de ejemplo fue creada. Esto es una demostración: todavía no está conectada al backend.";show("s3")}
+document.addEventListener("keydown",function(e){if(e.key=="Escape")cl()});
+$("md").addEventListener("click",function(e){if(e.target==this)cl()});
+</script>
+<!-- KZ_INTEGRATION: puente de navegación; no altera el diseño original -->
+<script src="/kz-integration.js"></script></body></html>

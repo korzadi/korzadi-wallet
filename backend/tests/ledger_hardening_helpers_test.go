@@ -26,7 +26,11 @@ func testAdjustment(t *testing.T, pool *pgxpool.Pool, l *postgres.LedgerReposito
 		t.Fatalf("asignar super_admin: %v", err)
 	}
 	svc := ledger.NewService(l, postgres.NewReservationRepository(pool)).WithAdjustmentAuthorization(postgres.NewRoleRepository(pool), nil)
-	_, err = svc.ExecuteAdjustment(ctx, actor, "", "adjustment:"+uuid.NewString(), "fondeo de integración", []domain.LedgerEntryInput{{WalletAccountID: account, AssetCode: "USD", Amount: decimal.NewFromInt(amount)}})
+	var assetCode string
+	if err := pool.QueryRow(ctx, `SELECT asset_code FROM wallet_accounts WHERE id=$1`, account).Scan(&assetCode); err != nil {
+		t.Fatalf("obtener asset de la cuenta %s: %v", account, err)
+	}
+	_, err = svc.ExecuteAdjustment(ctx, actor, "", "adjustment:"+uuid.NewString(), "fondeo de integración", []domain.LedgerEntryInput{{WalletAccountID: account, AssetCode: assetCode, Amount: decimal.NewFromInt(amount)}})
 	if err != nil {
 		t.Fatalf("fondeo por adjustment: %v", err)
 	}

@@ -1,6 +1,9 @@
 /* Diseño Korzadi Wallet (mockup). Se carga después de index.css. */
-:root{--kz-card:#08182f;--kz-card2:#0a1f3d;--kz-line:#17345a;--kz-blue:#1468ff;--kz-muted:#8da4c1;--kz-green:#18d98b;--kz-red:#ff5470}
+:root{--kz-card:#0B1633;--kz-card2:#111F44;--kz-line:#1B2B5E;--kz-blue:#1A63F0;--kz-cyan:#33B5FF;--kz-muted:#9FB0D6;--kz-green:#34D399;--kz-red:#F87171;--kz-shadow:rgba(26,99,240,.28)}
 .kz{max-width:480px;min-height:100vh;margin:0 auto;padding:0 16px 96px;background:linear-gradient(180deg,#041023,#020a15)}
+@media(min-width:700px){
+  .kz{max-width:1080px;padding:0 28px 100px;}
+}
 .kz *{box-sizing:border-box}
 .kz a{color:inherit;text-decoration:none}
 .kz-top{display:flex;align-items:center;gap:10px;padding:20px 0 14px}

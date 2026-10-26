@@ -59,7 +59,8 @@ func (f *fakeRPCProvider) BroadcastTransaction(context.Context, []byte) (string,
 	return "", fmt.Errorf("fake RPC: broadcast not enabled in deposit tests")
 }
 func (f *fakeRPCProvider) GetTransaction(context.Context, string) (*domain.TransactionReceipt, error) {
-	return nil, nil
+	r := f.receipt
+	return &r, nil
 }
 
 func provisionDepositAddress(t *testing.T, ctx context.Context, pool *pgxpool.Pool, network domain.Network) (uuid.UUID, string) {
@@ -74,7 +75,11 @@ func provisionDepositAddress(t *testing.T, ctx context.Context, pool *pgxpool.Po
 	}
 	address := "deposit-" + string(network) + "-" + uuid.NewString()
 	addressID := uuid.New()
-	if _, err := pool.Exec(ctx, `INSERT INTO crypto_addresses(id,user_id,network,asset_code,address,derivation_index,encrypted_private_key,status) VALUES ($1,$2,$3,'USDT',$4,0,'test-only','active')`, addressID, userID, network, address); err != nil {
+	addressType := "tron"
+	if network == domain.NetworkBSC || network == domain.NetworkETHEREUM {
+		addressType = "evm"
+	}
+	if _, err := pool.Exec(ctx, `INSERT INTO crypto_addresses(id,user_id,network,asset_code,address,address_type,derivation_index,encrypted_private_key,status) VALUES ($1,$2,$3,'USDT',$4,$5,0,'test-only','active')`, addressID, userID, network, address, addressType); err != nil {
 		t.Fatalf("insert deposit address: %v", err)
 	}
 	t.Cleanup(func() { _, _ = pool.Exec(context.Background(), `DELETE FROM users WHERE id=$1`, userID) })
@@ -96,6 +101,9 @@ func TestBlockchainDeposit_FullFlowOnBSCETHAndTRON(t *testing.T) {
 	for _, network := range []domain.Network{domain.NetworkBSC, domain.NetworkETHEREUM, domain.NetworkTRON} {
 		t.Run(string(network), func(t *testing.T) {
 			userID, to := provisionDepositAddress(t, ctx, pool, network)
+			if _, err := pool.Exec(ctx, `DELETE FROM blockchain_sync_state WHERE network=$1`, network); err != nil {
+				t.Fatalf("reset watcher checkpoint: %v", err)
+			}
 			contract := "Tether-test-contract-" + string(network)
 			txHash := "fake-tx-" + uuid.NewString()
 			event := domain.OnChainTransferEvent{ContractAddress: contract, TxHash: txHash, LogIndex: 0, BlockNumber: 100, BlockHash: "fake-block-100", From: "sender-test", To: to, RawAmount: decimal.RequireFromString("12.5")}
@@ -127,12 +135,24 @@ func TestBlockchainDeposit_FullFlowOnBSCETHAndTRON(t *testing.T) {
 				t.Fatalf("final credited balance = %s, err=%v", balance, err)
 			}
 			var status string
-			if err := pool.QueryRow(ctx, `SELECT status FROM blockchain_transfers WHERE network=$1 AND tx_hash=$2`, network, txHash).Scan(&status); err != nil || status != string(domain.TransferStatusCredited) {
-				t.Fatalf("transfer status=%q err=%v", status, err)
-			}
 			var count int
-			if err := pool.QueryRow(ctx, `SELECT count(*) FROM blockchain_deposits WHERE network=$1 AND tx_hash=$2`, network, txHash).Scan(&count); err != nil || count != 1 {
-				t.Fatalf("deposit rows=%d err=%v", count, err)
+			for time.Now().Before(deadline) {
+				if err := pool.QueryRow(ctx, `SELECT status FROM blockchain_transfers WHERE network=$1 AND tx_hash=$2`, network, txHash).Scan(&status); err != nil {
+					t.Fatalf("transfer status: %v", err)
+				}
+				if err := pool.QueryRow(ctx, `SELECT count(*) FROM blockchain_deposits WHERE network=$1 AND tx_hash=$2`, network, txHash).Scan(&count); err != nil {
+					t.Fatalf("deposit rows: %v", err)
+				}
+				if status == string(domain.TransferStatusCredited) && count == 1 {
+					break
+				}
+				time.Sleep(10 * time.Millisecond)
+			}
+			if status != string(domain.TransferStatusCredited) {
+				t.Fatalf("transfer status=%q, want %q", status, domain.TransferStatusCredited)
+			}
+			if count != 1 {
+				t.Fatalf("deposit rows=%d, want 1", count)
 			}
 			otherUserID, _ := provisionDepositAddress(t, ctx, pool, network)
 			recorder := postgres.NewBlockchainDepositRecorderRepository(pool)

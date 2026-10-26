@@ -9,6 +9,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"korzadi-wallet/backend/internal/application/auth"
+	"korzadi-wallet/backend/internal/domain"
 	"korzadi-wallet/backend/internal/infrastructure/authjwt"
 )
 
@@ -102,5 +103,39 @@ func TestAuthHandler_Logout_BadRequest(t *testing.T) {
 	h.Logout(ctx)
 	if rec.Code != http.StatusBadRequest {
 		t.Fatalf("expected bad request, got %d", rec.Code)
+	}
+}
+
+func TestAuthHandler_LoginTwoFactor_BadRequest(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	rec := httptest.NewRecorder()
+	ctx, _ := gin.CreateTestContext(rec)
+	ctx.Request = httptest.NewRequest(http.MethodPost, "/auth/login/2fa", strings.NewReader(`{"challenge_token":""}`))
+	ctx.Request.Header.Set("Content-Type", "application/json")
+	h := NewAuthHandler(nil)
+	h.LoginTwoFactor(ctx)
+	if rec.Code != http.StatusBadRequest {
+		t.Fatalf("expected bad request, got %d", rec.Code)
+	}
+}
+
+func TestRespondDomainError_Login2FACodes(t *testing.T) {
+	cases := []struct {
+		err  error
+		want int
+	}{
+		{&domain.DomainError{Code: "invalid_2fa_challenge", Message: "x"}, http.StatusUnauthorized},
+		{&domain.DomainError{Code: "2fa_challenge_expired", Message: "x"}, http.StatusUnauthorized},
+		{&domain.DomainError{Code: "2fa_required", Message: "x"}, http.StatusUnauthorized},
+		{&domain.DomainError{Code: "invalid_2fa_code", Message: "x"}, http.StatusForbidden},
+		{&domain.DomainError{Code: "2fa_unavailable", Message: "x"}, http.StatusServiceUnavailable},
+	}
+	for _, tc := range cases {
+		rec := httptest.NewRecorder()
+		ctx, _ := gin.CreateTestContext(rec)
+		respondDomainError(ctx, tc.err)
+		if rec.Code != tc.want {
+			t.Fatalf("%v: expected %d, got %d", tc.err, tc.want, rec.Code)
+		}
 	}
 }
