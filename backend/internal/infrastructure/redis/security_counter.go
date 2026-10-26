@@ -32,3 +32,9 @@ func NewSecurityCounter(client *redis.Client) *SecurityCounter {
 func (c *SecurityCounter) Incr(ctx context.Context, key string, window time.Duration) (int64, error) {
 	return AtomicIncr(ctx, c.client, key, window)
 }
+
+// Revoke elimina inmediatamente una clave del contador (revocación de sesión
+// o bloqueo de usuario en tiempo real). No requiere reinicio del servicio.
+func (c *SecurityCounter) Revoke(ctx context.Context, key string) error {
+	return c.client.Del(ctx, key).Err()
+}

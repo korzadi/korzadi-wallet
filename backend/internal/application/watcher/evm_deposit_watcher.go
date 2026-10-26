@@ -44,6 +44,9 @@ type recipientFilteredTransferProvider interface {
 // TransferStore is the persistence contract the watcher needs from
 // BlockchainTransferRepository.
 type TransferStore interface {
+	// Idempotencia y protección contra duplicados por reorg: InsertDetected retorna
+	// duplicate=true si la tupla (network, contract, tx_hash, log_index) ya existe;
+	// MarkCredited es replay-safe (solo marca si no está marcado).
 	// InsertDetected returns duplicate=true (not an error) when the tuple
 	// (network, contract, tx_hash, log_index) already exists.
 	InsertDetected(ctx context.Context, t domain.BlockchainTransfer, cryptoAddressID uuid.UUID) (id uuid.UUID, duplicate bool, err error)

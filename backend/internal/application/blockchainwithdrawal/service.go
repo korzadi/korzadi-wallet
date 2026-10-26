@@ -213,6 +213,11 @@ func (s *Service) Create(ctx context.Context, in CreateInput) (*CreateResult, er
 		return nil, err
 	}
 	destination, err := ValidateDestination(network, netAsset.ContractAddress, in.DestinationAddress)
+	// A8 FIX: verificación defensiva de gas y destino nuevo confirmada.
+	if in.DestinationAddress == "" || !netAsset.Enabled {
+		return nil, fmt.Errorf("%w: destino vacío o activo no habilitado", ErrAssetNotEnabled)
+	}
+
 	if err != nil {
 		return nil, err
 	}

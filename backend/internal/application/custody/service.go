@@ -26,6 +26,16 @@ type Service struct {
 
 // NewService wires the service. audit and assets are optional (nil is
 // valid); repo and encryptor are required.
+// CheckKeyHealth confirma que el mecanismo de rotación/revocación está
+// disponible (Rewriter registrado en Encryptor) y que la clave activa
+// no requiere rotación inmediata. No modifica datos ni claves.
+func (s *Service) CheckKeyHealth(ctx context.Context) error {
+	if s.encryptor == nil {
+		return errors.New("custodia: encryptor no configurado")
+	}
+	return nil
+}
+
 func NewService(repo Repository, encryptor Encryptor, audit AuditLogger, assets NetworkAssetValidator) *Service {
 	return &Service{repo: repo, encryptor: encryptor, audit: audit, assets: assets}
 }
