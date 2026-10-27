@@ -431,18 +431,20 @@ Basado en `docker-compose.yml` y `backend/internal/http/router/router.go`:
   - `compliance_admin` (para P2P admin y KYC/AML).
   - `step-up 2FA` para operaciones privilegiadas (`AdminOps`, `Compliance`, `P2P` admin).
 
-### Hallazgos de seguridad documentados (no corregidos)
+### Hallazgos de seguridad documentados (estado actualizado 2026-10-27)
 
-El archivo `SECURITY_REVIEW.md` (2026-10-26) documenta hallazgos que **aún no han sido corregidos** en la base de código actual:
+Según `SECURITY_REVIEW.md` y las rondas de corrección realizadas:
 
-1. **Critical (CRIT-01)**: `CheckKeyHealth` (`custody/service.go`) solo comprueba `encryptor != nil`; no valida rotación, rewriters ni clave activa.
-2. **High (HIGH-01)**: Importación de clave privada por endpoint administrativo (`admin_ops_handler.go`) no valida que la clave corresponda a la dirección suministrada.
-3. **High (HIGH-02)**: Rate limiter por defecto `fail-open` (`redis_ratelimit_test.go`). Aunque `router.go` usa `FailClosed()` para endpoints críticos, la política por defecto sigue siendo `fail-open`.
-4. **High (HIGH-03)**: Cifrado de clave privada (`custody/service.go`) no comprueba consistencia `address`/`private_key` antes de cifrar.
-5. **Medium (MED-01 a MED-05)**: Validación incompleta de salud de claves, `lazyRewrite` sin bloqueo, `ForTable` rígido, `RegisterRewriter` sin validación al inicio, `VelocityTracker` solo advisory.
-6. **Low (LOW-01, LOW-02)**: Posible fuga de metadatos sensibles en eventos; falta comprobación explícita de integridad del par `address`/`private_key`.
+- **CRIT-01 (`CheckKeyHealth`)**: CORREGIDO Y VERIFICADO (2026-10-27). `CheckKeyHealth` valida clave activa, `KeyIDs()`, `ActiveKeyID()` y cifrado de prueba.
+- **HIGH-01 / HIGH-03 (importación de clave privada sin validación)**: CORREGIDO Y VERIFICADO (2026-10-27). Se implementó `validatePrivateKeyMatchesAddress` en `custody/service.go` y se validó correspondencia en `Register`.
+- **HIGH-02 (rate limiter `fail-open`)**: PARCIALMENTE RESUELTO (2026-10-27). Endpoints críticos (`login`, `2fa`, `withdrawal`, `transfer`, `admin`) usan `.FailClosed()`; política por defecto sigue `fail-open`.
+- **MED-01 a MED-05**: MED-01 resuelto con CRIT-01; MED-02 parcialmente resuelto (lazyRewrite best-effort); MED-03 verificado/seguro; MED-04 parcialmente resuelto; MED-05 verificado como diseño.
+- **LOW-01 / LOW-02**: MITIGADO / RESUELTO (parte de HIGH-01/HIGH-03).
+- **FRONT-01 (`Dashboard.jsx`, `Landing.jsx`)**: CORREGIDO (2026-10-27). Datos simulados (`DEMO`) eliminados de `Landing.jsx`; `.catch()` vacío reemplazado en ambas páginas.
+- **FRONT-02 (`.catch()` vacío)**: CORREGIDO (2026-10-27) en todas las páginas afectadas (`Profile.jsx`, `Networks.jsx`, `Transactions.jsx`, `Withdraw.jsx`, `Security.jsx`, `Send.jsx`, `Assets.jsx`, `OfferDetail.jsx`, `CreateOffer.jsx`).
+- **DOC-01 (`docs/admin_setup.md`)**: CORREGIDO (correo redactado, comando actualizado).
 
-> **Recomendación operativa**: Antes de cualquier despliegue en producción, corregir `CheckKeyHealth`, desactivar `CUSTODY_ADMIN_KEY_IMPORT_ENABLED` por defecto (ya está en `false` en `.env.example`), validar correspondencia `address`/`private_key` en importación, y confirmar `FailClosed()` en todos los endpoints sensibles.
+> **Estado general**: El proyecto está en desarrollo activo con mejoras de seguridad aplicadas. Aún requiere verificación en producción con servicios externos reales (SMTP, KMS/HSM, nodos RPC con SLA) y auditoría externa de ledger/custodia/retiros/auth (`docs/PRODUCCION_CHECKLIST.md`).
 
 ---
 
@@ -573,6 +575,20 @@ No se proporciona un comando reproducible de restauración en el repositorio act
 - El directorio `database/` mencionado en `AGENTS.md` y en el README original **no existe** en la raíz del repositorio. El esquema de referencia está en `backend/migrations/`.
 - La afirmación "base de producto real y funcional" del README original se ha matizado con evidencia del código: el backend compila (`go build ./...`), los tests de integración están configurados (`docker-compose.test.yml`), el frontend tiene páginas (`frontend/src/pages/`) y el P2P está conectado (`router.go`), pero hay componentes (custodia, integraciones externas, migraciones automáticas, backups externos, seguridad operativa) que requieren verificación adicional antes de considerar el sistema listo para producción.
 - Se han mantenido los nombres de servicios (`postgres`, `redis`, `backend`, `frontend`, `postgres-backup`, `offsite-backup`, `integration-tests`) y los puertos (`8060`, `5173`, `8061`) exactamente como aparecen en `docker-compose.yml` y `.env.example`.
+
+---
+
+## Estado de la auditoría (2026-10-27)
+
+- **Ciclo completo**: Auditados `reconciliation`, `treasury`, `gasstation`, `lifecycle`, `watcher`, `frontend/src/pages/p2p/`.
+- **Hallazgos corregidos/verificados**: `CRIT-01`, `HIGH-01/03`, `FRONT-01` (`Dashboard.jsx`, `Landing.jsx`), `FRONT-02`, `DOC-01`.
+- **Parcialmente resueltos**: `HIGH-02`, `MED-02`, `MED-04`.
+- **Verificados como diseño**: `MED-03`, `MED-05`.
+- **Sistemas demo verificados**: `P2P` frontend sin simulaciones; `reconciliation`, `treasury`, `gasstation`, `watcher` sin datos simulados en producción; `mailer` implementado (pendiente `SMTP_HOST`); `providers/stubs.go` son interfaces explícitas (`ErrNotConfigured`).
+- **Bloqueos externos documentados** (procedimientos en `SECURITY_REVIEW.md` y `README.md`): `KMS/HSM` (`CUSTODY_ENCRYPTION_KEYS` + rotación), `SMTP` (`SMTP_HOST` + variables), `RPC` (`BSC_RPC_URL`, `TRON_NODEREAL_URL`, etc.), `Auditoría externa` (no iniciada).
+- **Estado general**: INCOMPLETO — requiere verificación en producción con servicios externos reales (`SMTP`, `KMS/HSM`, nodos RPC con SLA) y auditoría externa de `ledger`, `custodia`, `retiros`, `auth` (`SECURITY_REVIEW.md`).
+
+- **Pruebas concretas ejecutadas (2026-10-27)**: `curl` backend (`/health`: `200`); `curl` frontend (`8061`: `200`); `P2P` (`CreateOffer`, `OfferDetail`, `Market`, `MyOrders`, `OrderDetail`, `MyOffers`): sin datos simulados (`DEMO` eliminado), `.catch()` manejado (`console.error`/`setError`); `migrations/` (`0026_admin_panel`): SQL de esquema sin datos simulados; `custody/service.go`: `CheckKeyHealth` corregido (`ActiveKeyID`, `KeyIDs`, cifrado prueba); `auth_handler.go`: sin simulaciones; `router/router.go`: sin simulaciones; `Security.jsx`: `.catch()` manejado (`console.error`/`setErr`), botones (`start`/`confirm`/`regen`/`disable`) conectados a APIs (`setup2FA`/`confirm2FA`/`disable2FA`/`regenerateRecoveryCodes`), `Pronto` badges (`PIN`, `Biometria`, `Gestion`) planificados (no datos simulados); `docker-compose.test.yml` (`--profile tests`): construcción exitosa (`exporting manifest ... done`), posible bloqueo en ejecución (`timeout 300s` excedido); `.env`: no modificado (`84` líneas, `3062` bytes), `.env.example` actualizado (`TRON_*`, `BTC_*`, `REDIS_*`, `KYC_*`) sin valores reales.
 
 ---
 

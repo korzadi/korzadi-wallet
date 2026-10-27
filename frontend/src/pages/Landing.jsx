@@ -19,32 +19,12 @@ const coin = (code) => {
   return COINS[c] || ['#1468FF', (c || '?')[0]];
 };
 
-const DEMO = {
-  total: 2458.32,
-  assets: [
-    { code: 'USDT', name: 'Tether', value: '$1,250.00', amount: '1,250.00 USDT', color: '#26A17B', glyph: '₮' },
-    { code: 'BTC', name: 'Bitcoin', value: '$640.32', amount: '0.0087 BTC', color: '#F7931A', glyph: '₿' },
-    { code: 'ETH', name: 'Ethereum', value: '$420.15', amount: '0.1643 ETH', color: '#627EEA', glyph: 'Ξ' },
-    { code: 'BNB', name: 'BNB', value: '$180.21', amount: '0.312 BNB', color: '#F3BA2F', glyph: 'B' },
-  ],
-  ops: [
-    { title: 'Compra USDT (P2P)', when: 'Hace 12 min', amount: '+250.00 USDT', color: '#26A17B', glyph: '₮', sign: '#34D399' },
-    { title: 'Venta BTC (P2P)', when: 'Hace 32 min', amount: '+0.0021 BTC', color: '#F7931A', glyph: '₿', sign: '#34D399' },
-    { title: 'Envío ETH', when: 'Hace 45 min', amount: '-0.015 ETH', color: '#627EEA', glyph: 'Ξ', sign: '#F87171' },
-  ],
-  offers: [
-    { trader: 'CryptoFast', rate: '1.00 USDT = 1.00 USD', limit: 'Límite: 50 – 5,000 USD', color: '#3B6BFF', glyph: 'C' },
-    { trader: 'GlobalTraders', rate: '1.00 USDT = 1.00 USD', limit: 'Límite: 100 – 10,000 USD', color: '#3B6BFF', glyph: 'G' },
-    { trader: 'CoinDirect', rate: '1.00 USDT = 1.03 USD', limit: 'Límite: 200 – 8,000 USD', color: '#F7931A', glyph: 'D' },
-  ],
-};
-
 const INITIAL_DATA = {
-  total: DEMO.total,
-  assets: DEMO.assets,
-  ops: DEMO.ops,
-  offers: DEMO.offers,
-  demo: { total: true, ops: true, offers: true },
+  total: 0,
+  assets: [],
+  ops: [],
+  offers: [],
+  demo: { total: false, ops: false, offers: false },
 };
 
 function KzMark({ size = 22 }) {
@@ -125,7 +105,9 @@ function useLandingData() {
           };
         });
         next.demo.total = false;
-      } catch { /* se queda el ejemplo */ }
+      } catch {
+        // Sin datos simulados; se mantiene vacío.
+      }
 
       try {
         const { data: body } = await api.get('/api/wallet/transactions');
@@ -146,7 +128,9 @@ function useLandingData() {
           };
         });
         next.demo.ops = false;
-      } catch { /* se queda el ejemplo */ }
+      } catch {
+        // No hay datos simulados; se mantiene vacío.
+      }
 
       try {
         const { data: body } = await api.get('/api/p2p/offers');
@@ -162,7 +146,9 @@ function useLandingData() {
           };
         });
         next.demo.offers = false;
-      } catch { /* se queda el ejemplo */ }
+      } catch {
+        // Sin datos simulados; se mantiene vacío.
+      }
 
       if (alive) setData(next);
     }

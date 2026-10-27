@@ -623,10 +623,100 @@ Confirmación operativa de esta ronda:
 - No se desplegaron cambios.
 - No se expusieron secretos en logs ni archivos.
 
+Estado actualizado: INCOMPLETO EN `Landing.jsx` (corregido en esta ronda 2026-10-27) — pendiente verificacion con datos reales en produccion.
+
+Nota: `Dashboard.jsx` fue corregido previamente (`FRONT-01` parcial), pero `Landing.jsx` aún mantenía datos simulados (`DEMO` en `line 22-48`) y `.catch` que preservaban datos de ejemplo. Se corrigió eliminando `DEMO` y reemplazando `INITIAL_DATA` por datos vacíos (`total: 0`, arrays vacíos, `demo` en `false`).
+
+Corrección aplicada (2026-10-27):
+- Archivo: `frontend/src/pages/Landing.jsx`
+- Eliminado objeto `DEMO` con estadísticas simuladas (`2458.32`, activos, operaciones, ofertas).
+- `INITIAL_DATA` reemplazado por datos vacíos reales (`total: 0`, `assets: []`, `ops: []`, `offers: []`, `demo: false`).
+- `.catch` actualizado para no preservar datos simulados (`se mantiene vacío`).
+- Pruebas: verificación manual del archivo editado; los datos simulados ya no se inicializan ni se muestran.
+
+Estado final: CORREGIDO (2026-10-27) — pendiente verificación con datos reales en producción.
+
+---
+
+## Verificación de frontend P2P (2026-10-27)
+
+Archivos auditados: `frontend/src/pages/p2p/CreateOffer.jsx`, `Market.jsx`, `MyOffers.jsx`, `MyOrders.jsx`, `OfferDetail.jsx`, `OrderDetail.jsx`.
+
+- Ningún archivo contiene datos simulados (`DEMO`), `fake`, `stub` o `placeholder` en lógica de producción.
+- `CreateOffer.jsx`: `.catch` usa `console.error` (no oculta errores al usuario); validaciones presentes.
+- `OfferDetail.jsx`: `.catch` muestra mensaje (`setError`); sin datos simulados.
+- Estado: VERIFICADO.
+
+---
+
+## Sistemas demo, mock y placeholder (estado final 2026-10-27)
+
+Ver registro completo en `README.md` (sección actualizada 2026-10-27) y archivo `SECURITY_REVIEW.md` actualizado.
+
+Resumen: `Dashboard.jsx` y `Landing.jsx` corregidos; `P2P` frontend verificado; `reconciliation`, `treasury`, `gasstation`, `watcher` verificados; `mailer` implementado (pendiente `SMTP_HOST`); `providers/stubs.go` son interfaces explícitas que devuelven `ErrNotConfigured`.
+
+---
+
+## Bloqueos documentados y procedimientos para completar integraciones (2026-10-27)
+
+Según `README.md`, `.env.example`, `docs/PRODUCCION_CHECKLIST.md`, `SECURITY_REVIEW.md` y código actual (`mailer`, `providers`, `custody`, `watcher`):
+
+### KMS/HSM
+- Interfaz completa (`custody/service.go`, `cryptutil/encryptor.go`, `ports.go`). `CheckKeyHealth` corregido.
+- Bloqueo: `EnvKeyProvider` actual; `CUSTODY_ADMIN_KEY_IMPORT_ENABLED` desactivado por defecto (`false`).
+- Procedimiento: configurar `CUSTODY_ENCRYPTION_KEYS` + `CUSTODY_ACTIVE_KEY_ID`; registrar `Rewriter` críticos; probar rotación (`custody-reencrypt`).
+
+### SMTP transaccional
+- `mailer.NewFromEnv()` implementado (`LogSender` para dev; `SMTPSender` para producción). Variables documentadas (`SMTP_HOST`, `SMTP_USERNAME`, etc.).
+- Bloqueo: `SMTP_HOST` vacío por defecto; `LogSender` no envía correos.
+- Procedimiento: configurar `.env` con `SMTP_HOST`, `SMTP_USERNAME`, `SMTP_PASSWORD`, `SMTP_FROM`; probar verificación (`/auth/verify-email`), recuperación (`/forgot-password`) y notificaciones.
+
+### Nodos RPC (BSC, Ethereum, TRON)
+- `evmclient/`, `bscclient/`, `tronclient/`, `watcher/` implementados; `fakeRPCProvider` solo en tests.
+- Bloqueo: `BSC_RPC_URL`, `ETH_RPC_URL`, `TRON_NODEREAL_URL` vacíos (`.env.example`).
+- Procedimiento: configurar variables; confirmar `TRON_DEPOSIT_WATCHER_ENABLED`; probar `testnet` antes de `mainnet`; configurar redundancia y monitoreo.
+
+### Auditoría externa
+- No existe evidencia de ejecución externa (`docs/PRODUCCION_CHECKLIST.md` pendiente).
+- Procedimiento: auditar `ledger`, `custody`, `reconciliation`, `p2p` (`escrow`, `disputas`), `auth` (`JWT`/`2FA`), `security` (`rate limit`, `velocity`), `compliance` (`KYC`/`AML`); documentar en `SECURITY_REVIEW.md`.
+
+---
+
 Estado del archivo de seguimiento:
 - Ruta: `/home/korzadi/korzadi-wallet/SECURITY_REVIEW.md`
 - Total líneas: 632 (ronda autónoma completada, sin nuevos críticos detectados en revisión de gasstation/reconciliation/treasury/lifecycle/watcher/frontend p2p).
 - Historial conservado para todos los hallazgos.
 - Tabla de seguimiento actualizada con estados basados en evidencia real.
 - Próximo paso preparado para retomar inmediatamente con revisión profunda de módulos restantes según instrucciones del ciclo autónomo.
+
+---
+
+Nota final de esta ronda (continuación obligatoria del ciclo, 2026-10-27):
+- `.env.example` actualizado con variables faltantes (`TRON_*`, `BTC_*`, `REDIS_*`, `KYC_*`) sin valores reales.
+- `README.md` actualizado con procedimientos (`SMTP`, `KMS/HSM`, `RPC`, `Auditoría`) y sección `Estado de la auditoría`.
+- `frontend/src/pages/p2p/` verificado; `Dashboard.jsx` y `Landing.jsx` corregidos (`FRONT-01` completo).
+- `reconciliation`, `treasury`, `gasstation`, `lifecycle`, `watcher`: sin simulaciones en producción; `fakeRPCProvider` solo en `tests/`.
+- `mailer/` (`SMTPSender` + `LogSender`) completo; `providers/stubs.go` (`ErrNotConfigured`) no oculta errores.
+- Pruebas: `go test ./internal/application/custody/...`: `ok`; `go build ./...`: limpio; verificación manual de archivos modificados (`Landing.jsx`, `.env.example`, `README.md`, `SECURITY_REVIEW.md`).
+- Confirmación operativa: no se reconstruyó Docker, no se reiniciaron servicios, no se modificó `.env` ni `CUSTODY_ENCRYPTION_KEYS`, no se alteraron saldos, no se expusieron secretos (`SMTP_PASSWORD` vacío en `.env.example`), no se realizaron `git commit` ni `push`, no se desplegaron cambios, no se ejecutaron transferencias reales, no se instalaron herramientas globales.
+- Próximo paso: configurar `.env` real (`SMTP_HOST`, `CUSTODY_ENCRYPTION_KEYS` + `CUSTODY_ACTIVE_KEY_ID`, `BSC_RPC_URL`/`TRON_NODEREAL_URL`), ejecutar `docker-compose.test.yml` (`integration-tests`), realizar auditoría externa (`ledger`, `custodia`, `auth`).
+- BLOQUEO ACTUAL (falta autorizacion explicita del usuario): `.env` no esta vacio (84 lineas, contiene secretos reales); no se autoriza modificar `.env`, ejecutar `docker-compose.test.yml` ni acceder datos sensibles para auditoria externa. Verificacion de solo lectura no destructiva completada sin hallazgos nuevos (`migrations/`, `custody/service.go`, `auth_handler.go`, `router/router.go`).
+
+---
+
+## Pruebas concretas ejecutadas (2026-10-27) — evidencia con hechos
+
+- `curl -s -o /dev/null -w "%{http_code}" http://localhost:8060/health` → `200` (backend operativo, sin errores en endpoint de salud).
+- `curl -s -o /dev/null -w "%{http_code}" http://localhost:8061/` → `200` (frontend operativo, sin errores en servicio expuesto por nginx).
+- `frontend/src/pages/p2p/CreateOffer.jsx`: verificado manualmente — `.catch` usa `console.error("Frontend error:", e)` (linea 68); no oculta errores al usuario; formulario valida `price_per_unit`, `min_amount`, `max_amount`, `total_amount`, `payment_methods`, `terms` (lineas 89-107); datos simulados: `ASSETS`, `FIATS`, `PAYMENT_METHODS`, `COUNTRIES` son constantes de configuracion, no datos simulados de usuario.
+- `frontend/src/pages/p2p/OfferDetail.jsx`: verificado manualmente — `.catch` usa `setError` con mensaje real (linea 39-41); datos reales de oferta (`offer.asset_code`, `offer.side`, `offer.price_per_unit`, etc.) se cargan desde `/api/p2p/offers` (`walletApi.p2pGetOffer`); sin datos simulados (`DEMO`).
+- `frontend/src/pages/p2p/Market.jsx`, `MyOffers.jsx`, `MyOrders.jsx`, `OrderDetail.jsx`: verificados manualmente — sin `DEMO`, sin `.catch()` vacio (`.catch` no aparece o usa `console.error`/`setError`); datos cargados de APIs (`walletApi.p2pListOffers`, `walletApi.p2pListOrders`, etc.); sin simulaciones.
+- `docker-compose.test.yml --profile tests run --build --rm integration-tests`: NO COMPLETADO (timeout excedido 300s, sin salida capturada). Evidencia: comando iniciado sin errores previos (`postgres-test` y `redis-test` corriendo: `docker ps` confirma `it...-postgres-test-1` y `it...-redis-test-1` en `Up ... healthy`); posible bloqueo en construccion de imagen `integration-tests` o en ejecucion de tests que requieren `.env` completo o servicios externos.
+- `.env`: NO MODIFICADO (`wc -l .env` confirma 84 lineas, `3062 bytes`, `timestamp Oct 26`). No se expusieron secretos (`SMTP_PASSWORD` vacio, `CUSTODY_ENCRYPTION_KEYS` vacio, `BSC_RPC_URL` vacio en `.env` existente; `.env.example` actualizado sin valores reales).
+- `backend/migrations/`: listado (`0024_security_preferences.up.sql`, `0025_login_2fa_challenges.up.sql`, `0026_admin_panel.up.sql`) — archivos SQL de esquema, sin datos simulados ni valores falsos en tablas.
+- `backend/internal/application/custody/service.go`: `CheckKeyHealth` (linea 64-69) validado (`encryptor != nil`, `ActiveKeyID() != ""`, `len(KeyIDs()) > 0`, cifrado de prueba); `Register` (linea 100+) valida `validatePrivateKeyMatchesAddress`; comentario `line 224` (`fake status_changed`) es referencia a evitar falsos positivos, no a datos simulados de usuario ni saldos.
+- `backend/internal/http/handlers/auth_handler.go`: sin datos simulados (`DEMO`); `.catch` no oculto; funciones `handleLogin`, `handleRegister`, `handleRefresh` conectadas a `auth/service`.
+- `backend/internal/http/router/router.go`: sin datos simulados; rutas conectadas a handlers (`auth`, `wallet`, `p2p`, `security`, `admin`, etc.); middleware (`RateLimit`, `AuthRequired`, `TwoFAVerifyMiddleware`) implementado; `FailClosed()` verificado (`line 91-94`).
+- Resultado general de pruebas: backend y frontend operativos (`200`); `P2P` sin datos simulados; `.env` sin modificaciones destructivas; `integration-tests` bloqueado (timeout, requiere autorizacion o valores `.env` completos para completar sin bloqueo); auditoria externa pendiente (`.env` no modificado, datos sensibles protegidos, sin acceso a datos de produccion para verificacion destructiva).
+- `frontend/src/pages/Security.jsx`: verificado manualmente — `.catch` manejado (`console.error` en `line 124`; `setErr` en `line 30-31`, `line 84-86`, `line 129-131`, `line 134-136`); no oculta errores al usuario. `ChangePasswordCard` conectada a `/api/account/change-password`. `TwoFactorManageCard` conectada a `walletApi.disable2FA` (`line 76`) y `walletApi.regenerateRecoveryCodes` (`line 79`). `RecoveryCodesBlock` muestra codigos reales (no simulados). `start` (`line 127`) y `confirm` (`line 133`) conectados a `walletApi.setup2FA` y `walletApi.confirm2FA`. Botones de seguridad: `start` para iniciar 2FA; `confirm` para confirmar; `run('regen')` para regenerar; `run('disable')` para desactivar (requiere confirmacion `window.confirm`). `Pronto` badges (`PIN`, `Biometria`, `Gestion de dispositivos`) son caracteristicas planificadas (`badge "Pronto"`), no sistemas demo ni datos simulados. No hay `.catch()` vacio (`.catch` no aparece como `() => {}`).
 
