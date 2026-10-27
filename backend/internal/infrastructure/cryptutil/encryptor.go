@@ -62,6 +62,27 @@ func NewEncryptor(hexKey string) (*Encryptor, error) {
 	return New(p), nil
 }
 
+func (e *Encryptor) ActiveKeyID() string {
+	if e.provider == nil {
+		return ""
+	}
+	return e.provider.ActiveKeyID()
+}
+
+func (e *Encryptor) KeyIDs() []string {
+	if e.provider == nil {
+		return []string{}
+	}
+	return e.provider.KeyIDs()
+}
+
+func (e *Encryptor) HasRewriter(slot string) bool {
+	e.mu.RLock()
+	defer e.mu.RUnlock()
+	_, ok := e.rewriters[slot]
+	return ok
+}
+
 // RegisterRewriter enables lazy migration for a column. Call once at boot.
 func (e *Encryptor) RegisterRewriter(slot string, rw Rewriter) {
 	e.mu.Lock()

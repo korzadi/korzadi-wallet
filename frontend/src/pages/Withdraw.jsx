@@ -26,7 +26,7 @@ export default function Withdraw() {
           setNetwork(typeof first === 'string' ? first : (first.network || first.code || first.name));
         }
       })
-      .catch(() => {});
+      .catch((e) => { console.error("Frontend error:", e); });
   }, []);
 
   const estimate = async () => {

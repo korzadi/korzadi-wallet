@@ -10,6 +10,8 @@ import (
 	"github.com/google/uuid"
 
 	"korzadi-wallet/backend/internal/domain"
+	"korzadi-wallet/backend/internal/infrastructure/evmwallet"
+	"korzadi-wallet/backend/internal/infrastructure/tronwallet"
 )
 
 func newTestService() (*Service, *fakeRepository, *fakeEncryptor, *fakeAuditLogger) {
@@ -19,16 +21,32 @@ func newTestService() (*Service, *fakeRepository, *fakeEncryptor, *fakeAuditLogg
 	return NewService(repo, enc, audit, nil), repo, enc, audit
 }
 
-func validHotInput() RegisterInput {
+func generateValidInput(walletType WalletType, assetCode, network, addressType string) RegisterInput {
+	var addr, priv string
+	switch addressType {
+	case "evm":
+		kp, _ := evmwallet.GenerateKeyPair()
+		addr, priv = kp.Address, kp.PrivateKeyHex
+	case "tron":
+		kp, _ := tronwallet.GenerateKeyPair()
+		addr, priv = kp.Address, kp.PrivateKeyHex
+	default:
+		addr = "0x0000000000000000000000000000000000000000"
+		priv = "invalid"
+	}
 	return RegisterInput{
-		Network:             domain.Network("BSC"),
-		AssetCode:           "USDT",
-		WalletType:          WalletTypeHot,
-		Address:             "0x000000000000000000000000000000000000dead",
-		AddressType:         "evm",
-		PrivateKeyPlaintext: "super-secret-hex-key",
+		Network:             domain.Network(network),
+		AssetCode:           assetCode,
+		WalletType:          walletType,
+		Address:             addr,
+		AddressType:         addressType,
+		PrivateKeyPlaintext: priv,
 		Actor:               "admin:test",
 	}
+}
+
+func validHotInput() RegisterInput {
+	return generateValidInput(WalletTypeHot, "USDT", "BSC", "evm")
 }
 
 // ---- CREATE ----
@@ -56,10 +74,7 @@ func TestRegister_CreatesHotWallet(t *testing.T) {
 
 func TestRegister_CreatesGasWallet(t *testing.T) {
 	svc, _, _, _ := newTestService()
-	in := validHotInput()
-	in.WalletType = WalletTypeGas
-	in.AssetCode = "BNB"
-	in.Address = "0x00000000000000000000000000000000000000f1"
+	in := generateValidInput(WalletTypeGas, "BNB", "BSC", "evm")
 
 	w, err := svc.Register(context.Background(), in)
 	if err != nil {
@@ -75,9 +90,7 @@ func TestRegister_CreatesGasWallet(t *testing.T) {
 
 func TestRegister_CreatesTreasuryWallet(t *testing.T) {
 	svc, _, _, _ := newTestService()
-	in := validHotInput()
-	in.WalletType = WalletTypeTreasury
-	in.Address = "0x00000000000000000000000000000000000000f2"
+	in := generateValidInput(WalletTypeTreasury, "USDT", "BSC", "evm")
 
 	w, err := svc.Register(context.Background(), in)
 	if err != nil {
@@ -93,15 +106,21 @@ func TestRegister_DifferentCombosCoexist(t *testing.T) {
 	// deben poder coexistir sin chocar entre sí.
 	svc, _, _, _ := newTestService()
 
-	combos := []RegisterInput{
-		{Network: "BSC", AssetCode: "USDT", WalletType: WalletTypeHot, Address: "0x000000000000000000000000000000000000a001", AddressType: "evm", PrivateKeyPlaintext: "k1"},
-		{Network: "TRON", AssetCode: "USDT", WalletType: WalletTypeHot, Address: "TA0000000000000000000000000000a002", AddressType: "tron", PrivateKeyPlaintext: "k2"},
-		{Network: "BSC", AssetCode: "BNB", WalletType: WalletTypeGas, Address: "0x000000000000000000000000000000000000a003", AddressType: "evm", PrivateKeyPlaintext: "k3"},
-		{Network: "BSC", AssetCode: "USDT", WalletType: WalletTypeTreasury, Address: "0x000000000000000000000000000000000000a004", AddressType: "evm", PrivateKeyPlaintext: "k4"},
+	combos := []struct {
+		wt       WalletType
+		asset    string
+		network  string
+		addrType string
+	}{
+		{WalletTypeHot, "USDT", "BSC", "evm"},
+		{WalletTypeHot, "USDT", "TRON", "tron"},
+		{WalletTypeGas, "BNB", "BSC", "evm"},
+		{WalletTypeTreasury, "USDT", "BSC", "evm"},
 	}
-	for i, in := range combos {
+	for i, combo := range combos {
+		in := generateValidInput(combo.wt, combo.asset, combo.network, combo.addrType)
 		if _, err := svc.Register(context.Background(), in); err != nil {
-			t.Fatalf("combo %d (%s/%s/%s): no esperaba error: %v", i, in.WalletType, in.Network, in.AssetCode, err)
+			t.Fatalf("combo %d (%s/%s/%s): no esperaba error: %v", i, combo.wt, combo.network, combo.asset, err)
 		}
 	}
 }
@@ -350,14 +369,11 @@ func TestRegister_EncryptsBeforePersisting(t *testing.T) {
 
 func TestList_FiltersByWalletType(t *testing.T) {
 	svc, _, _, _ := newTestService()
-	hot := validHotInput()
+	hot := generateValidInput(WalletTypeHot, "USDT", "BSC", "evm")
 	if _, err := svc.Register(context.Background(), hot); err != nil {
 		t.Fatalf("register hot: %v", err)
 	}
-	gas := hot
-	gas.WalletType = WalletTypeGas
-	gas.AssetCode = "BNB"
-	gas.Address = "0x000000000000000000000000000000000000b0b0"
+	gas := generateValidInput(WalletTypeGas, "BNB", "BSC", "evm")
 	if _, err := svc.Register(context.Background(), gas); err != nil {
 		t.Fatalf("register gas: %v", err)
 	}

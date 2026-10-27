@@ -14,6 +14,7 @@ import (
 	"crypto/ecdsa"
 	"encoding/hex"
 	"fmt"
+	"strings"
 
 	"github.com/ethereum/go-ethereum/crypto"
 )
@@ -33,6 +34,27 @@ func GenerateKeyPair() (*KeyPair, error) {
 		return nil, fmt.Errorf("evmwallet: generar clave: %w", err)
 	}
 	return keyPairFromPrivateKey(privKey)
+}
+
+func KeyFromPrivateKeyHex(privateKeyHex string) (*ecdsa.PrivateKey, error) {
+	cleaned := strings.TrimPrefix(privateKeyHex, "0x")
+	k, err := crypto.HexToECDSA(cleaned)
+	if err != nil {
+		return nil, fmt.Errorf("clave privada EVM inválida: %w", err)
+	}
+	return k, nil
+}
+
+func AddressFromPrivateKeyHex(privateKeyHex string) (string, error) {
+	privKey, err := KeyFromPrivateKeyHex(privateKeyHex)
+	if err != nil {
+		return "", err
+	}
+	kp, err := keyPairFromPrivateKey(privKey)
+	if err != nil {
+		return "", err
+	}
+	return kp.Address, nil
 }
 
 func keyPairFromPrivateKey(privKey *ecdsa.PrivateKey) (*KeyPair, error) {

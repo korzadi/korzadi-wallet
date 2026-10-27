@@ -7,7 +7,7 @@ El primer administrador se creó correctamente mediante el CLI
 
 La cuenta inicial configurada fue:
 
-- Correo: `korzadi03@gmail.com`
+- Correo: [REDACTADO] (cuenta inicial creada con CLI)
 - Rol: `super_admin`
 - Estado: activo, según el resultado del CLI.
 - Autenticación: contraseña y código TOTP de seis dígitos.
@@ -48,7 +48,7 @@ docker run --rm -it \
     export DATABASE_URL="postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?sslmode=disable"
 
     exec go run ./cmd/admin \
-      -email korzadi03@gmail.com \
+      -email [REDACTADO] \
       -name "Korzadi" \
       -role super_admin
   '

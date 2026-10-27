@@ -10,7 +10,9 @@ import (
 
 	"korzadi-wallet/backend/internal/domain"
 	"korzadi-wallet/backend/internal/infrastructure/cryptutil"
+	"korzadi-wallet/backend/internal/infrastructure/evmwallet"
 	"korzadi-wallet/backend/internal/infrastructure/postgres"
+	"korzadi-wallet/backend/internal/infrastructure/tronwallet"
 )
 
 // Service is the application-layer entry point for Bloque 7.1. It only
@@ -32,6 +34,19 @@ type Service struct {
 func (s *Service) CheckKeyHealth(ctx context.Context) error {
 	if s.encryptor == nil {
 		return errors.New("custodia: encryptor no configurado")
+	}
+	if s.encryptor.ActiveKeyID() == "" {
+		return errors.New("custodia: clave activa no definida")
+	}
+	ids := s.encryptor.KeyIDs()
+	if len(ids) == 0 {
+		return errors.New("custodia: no hay claves registradas")
+	}
+	// Verificar que la clave activa puede cifrar (compatibilidad con ciphertexts existentes)
+	testAAD := cryptutil.ForCustodyWallet("0x0000000000000000000000000000000000000000")
+	_, err := s.encryptor.Encrypt("test-health-check", testAAD)
+	if err != nil {
+		return fmt.Errorf("custodia: clave activa no puede cifrar: %w", err)
 	}
 	return nil
 }
@@ -65,6 +80,11 @@ func (s *Service) Register(ctx context.Context, in RegisterInput) (*CustodyWalle
 	}
 	if strings.TrimSpace(in.PrivateKeyPlaintext) == "" {
 		return nil, ErrEmptyPrivateKey
+	}
+
+	// HIGH-01 / HIGH-03: validar que la clave privada corresponde a la dirección antes de cifrar.
+	if err := validatePrivateKeyMatchesAddress(in.AddressType, in.Address, in.PrivateKeyPlaintext); err != nil {
+		return nil, fmt.Errorf("%w: %v", ErrInvalidPrivateKeyMatch, err)
 	}
 
 	if s.assets != nil {
@@ -227,6 +247,39 @@ func (s *Service) UpdateStatus(ctx context.Context, id uuid.UUID, newStatus Stat
 	}
 
 	return toPublic(updated), nil
+}
+
+func validatePrivateKeyMatchesAddress(addressType, address, privateKeyHex string) error {
+	switch addressType {
+	case "evm":
+		return validateEVMPrivateKeyMatchesAddress(address, privateKeyHex)
+	case "tron":
+		return validateTRONPrivateKeyMatchesAddress(address, privateKeyHex)
+	default:
+		return fmt.Errorf("tipo de dirección no soportado para validación: %s", addressType)
+	}
+}
+
+func validateEVMPrivateKeyMatchesAddress(address, privateKeyHex string) error {
+	derivedAddr, err := evmwallet.AddressFromPrivateKeyHex(privateKeyHex)
+	if err != nil {
+		return fmt.Errorf("clave EVM inválida: %w", err)
+	}
+	if !strings.EqualFold(derivedAddr, address) {
+		return fmt.Errorf("dirección derivada %s no coincide con la suministrada %s", derivedAddr, address)
+	}
+	return nil
+}
+
+func validateTRONPrivateKeyMatchesAddress(address, privateKeyHex string) error {
+	derivedAddr, err := tronwallet.AddressFromPrivateKeyHex(privateKeyHex)
+	if err != nil {
+		return fmt.Errorf("clave TRON inválida: %w", err)
+	}
+	if derivedAddr != address {
+		return fmt.Errorf("dirección derivada %s no coincide con la suministrada %s", derivedAddr, address)
+	}
+	return nil
 }
 
 func actorOrSystem(actor string) string {

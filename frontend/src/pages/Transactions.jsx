@@ -11,7 +11,7 @@ export default function Transactions() {
   const [tab, setTab] = useState('all');
 
   useEffect(() => {
-    api.get('/api/wallet/transactions').then(({ data }) => setItems(data?.transactions || [])).catch(() => {});
+    api.get('/api/wallet/transactions').then(({ data }) => setItems(data?.transactions || [])).catch((e) => { console.error("Frontend error:", e); });
   }, []);
 
   const shown = items.filter((t) => {

@@ -11,7 +11,7 @@ export default function Profile() {
   const [kyc, setKyc] = useState('');
 
   useEffect(() => {
-    walletApi.kycStatus().then(({ data }) => setKyc(String(data?.status || '').toLowerCase())).catch(() => {});
+    walletApi.kycStatus().then(({ data }) => setKyc(String(data?.status || '').toLowerCase())).catch((e) => { console.error("Frontend error:", e); });
   }, []);
 
   const logout = () => { clearTokens(); window.location.href = '/'; };

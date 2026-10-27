@@ -17,7 +17,7 @@ export default function Networks() {
         return code === 'ETHEREUM' ? 'ETH' : code;
       });
       if (l.length) setActive(l);
-    }).catch(() => {});
+    }).catch((e) => { console.error("Frontend error:", e); });
   }, []);
 
   const pick = (k) => { setSel(k); setNetwork(k); nav(-1); };

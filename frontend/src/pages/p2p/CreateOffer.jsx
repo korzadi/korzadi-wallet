@@ -65,7 +65,7 @@ export default function CreateOffer() {
     walletApi.balances().then(({ data }) => {
       const b = (data?.balances || []).find(x => x.asset === form.asset_code);
       setBalance(b?.balance || '0');
-    }).catch(() => {});
+    }).catch((e) => { console.error("Frontend error:", e); });
   }, [form.asset_code]);
 
   const handleChange = (e) => {

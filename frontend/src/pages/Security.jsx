@@ -121,7 +121,7 @@ export default function Security() {
   useEffect(() => {
     walletApi.get2FAStatus()
       .then((r) => { setEnabled(!!r.data?.enabled); setRemaining(r.data?.recovery_codes_remaining ?? 0); })
-      .catch(() => {});
+      .catch((e) => { console.error("Frontend error:", e); });
   }, []);
 
   const start = async () => {

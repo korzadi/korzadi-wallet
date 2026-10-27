@@ -15,7 +15,7 @@ export default function Assets() {
   const [tab, setTab] = useState('all');
 
   useEffect(() => {
-    api.get('/api/wallet/balances').then(({ data }) => setBalances(data?.balances || [])).catch(() => {});
+    api.get('/api/wallet/balances').then(({ data }) => setBalances(data?.balances || [])).catch((e) => { console.error("Frontend error:", e); });
   }, []);
 
   const list = useMemo(() => balances.filter((a) => {

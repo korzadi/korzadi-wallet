@@ -25,7 +25,7 @@ export default function Send() {
     walletApi.balances().then(({ data }) => {
       const b = (data?.balances || []).find((x) => x.asset === asset || (asset === 'USDT' && x.asset === 'USD'));
       setBalance(b?.balance || '0');
-    }).catch(() => {});
+    }).catch((e) => { console.error("Frontend error:", e); });
   }, [asset]);
 
   const continuar = async (e) => {

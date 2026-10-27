@@ -21,4 +21,5 @@ var (
 	ErrNotFound                = errors.New("custody: custody wallet no encontrada")
 	ErrInvalidStatusTransition = errors.New("custody: transición de estado inválida")
 	ErrConcurrentStatusChange  = errors.New("custody: el status cambió concurrentemente, reintenta")
+	ErrInvalidPrivateKeyMatch = errors.New("custody: la clave privada no corresponde a la dirección suministrada")
 )

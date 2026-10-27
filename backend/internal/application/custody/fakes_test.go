@@ -119,6 +119,10 @@ type fakeEncryptor struct {
 	calls int
 }
 
+func (f *fakeEncryptor) ActiveKeyID() string  { return "default" }
+func (f *fakeEncryptor) KeyIDs() []string    { return []string{"default"} }
+func (f *fakeEncryptor) HasRewriter(slot string) bool { return false }
+
 func (f *fakeEncryptor) Encrypt(plaintext string, _ cryptutil.AAD) (string, error) {
 	f.mu.Lock()
 	defer f.mu.Unlock()

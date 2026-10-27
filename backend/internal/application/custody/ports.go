@@ -31,6 +31,9 @@ type Repository interface {
 // REUTILÍZALO. NO inventes otro sistema de cifrado").
 type Encryptor interface {
 	Encrypt(plaintext string, aad cryptutil.AAD) (string, error)
+	ActiveKeyID() string
+	KeyIDs() []string
+	HasRewriter(slot string) bool
 }
 
 // AuditLogger is the narrow custody-audit port — the new

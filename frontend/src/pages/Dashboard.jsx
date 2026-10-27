@@ -16,14 +16,21 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [hidden, setHidden] = useState(false);
 
+  const [error, setError] = useState('');
+
   useEffect(() => {
+    setLoading(true);
+    setError('');
     api.get('/api/wallet/balances')
       .then(({ data }) => {
         setBalances(data?.balances || []);
         setTotal(data?.total_usdt || '0');
         setPartial(data?.valuation_complete === false);
       })
-      .catch(() => {})
+      .catch((e) => {
+        setError('No se pudo cargar el saldo');
+        console.error('Dashboard balances error:', e);
+      })
       .finally(() => setLoading(false));
   }, []);
 
@@ -79,20 +86,28 @@ export default function Dashboard() {
       </header>
 
       <div>
-        {(balances.length ? balances.slice(0, 5) : [{ asset: 'USDT', balance: '0' }]).map((a) => (
-          <div key={a.asset} className="kz-card" style={{ borderRadius: 14, padding: 14, marginBottom: 10, background: '#0B1633', borderColor: '#1B2B5E' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <Coin code={showAsset(a.asset)} />
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <strong style={{ display: 'block', fontSize: 15, fontWeight: 600, color: '#F2F6FF' }}>{showAsset(a.asset)}</strong>
-                <small style={{ display: 'block', marginTop: 2, color: '#9FB0D6', fontSize: 12 }}>{hidden ? '••••' : `$${money(a.value_usdt)} USD`}</small>
-              </div>
-              <div style={{ textAlign: 'right' }}>
-                <strong style={{ display: 'block', fontSize: 15, fontWeight: 600, color: '#F2F6FF' }}>{hidden ? '••••' : qty(a.balance)}</strong>
+        {loading ? (
+          <p style={{ color: '#9FB0D6', fontSize: 13 }}>Cargando activos...</p>
+        ) : error ? (
+          <p style={{ color: '#FF6B6B', fontSize: 13 }}>{error}</p>
+        ) : balances.length === 0 ? (
+          <p style={{ color: '#9FB0D6', fontSize: 13 }}>No hay activos disponibles.</p>
+        ) : (
+          balances.slice(0, 5).map((a) => (
+            <div key={a.asset} className="kz-card" style={{ borderRadius: 14, padding: 14, marginBottom: 10, background: '#0B1633', borderColor: '#1B2B5E' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <Coin code={showAsset(a.asset)} />
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <strong style={{ display: 'block', fontSize: 15, fontWeight: 600, color: '#F2F6FF' }}>{showAsset(a.asset)}</strong>
+                  <small style={{ display: 'block', marginTop: 2, color: '#9FB0D6', fontSize: 12 }}>{hidden ? '••••' : `$${money(a.value_usdt)} USD`}</small>
+                </div>
+                <div style={{ textAlign: 'right' }}>
+                  <strong style={{ display: 'block', fontSize: 15, fontWeight: 600, color: '#F2F6FF' }}>{hidden ? '••••' : qty(a.balance)}</strong>
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          ))
+        )}
       </div>
     </WalletLayout>
   );
