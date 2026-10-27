@@ -23,8 +23,6 @@ import Security from './pages/Security';
 import Assets from './pages/Assets';
 import Transactions from './pages/Transactions';
 import Profile from './pages/Profile';
-import Admin from './pages/admin/Admin';
-import AdminAdvanced from './pages/admin/AdminAdvanced';
 import P2PMarket from './pages/p2p/Market';
 import P2PCreateOffer from './pages/p2p/CreateOffer';
 import P2PMyOffers from './pages/p2p/MyOffers';
@@ -98,18 +96,6 @@ ReactDOM.createRoot(document.getElementById('root')).render(
           <Route path="/p2p/my-orders" element={<RequireAuth><P2PMyOrders /></RequireAuth>} />
           <Route path="/p2p/offers/:id" element={<RequireAuth><P2POfferDetail /></RequireAuth>} />
           <Route path="/p2p/orders/:id" element={<RequireAuth><P2POrderDetail /></RequireAuth>} />
-          <Route path="/admin" element={<RequireAuth><Admin /></RequireAuth>} />
-          <Route path="/admin/users" element={<RequireAuth><Admin /></RequireAuth>} />
-          <Route path="/admin/transactions" element={<RequireAuth><Admin /></RequireAuth>} />
-          <Route path="/admin/audit" element={<RequireAuth><Admin /></RequireAuth>} />
-          <Route path="/admin/withdrawals" element={<RequireAuth><AdminAdvanced /></RequireAuth>} />
-          <Route path="/admin/custody" element={<RequireAuth><AdminAdvanced /></RequireAuth>} />
-          <Route path="/admin/hot-wallet" element={<RequireAuth><AdminAdvanced /></RequireAuth>} />
-          <Route path="/admin/treasury" element={<RequireAuth><AdminAdvanced /></RequireAuth>} />
-          <Route path="/admin/gas" element={<RequireAuth><AdminAdvanced /></RequireAuth>} />
-          <Route path="/admin/p2p" element={<RequireAuth><AdminAdvanced /></RequireAuth>} />
-          <Route path="/admin/security" element={<RequireAuth><AdminAdvanced /></RequireAuth>} />
-          <Route path="/admin/profile" element={<RequireAuth><Admin /></RequireAuth>} />
 
           <Route path="/wallet" element={<Navigate to="/WalletApp.html" replace />} />
 

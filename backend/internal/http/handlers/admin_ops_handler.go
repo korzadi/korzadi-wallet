@@ -139,12 +139,28 @@ func (h *AdminOpsHandler) HotWalletBalances(c *gin.Context) {
 
 const minAdminReason = 5
 
+func adminActor(c *gin.Context) string {
+	role := "super_admin"
+	if v, ok := c.Get("admin_role"); ok {
+		if r, ok := v.(string); ok && r != "" {
+			role = r
+		}
+	}
+	return role + ":" + currentUserID(c).String()
+}
+
 func (h *AdminOpsHandler) logAudit(c *gin.Context, action, entityType string, entityID *uuid.UUID, meta map[string]any) {
 	if h.audit == nil {
 		return
 	}
 	actor := currentUserID(c)
-	_ = h.audit.Log(c.Request.Context(), &actor, "super_admin", action, entityType, entityID, meta, c.ClientIP())
+	role := "super_admin"
+	if v, ok := c.Get("admin_role"); ok {
+		if r, ok := v.(string); ok && r != "" {
+			role = r
+		}
+	}
+	_ = h.audit.Log(c.Request.Context(), &actor, role, action, entityType, entityID, meta, c.ClientIP())
 }
 
 func badRequest(c *gin.Context, msg string) {
@@ -261,7 +277,7 @@ func (h *AdminOpsHandler) RegisterWallet(c *gin.Context) {
 	in := custody.RegisterInput{
 		Network: domain.Network(req.Network), AssetCode: req.AssetCode,
 		WalletType: custody.WalletType(req.WalletType), AddressType: req.AddressType,
-		Actor: "super_admin:" + currentUserID(c).String(),
+		Actor: adminActor(c),
 	}
 	imported := req.PrivateKey != "" || req.Address != ""
 	switch {
@@ -368,7 +384,7 @@ func (h *AdminOpsHandler) SetWalletStatus(c *gin.Context) {
 		badRequest(c, "status (active|disabled|retired) y reason son obligatorios")
 		return
 	}
-	w, err := h.custody.UpdateStatus(c.Request.Context(), id, custody.Status(req.Status), "super_admin:"+currentUserID(c).String())
+	w, err := h.custody.UpdateStatus(c.Request.Context(), id, custody.Status(req.Status), adminActor(c))
 	meta := map[string]any{"status": req.Status, "reason": req.Reason}
 	if err != nil {
 		meta["error"] = err.Error()
@@ -434,7 +450,7 @@ func (h *AdminOpsHandler) CreateTreasuryPolicy(c *gin.Context) {
 		HotCustodyWalletID: hot, TreasuryCustodyWalletID: tre,
 		MinBalance: minB, TargetBalance: target, MaxBalance: maxB,
 		RebalanceThreshold: thr, MaxRebalanceAmount: maxR,
-		Enabled: false, Actor: "super_admin:" + currentUserID(c).String(),
+		Enabled: false, Actor: adminActor(c),
 	})
 	meta := map[string]any{"network": req.Network, "asset_code": req.AssetCode, "reason": req.Reason,
 		"hot_custody_wallet_id": hot.String(), "treasury_custody_wallet_id": tre.String()}
@@ -479,7 +495,7 @@ func (h *AdminOpsHandler) SetTreasuryPolicyEnabled(c *gin.Context) {
 		badRequest(c, "enabled (booleano) y reason son obligatorios")
 		return
 	}
-	p, err := h.treasury.SetPolicyEnabled(c.Request.Context(), id, *req.Enabled, "super_admin:"+currentUserID(c).String())
+	p, err := h.treasury.SetPolicyEnabled(c.Request.Context(), id, *req.Enabled, adminActor(c))
 	meta := map[string]any{"enabled": *req.Enabled, "reason": req.Reason}
 	if err != nil {
 		meta["error"] = err.Error()

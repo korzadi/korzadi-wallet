@@ -547,7 +547,11 @@ func (s *Service) AdminResolveDispute(ctx context.Context, adminID uuid.UUID, or
 		}
 		from := o.Status
 		now := time.Now()
-		actor := adminID
+		var actor *uuid.UUID
+		if adminID != uuid.Nil {
+			id := adminID
+			actor = &id
+		}
 		if action == "release" {
 			to := p2pd.OrderReleased
 			o.Status = to
@@ -580,7 +584,7 @@ func (s *Service) AdminResolveDispute(ctx context.Context, adminID uuid.UUID, or
 			}
 			idStr := orderID.String()
 			idem := fmt.Sprintf("p2p_admin_release:%s", idStr)
-			if _, err := s.ledger.ExecuteTransaction(ctx, domain.TxTypeTransfer, idem, &idStr, "P2P disputa resuelta (liberación)", &actor, entries); err != nil {
+			if _, err := s.ledger.ExecuteTransaction(ctx, domain.TxTypeTransfer, idem, &idStr, "P2P disputa resuelta (liberación)", actor, entries); err != nil {
 				return err
 			}
 			if o.EscrowReservationID != nil {
@@ -605,14 +609,14 @@ func (s *Service) AdminResolveDispute(ctx context.Context, adminID uuid.UUID, or
 			_ = s.repo.ReleaseOfferReservation(ctx, tx, o.OfferID, o.Amount)
 			d.Status = p2pd.DisputeResolvedRef
 		}
-		d.ResolverID = &actor
+		d.ResolverID = actor
 		d.ResolutionReason = reason
 		d.ResolvedAt = &now
 		if err := s.repo.UpdateDispute(ctx, tx, d); err != nil {
 			return err
 		}
 		to := o.Status
-		ev := &p2pd.OrderEvent{ID: uuid.New(), OrderID: orderID, ActorID: &actor, EventType: "dispute_resolved_" + action, FromStatus: &from, ToStatus: &to}
+		ev := &p2pd.OrderEvent{ID: uuid.New(), OrderID: orderID, ActorID: actor, EventType: "dispute_resolved_" + action, FromStatus: &from, ToStatus: &to}
 		if err := s.repo.AddEvent(ctx, tx, ev); err != nil {
 			return err
 		}

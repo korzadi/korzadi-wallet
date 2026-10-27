@@ -1,0 +1,454 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Korzadi Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#050B1F;--s:#0B1633;--s2:#111F44;--ln:#1B2B5E;--tx:#F2F6FF;--mu:#9FB0D6;--bl:#1A63F0;--cy:#33B5FF;--gn:#34D399;--rd:#F87171;--am:#FBBF24;--sh:rgba(26,99,240,.28);color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:light){:root:not([data-theme="dark"]){--bg:#EEF3FB;--s:#FFFFFF;--s2:#E7EEFA;--ln:#D3DDF0;--tx:#0B1B3F;--mu:#4A5B82;--bl:#1558E0;--cy:#0B6FC2;--gn:#0E8F63;--rd:#DC2626;--am:#B45309;--sh:rgba(21,88,224,.18);color-scheme:light}}
+:root[data-theme="light"]{--bg:#EEF3FB;--s:#FFFFFF;--s2:#E7EEFA;--ln:#D3DDF0;--tx:#0B1B3F;--mu:#4A5B82;--bl:#1558E0;--cy:#0B6FC2;--gn:#0E8F63;--rd:#DC2626;--am:#B45309;--sh:rgba(21,88,224,.18);color-scheme:light}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}*{box-sizing:border-box;margin:0;-webkit-tap-highlight-color:transparent}
+body{font-family:Inter,system-ui,sans-serif;background:var(--bg);color:var(--tx);min-height:100%}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:80}
+body::after{content:"";position:fixed;inset:0;background:radial-gradient(ellipse at 60% -10%,var(--sh),transparent 55%);pointer-events:none;z-index:0}
+button{font-family:inherit;cursor:pointer}svg.i{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+#app{position:relative;z-index:1}
+.hd{position:sticky;top:env(safe-area-inset-top,0px);z-index:40;display:flex;align-items:center;gap:8px;padding:10px 14px;background:var(--bg);border-bottom:1px solid var(--ln)}
+.hd .tt{flex:1;min-width:0}.kk{font-size:10px;letter-spacing:1.2px;color:var(--cy);text-transform:uppercase;font-weight:600}.hd h1{font-size:18px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ib{width:44px;height:44px;border-radius:12px;border:1px solid var(--ln);background:var(--s);color:var(--tx);display:grid;place-items:center;transition:.2s}.ib:hover{border-color:var(--cy)}.spin svg{animation:spin .7s linear}
+#sd{position:fixed;top:0;left:0;bottom:0;width:264px;z-index:70;background:var(--s);border-right:1px solid var(--ln);display:flex;flex-direction:column;gap:2px;padding:calc(16px + env(safe-area-inset-top,0px)) 12px calc(14px + env(safe-area-inset-bottom,0px));transform:translateX(-100%);transition:transform .35s cubic-bezier(.2,.8,.2,1);overflow:auto}#sd.on{transform:none}
+#ov{position:fixed;inset:0;z-index:65;background:rgba(3,7,20,.6);backdrop-filter:blur(4px);display:none}#ov.on{display:block;animation:fi .25s}
+.lg{display:flex;align-items:center;gap:2px;font-weight:800;font-size:20px;padding:0 8px 14px}.lg em{font-style:normal;color:var(--cy);font-size:13px;margin-left:8px;font-weight:700}
+.gt{font-size:10px;letter-spacing:1.2px;color:var(--mu);margin:14px 10px 6px;text-transform:uppercase;font-weight:700}
+.nl{display:flex;align-items:center;gap:12px;width:100%;min-height:44px;padding:0 12px;border:0;border-radius:10px;background:none;color:var(--mu);font-size:14px;text-align:left;transition:.2s}.nl:hover{background:var(--s2);color:var(--tx)}.nl[aria-current="page"]{background:var(--s2);color:var(--cy);box-shadow:inset 3px 0 0 var(--cy)}
+.pr{margin-top:auto;border:1px solid var(--ln);border-radius:12px;padding:12px;display:flex;gap:10px;color:var(--gn);font-size:12px;line-height:1.4}.pr small{display:block;color:var(--mu)}
+#mn{padding:14px;max-width:1280px;margin:0 auto}.pg{animation:up .5s cubic-bezier(.2,.8,.2,1)}.pg>*+*{margin-top:14px}
+.card{background:var(--s);border:1px solid var(--ln);border-radius:16px;overflow:hidden}.ch2{padding:14px 16px;border-bottom:1px solid var(--ln);display:flex;justify-content:space-between;gap:10px;align-items:center}.ch2 b{display:block;font-size:14px}.ch2 small{color:var(--mu);font-size:12px}
+.hr2{border-radius:16px;padding:16px;background:linear-gradient(135deg,rgba(26,99,240,.28),var(--s) 70%);border:1px solid var(--ln);display:flex;justify-content:space-between;gap:12px;align-items:center}.hr2 b{display:block;font-size:20px;margin:4px 0}.hr2 small{color:var(--mu);font-size:13px;line-height:1.4}
+.hr2 .ib{background:rgba(26,99,240,.2);color:var(--cy);flex:none}
+.tfb{display:none;align-items:center;gap:12px;padding:12px 14px;border:1px solid var(--ln);border-radius:14px;background:var(--s);margin-bottom:14px;flex-wrap:wrap}.tfb div{flex:1;min-width:180px;font-size:13px}.tfb small{display:block;color:var(--mu);font-size:12px}.tfb input{width:140px;text-align:center;letter-spacing:5px;font-weight:700}.tfb.sk{animation:shk .4s;border-color:var(--rd)}
+.bn{display:flex;gap:10px;border:1px solid var(--rd);background:rgba(248,113,113,.08);color:var(--rd);border-radius:14px;padding:12px 14px;font-size:13px;margin-bottom:14px;animation:up .4s both}.bn b{display:block}
+.kp{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px}.kp>div{padding:16px}.kp small{color:var(--mu);font-size:12px}.kp b{display:block;font-size:26px;margin:6px 0 2px;font-weight:800}.kp span{font-size:12px;color:var(--gn)}
+.g2c{display:grid;gap:14px}@media(min-width:1000px){.g2c{grid-template-columns:1.4fr 1fr}.g3{grid-template-columns:1fr 1fr!important}}
+.br{transform-box:fill-box;transform-origin:bottom;animation:grow .9s cubic-bezier(.2,.8,.2,1) both}
+.srow{display:flex;align-items:center;gap:12px;padding:12px 16px}.srow+.srow{border-top:1px solid var(--ln)}.srow>span:nth-child(2){flex:1;font-size:14px}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--gn);flex:none;animation:pu 2s infinite}.dot.warn{background:var(--am)}.dot.in{background:var(--cy)}
+.tw{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:13px}th{font-size:11px;letter-spacing:.8px;text-transform:uppercase;color:var(--mu);text-align:left;padding:10px 14px;background:var(--s2);white-space:nowrap;font-weight:600}
+td{padding:12px 14px;border-top:1px solid var(--ln);white-space:nowrap}tr.rw{animation:up .5s both;animation-delay:calc(var(--i,0)*50ms)}tbody tr:hover td{background:var(--s2)}.em{text-align:center;color:var(--mu);font-size:13px;padding:28px 12px;font-weight:600}
+.sb{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600;background:var(--s2);color:var(--mu)}.sb.ok{color:var(--gn);background:rgba(52,211,153,.13)}.sb.warn{color:var(--am);background:rgba(251,191,36,.13)}.sb.bad{color:var(--rd);background:rgba(248,113,113,.13)}.sb.in{color:var(--cy);background:rgba(51,181,255,.13)}
+.ab{min-height:40px;padding:0 14px;border-radius:10px;border:1px solid var(--ln);background:var(--s2);color:var(--tx);font-size:12px;font-weight:600;transition:.2s}.ab:hover{border-color:var(--cy)}.ab.ok{background:var(--bl);border-color:var(--bl);color:#fff}.ab.dg{color:var(--rd);border-color:var(--rd);background:none}
+.fg{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;padding:16px}.fg label{font-size:12px;font-weight:600;color:var(--mu);display:block;margin-bottom:6px}.ck2{display:flex!important;gap:10px;align-items:center;min-height:44px;color:var(--tx)!important}.ck2 input{width:22px;height:22px;accent-color:var(--bl)}
+.fi{width:100%;min-height:46px;border-radius:12px;border:1px solid var(--ln);background:var(--bg);color:var(--tx);padding:0 14px;font:inherit;font-size:14px}.fi:focus{outline:2px solid var(--cy);outline-offset:1px}
+.btn{min-height:46px;border-radius:12px;border:1px solid var(--bl);background:var(--bl);color:#fff;font-weight:700;font-size:14px;padding:0 20px;transition:.2s}.btn:hover{box-shadow:0 8px 22px var(--sh)}.btn.o{background:none;color:var(--cy);border-color:var(--cy)}.btn.dg{background:none;color:var(--rd);border-color:var(--rd)}
+.ch{min-height:44px;padding:0 16px;border-radius:12px;border:1px solid var(--ln);background:var(--s);color:var(--tx);font-size:13px;transition:.25s;flex:none}.ch[aria-pressed="true"]{background:var(--bl);border-color:var(--bl);color:#fff}.chs{display:flex;gap:8px;overflow-x:auto}
+.bar{height:8px;border-radius:6px;background:var(--s2);overflow:hidden;margin:8px 0 4px}.bar i{display:block;height:100%;border-radius:6px;background:linear-gradient(90deg,var(--bl),var(--cy));animation:wd 1s cubic-bezier(.2,.8,.2,1) both}
+.sm{background:var(--s2);border-radius:12px;padding:12px 14px;font-size:13px;color:var(--mu);line-height:1.6;margin:0 16px 16px}.sm b{color:var(--tx)}
+.ft{text-align:center;color:var(--mu);font-size:12px;padding:20px 0 30px}
+.sh{position:fixed;inset:0;z-index:100;display:none;align-items:flex-end;justify-content:center;background:rgba(3,7,20,.65);backdrop-filter:blur(6px)}.sh.on{display:flex;animation:fi .25s}
+.sp{width:100%;max-width:520px;max-height:90vh;overflow:auto;background:var(--s);border:1px solid var(--ln);border-radius:24px 24px 0 0;padding:14px 20px calc(24px + env(safe-area-inset-bottom,0px));animation:sup .4s cubic-bezier(.2,.8,.2,1)}
+.sp::before{content:"";display:block;width:44px;height:4px;border-radius:4px;background:var(--ln);margin:0 auto 14px}.sp p{color:var(--mu);font-size:13px;line-height:1.5;margin:8px 0 12px}.sp h3{font-size:19px}
+.lb{display:block;font-size:12px;font-weight:600;color:var(--mu);margin:12px 0 6px}.er{color:var(--rd);font-size:12px;min-height:16px;margin:6px 0}.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.r2{display:flex;justify-content:space-between;gap:12px;padding:9px 0;font-size:13px}.r2+.r2{border-top:1px solid var(--ln)}.r2 span{color:var(--mu)}
+.to{display:flex;gap:12px;align-items:center;width:100%;text-align:left;padding:14px;margin-top:10px;border-radius:14px;border:1px solid var(--ln);background:var(--s2);color:var(--tx);min-height:60px;transition:.25s}.to[aria-pressed="true"]{border-color:var(--cy);box-shadow:0 0 0 1px var(--cy)}.to small{display:block;color:var(--mu);font-size:12px}
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);background:var(--tx);color:var(--bg);padding:12px 18px;border-radius:12px;font-size:14px;font-weight:600;opacity:0;pointer-events:none;transition:.35s;z-index:120;max-width:90%;text-align:center}.toast.on{opacity:1;transform:translate(-50%,0)}
+@keyframes up{from{opacity:0;transform:translateY(14px)}}@keyframes fi{from{opacity:0}}@keyframes sup{from{transform:translateY(100%)}}@keyframes spin{to{transform:rotate(360deg)}}@keyframes pu{50%{opacity:.4}}@keyframes grow{from{transform:scaleY(0)}}@keyframes wd{from{width:0}}@keyframes shk{20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}@keyframes pop{from{opacity:0;transform:scale(.95) translateY(10px)}}
+@media(max-width:699px){thead{display:none}tbody tr{display:block;margin:10px;border:1px solid var(--ln);border-radius:14px;padding:6px 14px;background:var(--s)}td{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:8px 0;border:0;white-space:normal;text-align:right}td::before{content:attr(data-label);color:var(--mu);font-size:11px;text-transform:uppercase;letter-spacing:.6px;text-align:left}tbody tr:hover td{background:none}.ab{min-height:44px}td .ab{flex:1}}
+@media(min-width:700px){.sh{align-items:center}.sp{border-radius:24px;animation-name:pop}.sp::before{display:none}#mn{padding:20px 24px}}
+@media(min-width:1000px){#sd{transform:none}#ov{display:none!important}.mb{display:none}#app{padding-left:264px}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+#lk{position:fixed;inset:0;z-index:200;display:grid;place-items:center;padding:20px;background:var(--bg);overflow:auto}#lk[hidden]{display:none}
+#lk::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 20% 20%,rgba(26,99,240,.35),transparent 45%),radial-gradient(circle at 80% 85%,rgba(51,181,255,.22),transparent 45%);animation:pu 7s ease-in-out infinite;pointer-events:none}
+.lkc{position:relative;width:100%;max-width:400px;background:var(--s);border:1px solid var(--ln);border-radius:22px;padding:28px 26px;box-shadow:0 30px 90px var(--sh);animation:up .6s both}.lkc h2{font-size:22px;margin:14px 0 6px}.lkc p{color:var(--mu);font-size:13px;line-height:1.5;margin-bottom:6px}.lkn{color:var(--mu);font-size:11px;text-align:center;margin-top:16px;line-height:1.5}
+.acc{display:flex;gap:10px;align-items:center;padding:10px 12px;margin-top:8px;border-radius:12px;background:var(--s2)}.acc b{font-size:13px;display:block}.acc small{color:var(--mu);font-size:11px}.av2{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#1A63F0,#0B3BB0);color:#fff;font-weight:700;display:grid;place-items:center;font-size:12px;flex:none}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+</style></head><body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><linearGradient id="kg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3FD0FF"/><stop offset="1" stop-color="#1F4DFF"/></linearGradient><symbol id="kz" viewBox="0 0 44 44"><path fill="url(#kg)" d="M2 2h9v40H2zM14 26L31 2h12L22 30zM17 25l26 17H30L14 34z"/></symbol></defs></svg>
+<div id="lk" role="dialog" aria-modal="true" aria-labelledby="lkt"><div class="lkc"><div class="lg" role="img" aria-label="Korzadi Admin" style="padding:0"><svg width="30" height="30" aria-hidden="true"><use href="#kz"/></svg><span aria-hidden="true" style="font-size:24px">orzadi</span><em aria-hidden="true">Admin</em></div>
+<h2 id="lkt">Acceso de administración</h2><p>Esta cuenta es independiente de tu cuenta de la wallet. Usa las credenciales del panel.</p>
+<div id="l1"><label class="lb" for="lu">Usuario de administrador</label><input class="fi" id="lu" autocomplete="username" autocapitalize="none" onkeydown="if(event.key=='Enter')lg1()"><label class="lb" for="lp">Contraseña</label><div style="position:relative"><input class="fi" id="lp" type="password" autocomplete="current-password" onkeydown="if(event.key=='Enter')lg1()"><button type="button" id="lv" aria-label="Mostrar contraseña" style="position:absolute;right:0;top:0;min-width:56px;height:46px;background:none;border:0;color:var(--cy);font-size:13px;font-weight:600">Ver</button></div><div class="er" id="le" role="alert"></div><button class="btn" style="width:100%" onclick="lg1()">Continuar</button></div>
+<div id="l2" hidden><label class="lb" for="lc">Código 2FA de 6 dígitos</label><input class="fi" id="lc" inputmode="numeric" maxlength="6" autocomplete="one-time-code" placeholder="000000" style="text-align:center;font-size:24px;letter-spacing:8px" onkeydown="if(event.key=='Enter')lg2()"><div class="er" id="le2" role="alert"></div><button class="btn" id="lb2" style="width:100%" onclick="lg2()">Verificar</button><button class="btn o" style="width:100%;margin-top:10px" onclick="$('l2').hidden=true;$('l1').hidden=false">Volver</button><div class="lkn">Demostración: cualquier código de 6 dígitos funciona, excepto 000000, que simula un error. Tras 3 errores la cuenta se bloquea 30 segundos.</div></div>
+<div class="lkn">Las sesiones expiran tras 15 minutos de inactividad.</div></div></div>
+<aside id="sd" aria-label="Navegación"><div class="lg" role="img" aria-label="Korzadi Admin"><svg width="26" height="26" aria-hidden="true"><use href="#kz"/></svg><span aria-hidden="true">orzadi</span><em aria-hidden="true">Admin</em></div><div id="nv"></div>
+<div class="pr"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/></svg><div><b>Acceso protegido</b><small>Permisos verificados por API</small></div></div>
+<div class="acc"><span class="av2" id="av2">AD</span><div><b id="an">admin</b><small>Cuenta de administración</small></div></div><button class="nl" onclick="logout()"><span data-i="out"></span>Cerrar sesión</button></aside>
+<div id="ov" onclick="dr(0)"></div>
+<div id="app"><header class="hd"><button class="ib mb" data-i="menu" aria-label="Abrir menú" onclick="dr(1)"></button><div class="tt"><div class="kk" id="kk"></div><h1 id="tt"></h1></div><span class="sb ok" title="Estado de la API"><i class="dot"></i>API</span><button class="ib" data-i="pal" aria-label="Apariencia" onclick="sheet('th')"></button><button class="ib" id="rf" data-i="ref" aria-label="Actualizar" onclick="rfr()"></button></header>
+<main id="mn"><div class="tfb" id="tfb"><svg class="i" viewBox="0 0 24 24" aria-hidden="true" style="color:var(--cy);width:22px;height:22px"><path d="M6 11h12v9H6zM8 11V8a4 4 0 0 1 8 0v3"/></svg><div><b>Verificación de operaciones sensibles</b><small>Introduce un código 2FA vigente cuando la operación lo solicite.</small></div><input class="fi" id="tf" inputmode="numeric" maxlength="6" placeholder="Código 2FA" aria-label="Código 2FA"></div><div id="bn"></div><div id="ct" class="pg"></div><div class="ft">Korzadi Admin · Panel operativo. Las respuestas y autorizaciones definitivas provienen del backend.</div></main></div>
+<div class="sh" id="sh" role="dialog" aria-modal="true"><div class="sp" id="spc"></div></div><div class="toast" id="ts" role="status"></div>
+<script>
+var $=function(i){return document.getElementById(i)},Q=function(s){return document.querySelectorAll(s)};
+var P={home:"M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z",users:"M16 20v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2M9.5 10a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7M21 20v-2a4 4 0 0 0-3-3.9M16 3.1a3.5 3.5 0 0 1 0 6.8",tx:"M7 4v16M3 8l4-4 4 4M17 20V4M13 16l4 4 4-4",swap:"M7 7h13M16 3l4 4-4 4M17 17H4M8 13l-4 4 4 4",wd:"M12 20V8M6 12l6-6 6 6M5 4h14",vault:"M3 5h18v14H3zM12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM7 19v2M17 19v2",flame:"M12 3c1 4 5 5 5 10a5 5 0 0 1-10 0c0-2 1-3 2-4 0 2 1 3 2 3 0-3-1-5 1-9z",coin:"M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM9 10c0-1.7 6-1.7 6 0s-6 2.3-6 4 6 1.7 6 0M12 6.5v11",fuel:"M5 21V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v16M3 21h14M15 9h2a2 2 0 0 1 2 2v6a1.5 1.5 0 0 0 3 0V9l-3-3",shield:"M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z",user:"M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4 21a8 8 0 0 1 16 0",list:"M9 6h11M9 12h11M9 18h11M4.5 6h.01M4.5 12h.01M4.5 18h.01",back:"M15 5l-7 7 7 7",out:"M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9",menu:"M4 6h16M4 12h16M4 18h16",pal:"M12 3a9 9 0 1 0 0 18c1.1 0 1.5-.8 1.2-1.6-.3-.9.2-1.9 1.3-1.9H17a4 4 0 0 0 4-4C21 6.6 17 3 12 3zM7.5 12h.01M9.5 8h.01M14.5 8h.01",ref:"M3 12a9 9 0 0 1 15-6.7L21 8M21 3v5h-5M21 12a9 9 0 0 1-15 6.7L3 16M3 21v-5h5",warn:"M12 9v4M12 17h.01M10.3 3.9L2.4 18a2 2 0 0 0 1.7 3h15.8a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z",clock:"M12 7v5l3 2M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z",sun:"M12 16a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4",moon:"M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z",mon:"M3 4h18v12H3zM8 20h8M12 16v4",ok:"M5 12.5l4.5 4.5L19 7.5"};
+function I(n){return '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="'+P[n]+'"/></svg>'}
+function ic(r){(r||document).querySelectorAll("[data-i]").forEach(function(e){e.insertAdjacentHTML("afterbegin",I(e.dataset.i));e.removeAttribute("data-i")})}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+function now(){return"Hoy "+new Date().toLocaleTimeString("es",{hour:"2-digit",minute:"2-digit"})}
+var tt;function toast(t){var e=$("ts");e.textContent=t;e.classList.add("on");clearTimeout(tt);tt=setTimeout(function(){e.classList.remove("on")},2400)}
+function op(h){$("spc").innerHTML=h;ic($("spc"));$("sh").classList.add("on")}function cs(){$("sh").classList.remove("on")}
+var SC={"Activo":"ok","Activa":"ok","Habilitada":"ok","Completada":"ok","Aprobada":"ok","Éxito":"ok","Bajo":"ok","Resuelta":"ok","Congelado":"bad","Rechazada":"bad","Alto":"bad","Fallida":"bad","Cancelada":"bad","Disputa":"bad","Pendiente":"warn","Revisión":"warn","KYC pendiente":"warn","Medio":"warn","Abierta":"warn","Pausada":"warn","Creando":"warn","Pago enviado":"in"};
+function sb(s){return '<span class="sb '+(SC[s]||"")+'">'+s+'</span>'}
+function ab(t,fn,c){return '<button class="ab '+(c||"")+'" onclick="'+fn+'">'+t+'</button>'}
+function tb(c,r){return r.length?'<div class="tw"><table><thead><tr>'+c.map(function(x){return '<th>'+x+'</th>'}).join("")+'</tr></thead><tbody>'+r.map(function(x,i){return '<tr class="rw" style="--i:'+i+'">'+x.map(function(y,j){return '<td data-label="'+c[j]+'">'+y+'</td>'}).join("")+'</tr>'}).join("")+'</tbody></table></div>':'<div class="em">No hay registros disponibles.</div>'}
+function cd(t,s,b,x){return '<div class="card"><div class="ch2"><div><b>'+t+'</b>'+(s?'<small>'+s+'</small>':"")+'</div>'+(x||"")+'</div>'+b+'</div>'}
+function hero(k,t,d,i){return '<div class="hr2"><div><div class="kk">'+k+'</div><b>'+t+'</b><small>'+d+'</small></div><span class="ib">'+I(i)+'</span></div>'}
+var FM={};
+function fm(id,f,btn,fn,h){FM[id]={f:f,fn:fn};return '<div class="fg"'+(h?' onchange="'+h+'()"':'')+'>'+f.map(function(x){var i=id+"_"+x[0];if(x[2]=="c")return '<label class="ck2"><input type="checkbox" id="'+i+'">'+x[1]+'</label>';return '<div><label for="'+i+'">'+x[1]+'</label>'+(x[2]=="s"?'<select class="fi" id="'+i+'">'+x[4].map(function(o){return '<option>'+o+'</option>'}).join("")+'</select>':'<input class="fi" id="'+i+'" type="'+(x[2]=="n"?"number":"text")+'" inputmode="'+(x[2]=="n"?"decimal":"text")+'" value="'+(x[3]||"")+'" placeholder="'+(x[4]||"")+'">')+'</div>'}).join("")+'<div style="grid-column:1/-1"><button class="btn" onclick="fs(\''+id+'\')">'+btn+'</button></div></div>'}
+function fs(id){var o={};FM[id].f.forEach(function(x){var e=$(id+"_"+x[0]);o[x[0]]=x[2]=="c"?e.checked:e.value.trim()});FM[id].fn(o)}
+var CF=null;
+function sens(t,d,mot,fn,dg){CF={fn:fn,mot:mot};op('<h3>'+t+'</h3><p>'+d+' Se usará el código 2FA ingresado arriba.</p>'+(mot?'<label class="lb" for="cm">Motivo (obligatorio)</label><input class="fi" id="cm" maxlength="120" placeholder="Describe el motivo">':'')+'<div class="er" id="ce" role="alert"></div><div class="g2"><button class="btn o" onclick="cs()">Cancelar</button><button class="btn'+(dg?" dg":"")+'" onclick="cok()">Confirmar</button></div>')}
+function cok(){var m=CF.mot?$("cm").value.trim():"";if(CF.mot&&m.length<5){$("ce").textContent="Escribe un motivo de al menos 5 caracteres.";return}cs();if(!/^\d{6}$/.test($("tf").value.trim())){err("2fa_required");return}CF.fn(m);toast("Operación aplicada")}
+function err(c){$("bn").innerHTML='<div class="bn">'+I("warn")+'<div><b>No se pudo completar</b>'+c+'</div></div>';var b=$("tfb");b.classList.remove("sk");void b.offsetWidth;b.classList.add("sk");$("tf").focus();scrollTo(0,0)}
+function aud(a,o,m){AUD.unshift([now(),ADM.user,a,o,m||"—","186.x.x.x","Éxito"])}
+var US=[["u_1042","maria_trader","maria@ejemplo.cu",2,"1,420.50","Activo","12 sep 2026"],["u_1043","jose_cuba","jose@ejemplo.cu",2,"310.00","Activo","14 sep 2026"],["u_1051","ale_pay","ale@ejemplo.cu",1,"88.20","Activo","02 oct 2026"],["u_1060","yoan_hab","yoan@ejemplo.cu",2,"2,050.00","Activo","09 oct 2026"],["u_1074","recargas_cu","recargas@ejemplo.cu",1,"540.00","Congelado","15 oct 2026"],["u_1081","euro_hab","euro@ejemplo.cu",0,"0.00","KYC pendiente","21 oct 2026"],["u_1090","mlc_shop","mlc@ejemplo.cu",1,"120.75","Activo","23 oct 2026"],["u_1098","nuevo_user","nuevo@ejemplo.cu",0,"0.00","KYC pendiente","25 oct 2026"]];
+var TX=[["T-90412","Depósito","maria_trader","USDT · TRON","+500.00","Completada","TEjem…a1","Hoy 12:48"],["T-90411","P2P","jose_cuba","USDT","-120.00","Completada","—","Hoy 12:10"],["T-90410","Retiro","yoan_hab","USDT · TRON","-250.00","Revisión","—","Hoy 11:32"],["T-90409","Interna","ale_pay","USDT","-45.00","Completada","—","Hoy 10:05"],["T-90408","Depósito","mlc_shop","USDT · BSC","+90.00","Pendiente","0xEjem…b2","Hoy 09:40"],["T-90407","Comisión","sistema","USDT","+2.40","Completada","—","Ayer"],["T-90406","Retiro","maria_trader","USDT · BSC","-300.00","Completada","0xEjem…c9","Ayer"],["T-90405","P2P","ale_pay","USDT","+60.00","Completada","—","Ayer"]];
+var WD=[["W-3391","yoan_hab","USDT · TRON","250.00","TEjem…4fA2","Medio","Revisión","1"],["W-3392","maria_trader","USDT · BSC","1,800.00","0xEjem…77d1","Alto","Revisión","2"],["W-3393","ale_pay","USDT · TRON","40.00","TEjem…9cB0","Bajo","Revisión","1"],["W-3394","mlc_shop","USDT · TRON","600.00","TEjem…12Ee","Medio","Revisión","1"]];
+var WL=[["WL-01","TRON · USDT","HOT","TEjem…Hot1","base58","Activa"],["WL-02","TRON · USDT","COLD","TEjem…Cld1","base58","Activa"],["WL-03","TRON · TRX","GAS","TEjem…Gas1","base58","Activa"],["WL-04","BSC · USDT","HOT","0xEjem…c3E1","hex","Activa"],["WL-05","TRON · USDT","TREASURY","TEjem…Trs1","base58","Desactivada"]];
+var TP=[["TP-01","TRON · USDT","1,000","3,500","6,000","Habilitada"],["TP-02","BSC · USDT","500","1,500","3,000","Desactivada"]];
+var OR=[["O-4821","USDT / CUP","250.00 USDT","Pago enviado","jose_cuba","maria_trader","Hoy 12:10"],["O-4820","USDT / USD","100.00 USDT","Completada","ale_pay","yoan_hab","Hoy 09:55"],["O-4801","USDT / CUP","180.00 USDT","Disputa","ale_pay","yoan_hab","Ayer"],["O-4790","USDT / CUP","75.00 USDT","Disputa","jose_cuba","maria_trader","Ayer"]];
+var OF=[["F-211","maria_trader","USDT / CUP","Vende","540","820.00","Activa"],["F-212","yoan_hab","USDT / CUP","Vende","538","1,400.00","Activa"],["F-213","recargas_cu","USDT / ETECSA","Vende","600","300.00","Pausada"],["F-214","euro_hab","USDT / EUR","Compra","0.96","500.00","Activa"]];
+var DS=[["D-1093","O-4790","No recibí el pago","jose_cuba / maria_trader","Abierta","3 h"],["D-1094","O-4801","Comprobante falso","ale_pay / yoan_hab","Abierta","1 h"],["D-1088","O-4755","Monto incorrecto","euro_hab / mlc_shop","Resuelta","1 d"]];
+var FZ=[["withdrawals","Activo","—","Ayer"],["deposits","Activo","—","Ayer"],["p2p","Activo","—","Ayer"],["transfers","Activo","—","Ayer"]];
+var SP=[["withdrawals","USDT / BSC","10.00","5,000.00","Habilitada"],["withdrawals","USDT / TRON","10.00","5,000.00","Habilitada"]];
+var SE=[["Hoy 12:03","login_failed","maria_trader","3 intentos desde una IP nueva"],["Hoy 10:41","2fa_reset","u_1060","Restablecido por admin"],["Ayer","withdraw_blocked","ale_pay","Superó el límite diario"],["Ayer","policy_updated","admin","withdrawals / USDT"]];
+var AUD=[["Hoy 12:20","admin","withdraw.approve","W-3380","Destino verificado","186.x.x.x","Éxito"],["Hoy 11:02","admin","security.freeze","withdrawals","Mantenimiento de nodo BSC","186.x.x.x","Éxito"],["Ayer 17:40","admin","user.2fa_reset","u_1060","Usuario perdió su teléfono","186.x.x.x","Éxito"],["Ayer 15:12","admin","treasury.create","TP-02","Política BSC","186.x.x.x","Fallida"]];
+var uq="",uf="all",xf="all",pt="ord",af="all",aq="";
+function kv(l,v,s,n){return '<div><small>'+l+'</small><b class="kv" data-t="'+n+'">'+v+'</b><span>'+s+'</span></div>'}
+function dash(){var rv=WD.filter(function(w){return w[6]=="Revisión"}).length,dp=DS.filter(function(d){return d[4]=="Abierta"}).length,V=[42,55,48,70,64,88,84],D=["Lun","Mar","Mié","Jue","Vie","Sáb","Dom"],S=[["API gateway","Operativo",""],["Nodo TRON","Operativo",""],["Nodo BSC","Latencia alta","warn"],["Base de datos","Operativo",""],["Cola de retiros",rv+" pendientes","in"],["Gas Station","Operativo",""]];
+return '<div class="kp card" style="padding:0;display:grid">'.replace(' card" style="padding:0;display:grid"','"')+[kv("Usuarios","1,284","▲ 12 hoy",1284),kv("Volumen 24 h","$84,310","▲ 6.2%",84310),kv("Retiros en revisión",rv,"según la cola actual",rv),kv("Disputas P2P",dp,"requieren acción",dp),kv("USDT en escrow","$12,940","8 órdenes activas",12940),kv("Fondos custodiados","$412,880","HOT 9% · COLD 91%",412880)].map(function(x){return '<div class="card" style="padding:16px">'+x.slice(5,-6)+'</div>'}).join("")+'</div><div class="g2c"><div>'+cd("Volumen de los últimos 7 días","En miles de USD",'<div style="padding:16px"><svg viewBox="0 0 340 150" width="100%" role="img" aria-label="Gráfica de volumen semanal">'+V.map(function(v,i){var h=v*1.2;return '<rect class="br" x="'+(18+i*46)+'" y="'+(120-h)+'" width="28" height="'+h+'" rx="6" fill="url(#kg)" style="animation-delay:'+i*90+'ms"/><text x="'+(32+i*46)+'" y="140" text-anchor="middle" font-size="11" style="fill:var(--mu)">'+D[i]+'</text>'}).join("")+'</svg></div>')+'</div><div>'+cd("Estado del sistema","",S.map(function(s){return '<div class="srow"><i class="dot '+s[2]+'"></i><span>'+s[0]+'</span><span class="sb '+(s[2]||"ok")+'">'+s[1]+'</span></div>'}).join(""))+'</div></div>'+cd("Actividad administrativa reciente","Últimas acciones registradas",tb(["Fecha","Acción","Objeto","Resultado"],AUD.slice(0,5).map(function(a){return [a[0],a[2],a[3],sb(a[6])]})))}
+function ru(){var r=US.filter(function(u){return(uf=="all"||u[5]==uf)&&(u[1]+u[2]).toLowerCase().indexOf(uq)>-1});$("ut").innerHTML=tb(["Usuario","Correo","KYC","Saldo USDT","Estado","Registro",""],r.map(function(u){return [esc(u[1]),esc(u[2]),"Nivel "+u[3],u[4],sb(u[5]),u[6],ab("Ver","usr("+US.indexOf(u)+")")]}))}
+function chp(id,l,cur,fn){return '<div class="chs" id="'+id+'">'+l.map(function(x){return '<button class="ch" aria-pressed="'+(x[0]==cur)+'" onclick="'+fn+'(\''+x[0]+'\')">'+x[1]+'</button>'}).join("")+'</div>'}
+function setf(v,k,fn){window[k]=v;Q("#c_"+k+" .ch").forEach(function(b){b.setAttribute("aria-pressed",b.dataset.v==v)});window[fn]()}
+function users(){return '<div style="display:grid;gap:10px"><input class="fi" id="uqi" placeholder="Buscar por usuario o correo" aria-label="Buscar" oninput="uq=this.value.trim().toLowerCase();ru()">'+chp("cu",[["all","Todos"],["Activo","Activos"],["Congelado","Congelados"],["KYC pendiente","KYC pendiente"]],uf,"suf")+'</div>'+cd("Usuarios registrados","Listado del backend; se muestran hasta 50 cuentas.",'<div id="ut"></div>',"<span class='sb'>"+US.length+" registros</span>")}
+function suf(v){uf=v;Q("#cu .ch").forEach(function(b){b.setAttribute("aria-pressed",b.textContent.length>0&&b.getAttribute("onclick").indexOf("'"+v+"'")>-1)});ru()}
+function usr(i){var u=US[i],f=u[5]=="Congelado";op('<h3>'+esc(u[1])+'</h3><div style="margin:10px 0 14px">'+sb(u[5])+'</div><div class="r2"><span>ID</span><b>'+u[0]+'</b></div><div class="r2"><span>Correo</span><b>'+esc(u[2])+'</b></div><div class="r2"><span>KYC</span><b>Nivel '+u[3]+'</b></div><div class="r2"><span>Saldo USDT</span><b>'+u[4]+'</b></div><div class="r2"><span>Registro</span><b>'+u[6]+'</b></div><div style="display:grid;gap:10px;margin-top:16px"><button class="btn '+(f?"o":"dg")+'" onclick="cs();usc('+i+')">'+(f?"Descongelar cuenta":"Congelar cuenta")+'</button><button class="btn o" onclick="cs();us2('+i+')">Restablecer 2FA</button></div>')}
+function usc(i){var u=US[i],f=u[5]=="Congelado";sens(f?"Descongelar cuenta":"Congelar cuenta","Cuenta "+esc(u[1])+".",1,function(m){u[5]=f?"Activo":"Congelado";aud(f?"user.unfreeze":"user.freeze",u[0],m);go("users")},!f)}
+function us2(i){var u=US[i];sens("Restablecer 2FA","El usuario "+esc(u[1])+" deberá configurar 2FA de nuevo.",1,function(m){aud("user.2fa_reset",u[0],m)},1)}
+function sxf(v){xf=v;Q("#cx .ch").forEach(function(b){b.setAttribute("aria-pressed",b.getAttribute("onclick").indexOf("'"+v+"'")>-1)});rx()}
+function rx(){$("xt").innerHTML=tb(["ID","Tipo","Usuario","Activo / red","Cantidad","Estado","Hash","Fecha"],TX.filter(function(t){return xf=="all"||t[1]==xf}).map(function(t){return [t[0],t[1],esc(t[2]),t[3],'<b style="color:'+(t[4][0]=="+"?"var(--gn)":"var(--tx)")+'">'+t[4]+'</b>',sb(t[5]),t[6],t[7]]}))}
+function txs(){return chp("cx",[["all","Todas"],["Depósito","Depósitos"],["Retiro","Retiros"],["P2P","P2P"],["Interna","Internas"]],xf,"sxf")+cd("Transacciones del ledger","Las últimas operaciones devueltas por la API.",'<div id="xt"></div>','<button class="ab" onclick="csv()">Exportar CSV</button>')}
+function retiros(){var q=WD.filter(function(w){return w[6]=="Revisión"});return hero("Operaciones financieras","Retiros que requieren revisión","Las resoluciones pueden afectar operaciones reales. Verifica la dirección, la red y el motivo antes de continuar.","clock")+cd("Cola de revisión","Datos obtenidos del backend; no se simulan registros.",tb(["ID","Usuario","Activo / red","Cantidad","Destino","Riesgo","Estado","Intentos",""],WD.map(function(w,i){return [w[0],esc(w[1]),w[2],w[3],w[4],sb(w[5]),sb(w[6]),w[7],w[6]=="Revisión"?'<div style="display:flex;gap:8px">'+ab("Aprobar","wda("+i+",1)","ok")+ab("Rechazar","wda("+i+",0)","dg")+'</div>':"—"]})),"<span class='sb warn'>"+q.length+" en revisión</span>")}
+function wda(i,ok){var w=WD[i];sens(ok?"Aprobar retiro "+w[0]:"Rechazar retiro "+w[0],w[3]+" USDT a "+w[4]+" ("+w[2]+").",1,function(m){w[6]=ok?"Aprobada":"Rechazada";aud(ok?"withdraw.approve":"withdraw.reject",w[0],m);go("retiros")},!ok)}
+function csum(){var g=function(k){return $("cw_"+k).value};$("cs2").innerHTML="Red: <b>"+g("red")+"</b> · Activo: <b>"+g("act")+"</b> · Tipo: <b>"+g("tip")+"</b><br>Formato: <b>"+g("fmt")+"</b><br>La clave privada se administra en el servidor y no se muestra en el navegador."}
+function custodia(){return hero("Control operativo","Wallets de custodia","Las claves privadas no se muestran ni se envían al navegador.","vault")+cd("Crear wallet de custodia","El servidor administra la generación de la dirección.",fm("cw",[["red","Red","s","",["TRON","BSC","ETH","BTC"]],["act","Activo","s","",["USDT","TRX","BNB","ETH","BTC"]],["tip","Tipo de wallet","s","",["HOT","COLD","GAS","TREASURY"]],["fmt","Formato de dirección","s","",["TRON (base58)","EVM (hex)","BTC"]],["mot","Motivo","t","Crear wallet administrativa"]],"Solicitar creación",function(o){sens("Crear wallet de custodia",o.red+" · "+o.act+" · "+o.tip+".",0,function(){var n="WL-0"+(WL.length+1);WL.push([n,o.red+" · "+o.act,o.tip,"Pendiente de generación",o.fmt.split(" ")[0].toLowerCase(),"Creando"]);aud("custody.create",n,o.mot);go("custodia")})},"csum")+'<div class="sm" id="cs2"></div>')+cd("Wallets registradas","Consulta y cambio de estado con motivo.",tb(["ID","Red / activo","Tipo","Dirección","Formato","Estado",""],WL.map(function(w,i){return [w[0],w[1],'<span class="sb in">'+w[2]+'</span>',w[3],w[4],sb(w[5]),ab(w[5]=="Activa"?"Desactivar":"Activar","wlt("+i+")")]})))}
+function wlt(i){var w=WL[i],a=w[5]=="Activa";sens((a?"Desactivar":"Activar")+" wallet "+w[0],w[1]+" · "+w[2]+".",1,function(m){w[5]=a?"Desactivada":"Activa";aud("custody.toggle",w[0],m);go("custodia")},a)}
+function hot(){var H=[["TRON","TEjem…Hot1",3420,1000,3500,6000,"TRX 840","Activa"],["BSC","0xEjem…c3E1",1180,500,1500,3000,"BNB 0.42 (bajo)","Activa"]];return hero("Custodia on-chain","Hot Wallet","Balances consultados desde los nodos blockchain. Esta pantalla no envía transacciones.","flame")+'<div class="g2c g3">'+H.map(function(h){var p=Math.min(100,h[2]/h[5]*100);return '<div class="card" style="padding:16px"><div style="display:flex;justify-content:space-between"><b>'+h[0]+' · USDT</b>'+sb(h[7])+'</div><div style="color:var(--mu);font-size:12px;margin-top:4px">'+h[1]+'</div><div style="font-size:28px;font-weight:800;margin:12px 0 0">'+h[2].toLocaleString("en-US")+' <small style="font-size:13px;color:var(--mu)">USDT</small></div><div class="bar"><i style="width:'+p+'%"></i></div><div style="display:flex;justify-content:space-between;font-size:11px;color:var(--mu)"><span>mín '+h[3].toLocaleString("en-US")+'</span><span>objetivo '+h[4].toLocaleString("en-US")+'</span><span>máx '+h[5].toLocaleString("en-US")+'</span></div><div style="margin-top:12px;font-size:13px">Gas: <b>'+h[6]+'</b></div></div>'}).join("")+'</div>'+cd("Balances de wallets HOT","Si no hay wallets configuradas, créalas en Custodia.",tb(["Red","Dirección","USDT","Moneda gas","Estado"],H.map(function(h){return [h[0],h[1],h[2].toLocaleString("en-US"),h[6],sb(h[7])]})),'<button class="ab" onclick="rfr()">Actualizar</button>')}
+function teso(){return hero("Control de saldos","Políticas de tesorería","Las políticas nuevas se crean desactivadas y requieren una acción separada para activarse.","coin")+cd("Nueva política","Usa importes decimales válidos para el activo elegido.",fm("tp",[["red","Red","s","",["BSC","TRON"]],["act","Activo","s","",["USDT","BNB","TRX"]],["hot","ID wallet HOT","t","","WL-01"],["tre","ID wallet TREASURY","t","","WL-05"],["min","Saldo mínimo","n","0"],["obj","Saldo objetivo","n","0"],["max","Saldo máximo","n","0"],["reb","Umbral de rebalanceo","n","0"],["mrb","Máximo por rebalanceo","n","0"],["mot","Motivo","t","","Motivo del cambio"]],"Crear desactivada",function(o){if(!(+o.max>=+o.obj&&+o.obj>=+o.min)){err("invalid_limits: mínimo ≤ objetivo ≤ máximo");return}sens("Crear política de tesorería",o.red+" · "+o.act+".",0,function(){var n="TP-0"+(TP.length+1);TP.push([n,o.red+" · "+o.act,o.min,o.obj,o.max,"Desactivada"]);aud("treasury.create",n,o.mot);go("teso")})}))+cd("Políticas existentes","",tb(["ID","Red / activo","Mínimo","Objetivo","Máximo","Estado",""],TP.map(function(t,i){return [t[0],t[1],t[2],t[3],t[4],sb(t[5]),ab(t[5]=="Habilitada"?"Desactivar":"Activar","tpt("+i+")")]})))}
+function tpt(i){var t=TP[i],a=t[5]=="Habilitada";sens((a?"Desactivar":"Activar")+" política "+t[0],t[1]+".",1,function(m){t[5]=a?"Desactivada":"Habilitada";aud("treasury.toggle",t[0],m);go("teso")},a)}
+var GP=null;
+function gas(){return hero("Operación de red","Política de Gas Station","Selecciona una wallet de tipo GAS activa. Revisa los límites antes de guardar.","fuel")+'<div class="g2c g3">'+cd("Consultar política","Introduce el ID de una wallet GAS para consultar su política.",fm("gq",[["id","ID wallet GAS","t","","WL-03"]],"Consultar",function(o){var r=$("gr");if(o.id!="WL-03"){r.innerHTML='<div class="em">Sin política para '+esc(o.id||"—")+'.</div>';return}r.innerHTML='<div style="padding:0 16px 16px"><div class="r2"><span>Saldo mínimo</span><b>50 TRX</b></div><div class="r2"><span>Saldo objetivo</span><b>400 TRX</b></div><div class="r2"><span>Máximo por recarga</span><b>200 TRX</b></div><div class="r2"><span>Estado</span>'+sb("Habilitada")+'</div></div>'})+'<div id="gr"></div>')+cd("Guardar política","El ID debe corresponder a una wallet GAS activa.",fm("gs",[["id","ID wallet GAS","t","","WL-03"],["min","Saldo mínimo","n","0"],["obj","Saldo objetivo","n","0"],["max","Máximo por recarga","n","0"],["mot","Motivo","t","","Motivo del cambio"],["on","Política habilitada","c"]],"Guardar política",function(o){sens("Guardar política de Gas Station","Wallet "+esc(o.id||"—")+".",0,function(){aud("gas.policy",o.id||"—",o.mot)})}))+'</div>'}
+function p2p(){var B='';if(pt=="ord")B=cd("Órdenes","Últimas 100 órdenes, nuevas primero.",tb(["ID","Par","Cantidad","Estado","Comprador","Vendedor","Creada"],OR.map(function(o){return [o[0],o[1],o[2],sb(o[3]),esc(o[4]),esc(o[5]),o[6]]})));else if(pt=="off")B=cd("Ofertas","Incluye ofertas activas, pausadas y canceladas.",tb(["ID","Usuario","Par","Lado","Precio","Disponible","Estado",""],OF.map(function(o,i){return [o[0],esc(o[1]),o[2],o[3],o[4],o[5],sb(o[6]),o[6]=="Activa"?ab("Pausar","ofp("+i+")"):"—"]})));else B=cd("Disputas","Las resoluciones mueven fondos en escrow. Verifica la orden antes de actuar.",tb(["ID","Orden","Motivo","Partes","Estado","Antigüedad",""],DS.map(function(d,i){return [d[0],d[1],d[2],esc(d[3]),sb(d[4]),d[5],d[4]=="Abierta"?ab("Resolver","dsp("+i+")","ok"):"—"]})),"<span class='sb warn'>"+DS.filter(function(d){return d[4]=="Abierta"}).length+" abiertas</span>");return hero("Mercado P2P","Órdenes, ofertas y disputas","Las resoluciones de disputa mueven fondos en escrow. Verifica la orden antes de actuar.","swap")+chp("cp",[["ord","Órdenes"],["off","Ofertas"],["dis","Disputas"]],pt,"spt")+B}
+function spt(v){pt=v;go("p2p")}
+function ofp(i){var o=OF[i],a=o[6]=="Activa";sens((a?"Pausar":"Reactivar")+" oferta "+o[0],esc(o[1])+" · "+o[2]+".",1,function(m){o[6]=a?"Pausada":"Activa";aud("p2p.offer."+(a?"pause":"resume"),o[0],m);go("p2p")})}
+function dsp(i){var d=DS[i];op('<h3>Disputa '+d[0]+'</h3><p>Orden '+d[1]+' · '+esc(d[3])+'. Motivo: '+d[2]+'.</p><div class="r2"><span>Evidencia</span><b>1 comprobante · 12 mensajes</b></div><div style="background:var(--s2);border-radius:12px;padding:12px;font-size:13px;margin:10px 0;line-height:1.6"><span style="color:var(--mu)">comprador:</span> Ya envié el pago, adjunto el comprobante.<br><span style="color:var(--mu)">vendedor:</span> No me aparece nada en la cuenta.</div><div style="display:grid;gap:10px"><button class="btn" onclick="cs();dsr('+i+',1)">Liberar USDT al comprador</button><button class="btn o" onclick="cs();dsr('+i+',0)">Devolver USDT al vendedor</button></div>')}
+function dsr(i,b){var d=DS[i];sens(b?"Liberar al comprador":"Devolver al vendedor","Disputa "+d[0]+" · orden "+d[1]+". Esta acción mueve fondos del escrow.",1,function(m){d[4]="Resuelta";OR.forEach(function(o){if(o[0]==d[1])o[3]="Completada"});aud("p2p.dispute."+(b?"buyer":"seller"),d[0],m);go("p2p")},1)}
+function seg(){return hero("Protección operativa","Centro de seguridad","Las congelaciones afectan operaciones reales. Usa un motivo claro y verifica el alcance.","shield")+cd("Congelación de operaciones","El alcance exacto depende de las operaciones admitidas por el backend.",fm("fz",[["op","Operación","s","",["withdrawals","deposits","p2p","transfers"]],["est","Estado solicitado","s","",["Congelar","Descongelar"]],["mot","Motivo","t","","Motivo"]],"Aplicar cambio",function(o){sens(o.est+" "+o.op,"Afecta a todos los usuarios.",0,function(){FZ.forEach(function(f){if(f[0]==o.op){f[1]=o.est=="Congelar"?"Congelado":"Activo";f[2]=o.mot||"—";f[3]=now()}});aud("security."+o.est.toLowerCase(),o.op,o.mot);go("seg")},1)}))+cd("Estado de congelaciones","",tb(["Operación","Estado","Motivo","Actualización"],FZ.map(function(f){return [f[0],sb(f[1]),esc(f[2]),f[3]]})))+cd("Crear política de seguridad","Los límites necesarios se envían como cadenas decimales.",fm("sp",[["op","Operación","t","withdrawals"],["act","Activo","t","USDT"],["red","Red","t","BSC"],["min","Importe mínimo","n","0"],["max","Importe máximo","n"],["dia","Límite diario","n"],["nd","Número máximo diario","n"],["mes","Límite mensual","n"],["nm","Número máximo mensual","n"],["u2","Umbral de 2FA","n"],["um","Umbral de aprobación manual","n"],["on","Política habilitada","c"]],"Guardar política",function(o){sens("Guardar política de seguridad",o.op+" · "+o.act+" · "+o.red+".",0,function(){SP.push([o.op,o.act+" / "+o.red,o.min||"0",o.max||"—",o.on?"Habilitada":"Desactivada"]);aud("security.policy",o.op,"");go("seg")})}))+cd("Políticas registradas","",tb(["Operación","Activo / red","Mínimo","Máximo","Estado"],SP.map(function(s){return [s[0],s[1],s[2],s[3],sb(s[4])]})))+cd("Eventos de seguridad","Últimos eventos devueltos por el backend.",tb(["Fecha","Tipo","Usuario","Detalles"],SE.map(function(e){return [e[0],'<span class="sb in">'+e[1]+'</span>',esc(e[2]),esc(e[3])]})))}
+function perfil(){return hero("Cuenta de administración","Perfil de administrador","Esta cuenta es independiente de las cuentas de usuarios de la wallet: tiene su propia contraseña y su propio 2FA.","user")+cd("Datos de la cuenta","",'<div style="padding:4px 16px 12px"><div class="r2"><span>Usuario</span><b>'+esc(ADM.user)+'</b></div><div class="r2"><span>Rol</span><b>Super administrador</b></div><div class="r2"><span>2FA</span>'+sb("Activo")+'</div><div class="r2"><span>Sesión</span><b>Expira a los 15 min de inactividad</b></div></div>')+cd("Seguridad de la cuenta","",'<div style="padding:16px;display:grid;gap:10px"><button class="btn o" onclick="apw()">Cambiar contraseña</button><button class="btn o" onclick="toast(\'Códigos regenerados (demo)\')">Regenerar códigos de recuperación</button></div>')+cd("Sesiones activas","",tb(["Dispositivo","Navegador","Actividad",""],SESS.map(function(s,i){return [s[0],s[1],s[2],i?ab("Cerrar","ses("+i+")","dg"):'<span class="sb ok">Esta sesión</span>']})))+'<button class="btn dg" onclick="logout()">Cerrar sesión</button>'}
+function sa(v){af=v;Q("#ca .ch").forEach(function(b){b.setAttribute("aria-pressed",b.getAttribute("onclick").indexOf("'"+v+"'")>-1)});ra()}
+function ra(){$("at").innerHTML=tb(["Fecha","Admin","Acción","Objeto","Motivo","IP","Resultado"],AUD.filter(function(a){return(af=="all"||a[6]==af)&&(a.join(" ")).toLowerCase().indexOf(aq)>-1}).map(function(a){return [a[0],a[1],a[2],esc(a[3]),esc(a[4]),a[5],sb(a[6])]}))}
+function audi(){return '<div style="display:grid;gap:10px"><input class="fi" placeholder="Buscar en la auditoría" aria-label="Buscar" oninput="aq=this.value.trim().toLowerCase();ra()">'+chp("ca",[["all","Todas"],["Éxito","Éxito"],["Fallida","Fallidas"]],af,"sa")+'</div>'+cd("Registro de auditoría","Cada acción sensible queda registrada con su motivo.",'<div id="at"></div>')}
+var PG={dash:{g:0,k:"Administración",t:"Dashboard",i:"home",f:dash,h:function(){}},users:{g:0,k:"Administración",t:"Gestión de usuarios",n:"Usuarios",i:"users",f:users,h:ru,s:1},txs:{g:0,k:"Administración",t:"Transacciones",i:"tx",f:txs,h:rx},p2p:{g:0,k:"Control operativo",t:"Mercado P2P",n:"P2P",i:"swap",f:p2p,s:1},retiros:{g:1,k:"Control operativo",t:"Revisión de retiros",n:"Retiros",i:"wd",f:retiros,s:1},custodia:{g:1,k:"Control operativo · Korzadi Wallet",t:"Wallets de custodia",n:"Custodia",i:"vault",f:custodia,s:1,h:csum},hot:{g:1,k:"Control operativo",t:"Hot Wallet",i:"flame",f:hot,s:1},teso:{g:1,k:"Control operativo",t:"Políticas de tesorería",n:"Tesorería",i:"coin",f:teso,s:1},gas:{g:1,k:"Control operativo",t:"Gas Station",i:"fuel",f:gas,s:1},seg:{g:2,k:"Protección operativa",t:"Centro de seguridad",n:"Seguridad",i:"shield",f:seg,s:1},audi:{g:2,k:"Protección operativa",t:"Auditoría",i:"list",f:audi,h:ra,s:1},adm:{g:2,k:"Protección operativa",t:"Administradores",i:"users",f:adm,s:1},perfil:{g:2,k:"Cuenta",t:"Perfil",i:"user",f:perfil,s:1}};
+var GN=["Administración","Operaciones financieras","Protección"],cur="dash";
+$("nv").innerHTML=GN.map(function(g,gi){return '<div class="gt">'+g+'</div>'+Object.keys(PG).filter(function(k){return PG[k].g==gi}).map(function(k){return '<button class="nl" data-k="'+k+'" onclick="go(\''+k+'\')"><span>'+I(PG[k].i)+'</span>'+(PG[k].n||PG[k].t)+'</button>'}).join("")}).join("");
+function go(p){cur=p;var g=PG[p];$("kk").textContent=g.k;$("tt").textContent=g.t;$("tfb").style.display=g.s?"flex":"none";$("bn").innerHTML="";var c=$("ct");c.innerHTML=g.f();c.style.animation="none";void c.offsetWidth;c.style.animation="";if(g.h)g.h();Q(".nl[data-k]").forEach(function(b){if(b.dataset.k==p)b.setAttribute("aria-current","page");else b.removeAttribute("aria-current")});dr(0);scrollTo(0,0);try{history.replaceState(null,"","#"+p)}catch(e){}Q(".kv").forEach(function(e){var t=+e.dataset.t,pf=e.textContent[0]=="$"?"$":"",s=performance.now();(function f(n){var q=Math.min((n-s)/1200,1),v=Math.round(t*(1-Math.pow(1-q,3)));e.textContent=pf+v.toLocaleString("en-US");if(q<1)requestAnimationFrame(f)})(s)})}
+function dr(o){$("sd").classList.toggle("on",!!o);$("ov").classList.toggle("on",!!o)}
+function rfr(){var b=$("rf");b.classList.remove("spin");void b.offsetWidth;b.classList.add("spin");setTimeout(function(){go(cur);toast("Datos actualizados (demo)")},600)}
+function th(v){document.documentElement.dataset.theme=v;try{localStorage.setItem("kz-th",v)}catch(e){}}
+function sheet(k){var c=document.documentElement.dataset.theme||"auto";op('<h3>Apariencia</h3><p>Elige cómo se ve la interfaz. Se guarda solo en este navegador.</p>'+[["light","sun","Claro","Fondo luminoso y alto contraste"],["dark","moon","Oscuro","Superficie profunda para poca luz"],["auto","mon","Automático","Sigue la preferencia del sistema"]].map(function(x){return '<button class="to" aria-pressed="'+(c==x[0])+'" onclick="th(\''+x[0]+'\');sheet(\'th\')"><span style="color:var(--cy)">'+I(x[1])+'</span><span style="flex:1"><b>'+x[2]+'</b><small>'+x[3]+'</small></span>'+(c==x[0]?'<span style="color:var(--cy)">'+I("ok")+'</span>':"")+'</button>'}).join(""))}
+var ADM={user:"admin"},UNL=false,AT=0,LKT=0,LKI=0,IDL=0,tgt="dash",SESS=[["Este dispositivo","Navegador actual","Activa ahora"],["Laptop · oficina","Firefox · Linux","Hace 2 h"]];
+var ROLES=["Super administrador","Operador financiero","Soporte P2P","Solo lectura"],PERM=[["Ver dashboard y transacciones",1,1,1,1],["Aprobar o rechazar retiros",1,1,0,0],["Custodia, Hot Wallet y tesorería",1,1,0,0],["Resolver disputas P2P",1,0,1,0],["Congelar operaciones",1,0,0,0],["Gestionar administradores",1,0,0,0]];
+var ADMS=[["admin","Super administrador","Activo","Hoy 08:24","Activo"],["operador1","Operador financiero","Activo","Ayer","Activo"],["soporte1","Soporte P2P","Activo","Hace 3 d","Activo"],["auditor1","Solo lectura","Pendiente","—","Pendiente"]];
+SC["Suspendido"]="bad";
+function adm(){return hero("Protección operativa","Administradores","Las cuentas de administración son independientes de las cuentas de la wallet y tienen su propia contraseña y su propio 2FA.","users")+cd("Invitar administrador","Se envía un enlace de activación. La persona define su contraseña y configura su 2FA.",fm("ad",[["usr","Correo del administrador","t","","correo@ejemplo.cu"],["rol","Rol","s","",ROLES],["mot","Motivo","t","","Motivo de la invitación"]],"Enviar invitación",function(o){if(!/^\S+@\S+\.\S+$/.test(o.usr)){err("invalid_email");return}sens("Invitar administrador",esc(o.usr)+" como "+o.rol+".",0,function(){ADMS.push([o.usr.split("@")[0],o.rol,"Pendiente","—","Pendiente"]);aud("admin.invite",o.usr,o.mot);go("adm")})}))+cd("Cuentas de administración","",tb(["Usuario","Rol","2FA","Último acceso","Estado",""],ADMS.map(function(a,i){return [esc(a[0])+(i==0?' <span class="sb in">tú</span>':""),a[1],sb(a[2]),a[3],sb(a[4]),i==0?"—":ab(a[4]=="Suspendido"?"Reactivar":"Suspender","adt("+i+")")]})))+cd("Permisos por rol","",tb(["Permiso","Super admin","Operador","Soporte","Lectura"],PERM.map(function(p){return [p[0]].concat(p.slice(1).map(function(v){return v?'<span style="color:var(--gn)">✓</span>':'<span style="color:var(--mu)">—</span>'}))})))}
+function adt(i){var a=ADMS[i],s=a[4]=="Suspendido";sens((s?"Reactivar":"Suspender")+" administrador",esc(a[0])+" · "+a[1]+".",1,function(m){a[4]=s?"Activo":"Suspendido";aud("admin."+(s?"resume":"suspend"),a[0],m);go("adm")},!s)}
+function ses(i){var x=SESS[i];if(!x||!x[3]){toast("No se pudo identificar la sesión.");return}sens("Cerrar sesión remota",esc(x[0])+" · "+esc(x[1])+".",1,function(m){return api("/sessions/"+x[3],{method:"DELETE"}).then(loadAll)})}
+function apw(){op('<h3>Cambiar contraseña</h3><label class="lb" for="w0">Contraseña actual</label><input class="fi" id="w0" type="password" autocomplete="current-password"><label class="lb" for="w1">Nueva contraseña</label><input class="fi" id="w1" type="password" autocomplete="new-password"><label class="lb" for="w2">Confirmar nueva contraseña</label><input class="fi" id="w2" type="password" autocomplete="new-password"><div class="er" id="we" role="alert"></div><button class="btn" style="width:100%" onclick="apw2()">Cambiar contraseña</button>')}
+function apw2(){var e="";if(!$("w0").value)e="Ingresa tu contraseña actual.";else if($("w1").value.length<12)e="La nueva contraseña debe tener al menos 12 caracteres.";else if($("w1").value!==$("w2").value)e="Las contraseñas no coinciden.";$("we").textContent=e;if(e)return;cs();aud("admin.password_change",ADM.user,"");toast("Contraseña actualizada (demo)")}
+function lock(on){UNL=!on;$("lk").hidden=!on;$("app").inert=on;$("sd").inert=on;document.body.style.overflow=on?"hidden":"";if(on){$("l1").hidden=false;$("l2").hidden=true;setTimeout(function(){$("lu").focus()},60)}}
+function lg1(){var u=$("lu").value.trim(),p=$("lp").value,e="";if(u.length<3)e="Ingresa tu usuario de administrador.";else if(p.length<8)e="Ingresa tu contraseña (mínimo 8 caracteres).";$("le").textContent=e;if(e)return;$("l1").hidden=true;$("l2").hidden=false;$("le2").textContent="";$("lc").focus()}
+function lkc(){var b=$("lb2");clearInterval(LKI);LKI=setInterval(function(){var s=Math.ceil((LKT-Date.now())/1000);if(s<=0){clearInterval(LKI);b.disabled=false;AT=0;$("le2").textContent="";return}b.disabled=true;$("le2").textContent="Demasiados intentos. Intenta de nuevo en "+s+" s."},250)}
+function lg2(){if(Date.now()<LKT)return;var c=$("lc").value.trim();if(!/^\d{6}$/.test(c)){$("le2").textContent="Ingresa los 6 dígitos.";return}if(c=="000000"){AT++;if(AT>=3){LKT=Date.now()+30000;lkc()}else $("le2").textContent="Código incorrecto. Intentos restantes: "+(3-AT);return}ADM.user=$("lu").value.trim().toLowerCase();ADMS[0][0]=ADM.user;$("an").textContent=ADM.user;$("av2").textContent=ADM.user.slice(0,2).toUpperCase();AT=0;$("lp").value="";$("lc").value="";lock(false);go(tgt);idl();toast("Sesión iniciada")}
+function logout(w){clearTimeout(IDL);cs();dr(0);$("tf").value="";$("lp").value="";$("lc").value="";$("le").textContent=w||"";AT=0;lock(true)}
+function idl(){clearTimeout(IDL);IDL=setTimeout(function(){logout("Tu sesión expiró por inactividad.")},900000)}
+["click","keydown","touchstart","mousemove"].forEach(function(ev){document.addEventListener(ev,function(){if(UNL)idl()},{passive:true})});
+$("lv").onclick=function(){var p=$("lp"),h=p.type=="password";p.type=h?"text":"password";this.textContent=h?"Ocultar":"Ver"};
+ic();
+$("sh").onclick=function(e){if(e.target==this)cs()};document.addEventListener("keydown",function(e){if(e.key=="Escape"){cs();dr(0)}});
+try{var sv=localStorage.getItem("kz-th");if(sv)th(sv)}catch(e){}
+var h0=(location.hash||"").slice(1);tgt=PG[h0]?h0:"dash";lock(true);
+</script>
+<script>
+/* Korzadi Admin — capa API real. Reemplaza los datos de demostración sin
+   cambiar la estructura visual del panel. */
+var API_BASE="/api/admin",CHALLENGE=null,ME=null,PERMS={},TFA="",DASH=null,HOT=[];
+function api(path,opts){opts=opts||{};opts.credentials="same-origin";opts.headers=Object.assign({"Content-Type":"application/json"},opts.headers||{});if(TFA&&opts.method&&opts.method!=="GET")opts.headers["X-2FA-Code"]=TFA;return fetch(API_BASE+path,opts).then(function(r){return r.text().then(function(t){var j={};try{j=t?JSON.parse(t):{}}catch(e){}if(!r.ok){var er=new Error(j.message||j.error||("HTTP "+r.status));er.code=j.error;er.status=r.status;throw er}return j})})}
+function v(o,k){if(o==null)return"";if(o[k]!==undefined)return o[k];var lk=k.charAt(0).toLowerCase()+k.slice(1);return o[lk]!==undefined?o[lk]:""}
+function fmtDate(s){if(!s)return"—";try{var d=new Date(s);if(isNaN(d.getTime()))return String(s);return d.toLocaleDateString("es",{day:"2-digit",month:"short",year:"numeric"})}catch(e){return String(s)}}
+function fmtTime(s){if(!s)return"—";try{var d=new Date(s);if(isNaN(d.getTime()))return String(s);return d.toLocaleDateString("es",{day:"2-digit",month:"short"})+" "+d.toLocaleTimeString("es",{hour:"2-digit",minute:"2-digit"})}catch(e){return String(s)}}
+function money(x){var n=Number(x||0);if(!isFinite(n))n=0;return n.toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:8})}
+function mapUserStatus(s){return s==="blocked"?"Congelado":s==="pending_verification"?"KYC pendiente":s==="deleted"?"Eliminado":"Activo"}
+function mapStatus(s){s=String(s||"");return s.charAt(0).toUpperCase()+s.slice(1)}
+function roleLabel(r){return r==="super_admin"?"Super administrador":r==="operador_financiero"?"Operador financiero":r==="soporte_p2p"?"Soporte P2P":r==="solo_lectura"?"Solo lectura":r}
+function userEmail(id){var x=US.find(function(u){return u[0]===id});return x?x[2]:String(id||"").slice(0,8)}
+function loadAll(){
+  US=[];TX=[];WD=[];WL=[];TP=[];OR=[];OF=[];DS=[];FZ=[];SP=[];SE=[];AUD=[];ADMS=[];SESS=[];HOT=[];DASH=null;
+  return Promise.allSettled([
+    api("/dashboard").then(function(j){DASH=j;}),
+    api("/users?limit=200").then(function(j){US=(j.items||[]).map(function(u){var kyc=v(u,"KYCStatus");return [v(u,"ID"),((v(u,"FirstName")||"")+" "+(v(u,"LastName")||"")).trim()||String(v(u,"Email")||"").split("@")[0],v(u,"Email"),kyc==="verified"?2:kyc==="pending"?1:0,money(v(u,"USDTBalance")),mapUserStatus(v(u,"Status")),fmtDate(v(u,"CreatedAt"))]})})
+  ]).then(function(){
+    return Promise.allSettled([
+      api("/transactions?limit=200").then(function(j){TX=(j.items||[]).map(function(t){return [v(t,"ID"),mapStatus(v(t,"Type")),v(t,"UserEmail"),v(t,"AssetCode")||"—",(Number(v(t,"Amount"))>=0?"+":"")+money(v(t,"Amount")),mapStatus(v(t,"Status")),v(t,"ReferenceID")||"—",fmtTime(v(t,"CreatedAt"))]})}),
+      api("/withdrawals/review?limit=200").then(function(j){WD=(j.items||[]).map(function(w){return [v(w,"id"),userEmail(v(w,"user_id")),(v(w,"network")||"")+" · "+v(w,"asset_code"),money(v(w,"amount")),v(w,"to_address")||"—",v(w,"needs_review")?"Medio":"Bajo",v(w,"needs_review")?"Revisión":mapStatus(v(w,"status")),v(w,"attempts")||0]})}),
+      api("/custody/wallets").then(function(j){WL=(j.items||[]).map(function(w){var st=v(w,"status");return [v(w,"id"),(v(w,"network")||"")+" · "+v(w,"asset_code"),v(w,"wallet_type"),v(w,"address")||"—",v(w,"address_type")||"—",st==="active"?"Activa":st==="disabled"?"Desactivada":"Retirada"]})}),
+      api("/treasury/policies").then(function(j){TP=(j.items||[]).map(function(p){return [v(p,"id"),(v(p,"network")||"")+" · "+v(p,"asset_code"),v(p,"min_balance"),v(p,"target_balance"),v(p,"max_balance"),v(p,"enabled")?"Habilitada":"Desactivada"]})}),
+      api("/p2p/orders?limit=100").then(function(j){OR=(j.items||[]).map(function(o){return [v(o,"id"),v(o,"asset_code")+" / "+v(o,"fiat_currency"),money(v(o,"amount"))+" "+v(o,"asset_code"),mapStatus(v(o,"status")),userEmail(v(o,"buyer_id")),userEmail(v(o,"seller_id")),fmtTime(v(o,"created_at"))]})}),
+      api("/p2p/offers?limit=100").then(function(j){OF=(j.items||[]).map(function(o){var st=v(o,"status");return [v(o,"id"),userEmail(v(o,"user_id")),v(o,"asset_code")+" / "+v(o,"fiat_currency"),v(o,"side")==="sell"?"Vende":"Compra",v(o,"price_per_unit"),money(v(o,"available_amount")),st==="active"?"Activa":st==="cancelled"?"Cancelada":st==="paused"?"Pausada":mapStatus(st)]})}),
+      api("/p2p/disputes?limit=100").then(function(j){DS=(j.items||[]).map(function(d){return [v(d,"id"),v(d,"order_id"),v(d,"reason")||"Disputa",userEmail(v(d,"opened_by")),v(d,"status")==="open"?"Abierta":v(d,"status")==="resolved_release"||v(d,"status")==="resolved_refund"?"Resuelta":"En revisión",fmtTime(v(d,"created_at"))]})}),
+      api("/audit?limit=200").then(function(j){AUD=(j.items||[]).map(mapAudit)}),
+      api("/security/freezes").then(function(j){FZ=(j.items||[]).map(function(f){return [String(v(f,"Operation")||"").toLowerCase(),v(f,"Frozen")?"Congelado":"Activo",v(f,"Reason")||"—",fmtTime(v(f,"FrozenAt"))]})}),
+      api("/security/policies").then(function(j){SP=(j.items||[]).map(function(p){return [v(p,"Operation"),(v(p,"AssetCode")||"*")+" / "+(v(p,"Network")||"*"),v(p,"MinAmount")||"0",v(p,"MaxAmount")||"—",v(p,"Enabled")?"Habilitada":"Desactivada"]})}),
+      api("/security/events?limit=100").then(function(j){SE=(j.items||[]).map(function(e){return [fmtTime(v(e,"CreatedAt")),v(e,"Type"),String(v(e,"UserID")||"—").slice(0,8),JSON.stringify(v(e,"Metadata")||{})]})}),
+      api("/administrators").then(function(j){ADMS=(j.items||[]).map(function(a){return [v(a,"DisplayName")||v(a,"Email"),roleLabel(v(a,"Role")),v(a,"Status")==="active"?"Activo":"Pendiente",v(a,"LastLoginAt")?fmtTime(v(a,"LastLoginAt")):"—",v(a,"Status")==="active"?"Activo":v(a,"Status")==="suspended"?"Suspendido":"Pendiente",v(a,"ID")]})}),
+      api("/hot-wallet/balances").then(function(j){HOT=(j.items||[]).map(function(h){return h})}),
+      api("/auth/me").then(function(j){ME=j.admin;PERMS=j.permissions||{};SESS=(j.sessions||[]).map(function(x){return [x.user_agent||"Navegador",x.ip||"—",x.last_seen_at,x.id]})}).catch(function(x){if(x.status===401){ME=null;clearTimeout(IDL);lock(true)}})
+    ]);
+  }).then(function(){ if(ME){$("an").textContent=ME.email; $("av2").textContent=(ME.display_name||ME.email).slice(0,2).toUpperCase();} applyPerms(); if(UNL)go(cur); });
+}
+function applyPerms(){var need={retiros:"financial",custodia:"financial",hot:"financial",teso:"financial",gas:"financial",p2p:"p2p"};Q(".nl[data-k]").forEach(function(b){var n=need[b.dataset.k];b.style.display=(!n||PERMS[n]!==false)?"":"none"})}
+function mapAudit(a){return [fmtTime(v(a,"CreatedAt")),v(a,"AdminEmail")||"admin",v(a,"Action"),v(a,"EntityType")+(v(a,"EntityID")?" · "+String(v(a,"EntityID")).slice(0,8):""),v(a,"Reason")||"—",v(a,"IP")||"—",v(a,"Result")==="success"?"Éxito":"Fallida"]}
+function rfrNoop(){}
+function dash(){
+  var d=DASH||{};var u=Number(d.users_total||0),a=Number(d.users_active||0),b=Number(d.users_blocked||0);
+  var cards=[["Usuarios",u,"total registrados","users"],["Activos",a,"cuentas operativas","ok"],["Bloqueados",b,"requieren revisión","warn"],["USDT en wallets",money(d.usdt_total),"saldo agregado","coin"],["Retiros por revisar",Number(d.withdrawals_review||0),"cola operativa","wd"],["Disputas P2P",Number(d.p2p_disputes_open||0),"abiertas","swap"]];
+  return hero("Administración","Dashboard","Datos agregados del backend en tiempo real.","home")+
+    '<div class="g2c g3">'+cards.map(function(c){return '<div class="card" style="padding:16px"><small style="color:var(--mu);font-size:11px;text-transform:uppercase;letter-spacing:.6px">'+c[0]+'</small><div style="font-size:28px;font-weight:800;margin:8px 0 2px">'+c[1]+'</div><span style="color:var(--mu);font-size:12px">'+c[2]+'</span></div>'}).join("")+'</div>'+
+    cd("Actividad administrativa reciente","Últimas acciones registradas en la auditoría.",tb(["Fecha","Admin","Acción","Objeto","Resultado"],AUD.slice(0,8).map(function(x){return [x[0],esc(x[1]),esc(x[2]),esc(x[3]),sb(x[6])]})));
+}
+function hot(){
+  var H=HOT||[];
+  return hero("Custodia on-chain","Hot Wallet","Balances consultados desde los nodos blockchain. Esta pantalla no envía transacciones.","flame")+
+    (H.length?cd("Balances de wallets HOT","Datos del backend.",tb(["Red","Activo","Dirección","Saldo","Estado"],H.map(function(h){return [v(h,"network"),v(h,"asset_code")||v(h,"wallet_type"),v(h,"address")||"—",v(h,"balance")||v(h,"usdt_balance")||"—",sb(mapStatus(v(h,"status")||"active"))]}))):'<div class="em">No hay wallets HOT configuradas o la consulta on-chain no está disponible.</div>');
+}
+function cok(){var m=CF.mot?$("cm").value.trim():"";if(CF.mot&&m.length<5){$("ce").textContent="Escribe un motivo de al menos 5 caracteres.";return}var code=$("tf").value.trim();if(!/^\d{6}$/.test(code)){err("2fa_required");return}TFA=code;cs();Promise.resolve(CF.fn(m)).then(function(){toast("Operación aplicada")}).catch(function(e){err((e.code||"error")+(e.message?": "+e.message:""))})}
+function aud(){/* la auditoría real se recarga desde el backend */}
+function usc(i){var u=US[i],f=u[5]==="Congelado";sens(f?"Descongelar cuenta":"Congelar cuenta","Cuenta "+esc(u[1])+".",1,function(m){var p=f?"/users/"+u[0]+"/unblock":"/users/"+u[0]+"/block";return api(p,{method:"POST",body:JSON.stringify({reason:m})}).then(loadAll)})}
+function us2(i){var u=US[i];sens("Restablecer 2FA","El usuario "+esc(u[1])+" deberá configurar 2FA de nuevo.",1,function(m){return api("/users/"+u[0]+"/reset-2fa",{method:"POST",body:JSON.stringify({reason:m})}).then(loadAll)})}
+function wda(i,ok){var w=WD[i];sens(ok?"Aprobar retiro "+w[0]:"Rechazar retiro "+w[0],w[3]+" "+w[2]+" a "+w[4]+".",1,function(m){return api("/withdrawals/"+w[0]+"/resolve",{method:"POST",body:JSON.stringify({action:ok?"retry_settlement":"release",reason:m})}).then(loadAll)})}
+function wlt(i){var w=WL[i],a=w[5]==="Activa";sens((a?"Desactivar":"Activar")+" wallet "+w[0],w[1]+" · "+w[2]+".",1,function(m){return api("/custody/wallets/"+w[0]+"/status",{method:"POST",body:JSON.stringify({status:a?"disabled":"active",reason:m})}).then(loadAll)})}
+function tpt(i){var t=TP[i],a=t[5]==="Habilitada";sens((a?"Desactivar":"Activar")+" política "+t[0],t[1]+".",1,function(m){return api("/treasury/policies/"+t[0]+"/enabled",{method:"POST",body:JSON.stringify({enabled:!a,reason:m})}).then(loadAll)})}
+function ofp(i){var o=OF[i];if(o[6]==="Cancelada"||o[6]==="Pausada"){toast("La oferta ya está suspendida; el backend no permite reactivarla.");return}sens("Suspender oferta "+o[0],esc(o[1])+" · "+o[2]+".",1,function(m){return api("/p2p/offers/"+o[0]+"/suspend",{method:"POST",body:JSON.stringify({reason:m})}).then(loadAll)})}
+function dsr(i,b){var d=DS[i];sens(b?"Liberar al comprador":"Devolver al vendedor","Disputa "+d[0]+" · orden "+d[1]+". Esta acción mueve fondos del escrow.",1,function(m){return api("/p2p/orders/"+d[1]+"/resolve",{method:"POST",body:JSON.stringify({action:b?"release":"refund",reason:m})}).then(loadAll)})}
+function adt(i){var a=ADMS[i],s=a[4]==="Suspendido";if(!a[5]){toast("No se pudo identificar el administrador.");return}if(a[5]===(ME&&ME.id)){toast("No puedes suspender tu propia cuenta.");return}sens((s?"Reactivar":"Suspender")+" administrador",esc(a[0])+" · "+a[1]+".",1,function(m){return api("/administrators/"+a[5]+"/status",{method:"POST",body:JSON.stringify({status:s?"active":"suspended",reason:m})}).then(loadAll)})}
+function apw2(){var e="";if(!$("w0").value)e="Ingresa tu contraseña actual.";else if($("w1").value.length<12)e="La nueva contraseña debe tener al menos 12 caracteres.";else if($("w1").value!==$("w2").value)e="Las contraseñas no coinciden.";$("we").textContent=e;if(e)return;var code=$("tf").value.trim();if(!/^\d{6}$/.test(code)){err("2fa_required");return}TFA=code;api("/auth/password",{method:"POST",body:JSON.stringify({current_password:$("w0").value,new_password:$("w1").value,reason:"cambio de contraseña desde el panel"})}).then(function(){toast("Contraseña actualizada; vuelve a iniciar sesión.");cs();logout("Cambiaste tu contraseña. Inicia sesión de nuevo.")}).catch(function(x){$("we").textContent=x.code||x.message||"No se pudo cambiar la contraseña."})}
+function perfil(){
+  var s=(SESS||[]).map(function(x,i){return [x[0]||x[2]||"Sesión",x[1]||"—",x[2]?fmtTime(x[2]):"—",i?'<span class="sb ok">Activa</span>':'<span class="sb in">Actual</span>']});
+  return hero("Cuenta de administración","Perfil de administrador","Esta cuenta es independiente de las cuentas de usuarios de la wallet: tiene su propia contraseña y su propio 2FA.","user")+
+    cd("Datos de la cuenta","",'<div style="padding:4px 16px 12px"><div class="r2"><span>Correo</span><b>'+esc(ME?ME.email:"—")+'</b></div><div class="r2"><span>Rol</span><b>'+esc(ME?ME.role_label:roleLabel(ME&&ME.role))+'</b></div><div class="r2"><span>2FA</span>'+sb(ME&&ME.totp_confirmed_at?"Activo":"Pendiente")+'</div><div class="r2"><span>Sesión</span><b>Expira a los 15 min de inactividad</b></div></div>')+
+    cd("Seguridad de la cuenta","",'<div style="padding:16px;display:grid;gap:10px"><button class="btn o" onclick="apw()">Cambiar contraseña</button></div>')+
+    cd("Sesiones activas","",tb(["Dispositivo","IP","Actividad",""],s));
+}
+function lg1(){
+  var u=$("lu").value.trim(),p=$("lp").value,e="";
+  if(u.length<3)e="Ingresa tu correo de administrador.";else if(p.length<8)e="Ingresa tu contraseña.";
+  $("le").textContent=e;if(e)return;
+  api("/auth/login",{method:"POST",body:JSON.stringify({email:u,password:p})}).then(function(j){
+    CHALLENGE=j.challenge;$("l1").hidden=true;$("l2").hidden=false;$("le2").textContent="";$("lc").focus();
+  }).catch(function(x){$("le").textContent=x.code==="locked"?"Demasiados intentos. Espera 30 segundos.":"Credenciales inválidas.";});
+}
+function lg2(){
+  var c=$("lc").value.trim();
+  if(!/^\d{6}$/.test(c)){$("le2").textContent="Ingresa los 6 dígitos.";return}
+  api("/auth/2fa",{method:"POST",body:JSON.stringify({challenge:CHALLENGE,code:c})}).then(function(j){
+    ME=j.admin;CHALLENGE=null;$("lp").value="";$("lc").value="";lock(false);loadAll();idl();toast("Sesión iniciada");
+  }).catch(function(x){$("le2").textContent=x.code==="invalid_2fa_code"?"Código incorrecto.":(x.message||"No se pudo verificar.");});
+}
+function logout(w){
+  clearTimeout(IDL);var done=function(){ME=null;cs();dr(0);$("tf").value="";$("lp").value="";$("lc").value="";$("le").textContent=w||"";lock(true)};
+  api("/auth/logout",{method:"POST",body:"{}"}).catch(function(){}).then(done);
+}
+function rfr(){var b=$("rf");if(b){b.classList.remove("spin");void b.offsetWidth;b.classList.add("spin")}loadAll().then(function(){toast("Datos actualizados")})}
+/* arranque: sesión existente o login */
+api("/auth/me").then(function(j){ME=j.admin;SESS=(j.sessions||[]).map(function(s){return [s.user_agent||"Navegador",s.ip||"—",s.last_seen_at,s.id]});lock(false);if(location.hash.indexOf("#activate=")===0)return;loadAll();}).catch(function(){lock(true)});
+/* activación por enlace de invitación */
+(function(){var m=(location.hash||"").match(/^#activate=(.+)$/);if(!m)return;var TOK=decodeURIComponent(m[1]);window.actStart=function(){var p=$("ap1").value;if(p.length<12){$("ae").textContent="Mínimo 12 caracteres.";return}if(p!==$("ap2").value){$("ae").textContent="Las contraseñas no coinciden.";return}api("/auth/activate",{method:"POST",body:JSON.stringify({token:TOK,password:p})}).then(function(j){op('<h3>Configura tu 2FA</h3><p>Escanea este código en tu app autenticadora y confirma con un código de 6 dígitos.</p><div class="sm" style="word-break:break-all">'+esc(j.otpauth_url)+'</div><label class="lb" for="ac">Código 2FA</label><input class="fi" id="ac" inputmode="numeric" maxlength="6"><div class="er" id="ace" role="alert"></div><button class="btn" style="width:100%" onclick="actConfirm()">Confirmar</button>')}).catch(function(x){$("ae").textContent=x.message||x.code||"No se pudo activar."})};window.actConfirm=function(){api("/auth/activate/confirm",{method:"POST",body:JSON.stringify({token:TOK,code:$("ac").value.trim()})}).then(function(){toast("Cuenta activada. Inicia sesión.");history.replaceState(null,"","/admin");location.reload()}).catch(function(x){$("ace").textContent=x.code==="invalid_2fa_code"?"Código incorrecto.":(x.message||"No se pudo confirmar.")})};op('<h3>Activa tu cuenta</h3><p>Define la contraseña de tu cuenta de administración.</p><label class="lb" for="ap1">Contraseña</label><input class="fi" id="ap1" type="password" autocomplete="new-password"><label class="lb" for="ap2">Repite la contraseña</label><input class="fi" id="ap2" type="password" autocomplete="new-password"><div class="er" id="ae" role="alert"></div><button class="btn" style="width:100%" onclick="actStart()">Continuar</button>')})();
+
+</script>
+<script>
+/* Formularios de alta y operaciones reales. */
+var GASPOL = null;
+
+function custodia() {
+  var form = fm("cw", [
+    ["red", "Red", "s", "TRON", ["TRON", "BSC", "ETHEREUM"]],
+    ["act", "Activo", "s", "USDT", ["USDT", "TRX", "BNB", "ETH"]],
+    ["tip", "Tipo de wallet", "s", "HOT", ["HOT", "GAS", "TREASURY"]],
+    ["fmt", "Formato de dirección", "s", "tron", ["tron", "evm"]]
+  ], "Solicitar creación", function (o) {
+    sens("Crear wallet de custodia", o.red + " · " + o.act + " · " + o.tip + ".", 1, function (m) {
+      return api("/custody/wallets", { method: "POST", body: JSON.stringify({ network: o.red, asset_code: o.act, wallet_type: o.tip, address_type: o.fmt, reason: m }) }).then(loadAll);
+    });
+  });
+  var rows = WL.map(function (w, i) {
+    return [w[0], w[1], '<span class="sb in">' + w[2] + '</span>', w[3], w[4], sb(w[5]), ab(w[5] === "Activa" ? "Desactivar" : "Activar", "wlt(" + i + ")")];
+  });
+  return hero("Control operativo", "Wallets de custodia", "Las claves privadas se generan y permanecen en el servidor; nunca se muestran ni se envían al navegador.", "vault") +
+    cd("Crear wallet de custodia", "El servidor genera la dirección y cifra la clave.", form) +
+    cd("Wallets registradas", "Consulta y cambio de estado con motivo.", tb(["ID", "Red / activo", "Tipo", "Dirección", "Formato", "Estado", ""], rows));
+}
+
+function teso() {
+  var form = fm("tp", [
+    ["red", "Red", "s", "BSC", ["BSC", "TRON", "ETHEREUM"]],
+    ["act", "Activo", "s", "USDT", ["USDT", "BNB", "TRX", "ETH"]],
+    ["hot", "ID wallet HOT", "t", ""],
+    ["tre", "ID wallet TREASURY", "t", ""],
+    ["min", "Saldo mínimo", "n", "0"],
+    ["obj", "Saldo objetivo", "n", "0"],
+    ["max", "Saldo máximo", "n", "0"],
+    ["reb", "Umbral de rebalanceo", "n", "0"],
+    ["mrb", "Máximo por rebalanceo", "n", "0"]
+  ], "Crear desactivada", function (o) {
+    if (!(+o.max >= +o.obj && +o.obj >= +o.min)) { err("invalid_limits: mínimo ≤ objetivo ≤ máximo"); return; }
+    if (!o.hot || !o.tre) { err("invalid_request: indica los IDs de wallet HOT y TREASURY"); return; }
+    sens("Crear política de tesorería", o.red + " · " + o.act + ".", 1, function (m) {
+      var body = { network: o.red, asset_code: o.act, hot_custody_wallet_id: o.hot, treasury_custody_wallet_id: o.tre, min_balance: o.min, target_balance: o.obj, max_balance: o.max, rebalance_threshold: o.reb, max_rebalance_amount: o.mrb, reason: m };
+      return api("/treasury/policies", { method: "POST", body: JSON.stringify(body) }).then(loadAll);
+    });
+  });
+  var rows = TP.map(function (t, i) {
+    return [t[0], t[1], t[2], t[3], t[4], sb(t[5]), ab(t[5] === "Habilitada" ? "Desactivar" : "Activar", "tpt(" + i + ")")];
+  });
+  return hero("Control de saldos", "Políticas de tesorería", "Las políticas nuevas se crean desactivadas y requieren una acción separada para activarse.", "coin") +
+    cd("Nueva política", "Usa importes decimales válidos para el activo elegido.", form) +
+    cd("Políticas existentes", "", tb(["ID", "Red / activo", "Mínimo", "Objetivo", "Máximo", "Estado", ""], rows));
+}
+
+function gasQuery() {
+  var id = $("gq_id").value.trim();
+  if (!id) { err("invalid_request"); return; }
+  api("/gas-station/policies/" + encodeURIComponent(id)).then(function (j) {
+    var p = j.policy || {};
+    $("gr").innerHTML = '<div style="padding:0 16px 16px"><div class="r2"><span>Saldo mínimo</span><b>' + esc(v(p, "minimum_balance")) + '</b></div><div class="r2"><span>Saldo objetivo</span><b>' + esc(v(p, "target_balance")) + '</b></div><div class="r2"><span>Máximo por recarga</span><b>' + esc(v(p, "max_refill")) + '</b></div><div class="r2"><span>Estado</span>' + sb(v(p, "enabled") ? "Habilitada" : "Desactivada") + '</div></div>';
+  }).catch(function (x) {
+    $("gr").innerHTML = '<div class="em">' + esc(x.message || x.code || "Sin política") + '</div>';
+  });
+}
+
+function gasSave(o) {
+  if (!o.id) { err("invalid_request"); return; }
+  sens("Guardar política de Gas Station", "Wallet " + esc(o.id) + ".", 1, function (m) {
+    var body = { minimum_balance: o.min, target_balance: o.obj, max_refill: o.max, enabled: !!o.on, reason: m };
+    return api("/gas-station/policies/" + encodeURIComponent(o.id), { method: "PUT", body: JSON.stringify(body) }).then(loadAll);
+  });
+}
+
+function gas() {
+  var q = fm("gq", [["id", "ID wallet GAS", "t", ""]], "Consultar", gasQuery);
+  var s = fm("gs", [["id", "ID wallet GAS", "t", ""], ["min", "Saldo mínimo", "n", "0"], ["obj", "Saldo objetivo", "n", "0"], ["max", "Máximo por recarga", "n", "0"], ["on", "Política habilitada", "c"]], "Guardar política", gasSave);
+  return hero("Operación de red", "Política de Gas Station", "Selecciona una wallet de tipo GAS activa. Revisa los límites antes de guardar.", "fuel") +
+    '<div class="g2c g3">' + cd("Consultar política", "Introduce el ID de una wallet GAS para consultar su política.", q + '<div id="gr"></div>') +
+    cd("Guardar política", "El ID debe corresponder a una wallet GAS activa.", s) + '</div>';
+}
+
+var ADMIN_ROLES = ["Super administrador", "Operador financiero", "Soporte P2P", "Solo lectura"];
+var ADMIN_ROLE_KEYS = { "Super administrador": "super_admin", "Operador financiero": "operador_financiero", "Soporte P2P": "soporte_p2p", "Solo lectura": "solo_lectura" };
+
+function inviteAdmin(o) {
+  if (!/^\S+@\S+\.\S+$/.test(o.usr)) { err("invalid_email"); return; }
+  sens("Invitar administrador", esc(o.usr) + " como " + o.rol + ".", 1, function (m) {
+    var body = { email: o.usr, role: ADMIN_ROLE_KEYS[o.rol] || "solo_lectura", reason: m };
+    return api("/administrators/invite", { method: "POST", body: JSON.stringify(body) }).then(function (j) {
+      if (j.activation_url) {
+        op('<h3>Invitación creada</h3><p>El correo no se pudo entregar. Comparte este enlace de un solo uso por un canal seguro:</p><div class="sm" style="word-break:break-all">' + esc(j.activation_url) + '</div><button class="btn" onclick="cs()">Cerrar</button>');
+      }
+      loadAll();
+    });
+  });
+}
+
+function adm() {
+  var invite = "";
+  if (PERMS.manage_admins) {
+    invite = cd("Invitar administrador", "Se envía un enlace de activación. La persona define su contraseña y configura su 2FA.", fm("ad", [["usr", "Correo del administrador", "t", ""], ["rol", "Rol", "s", "Solo lectura", ADMIN_ROLES]], "Enviar invitación", inviteAdmin));
+  }
+  var rows = ADMS.map(function (a, i) {
+    var self = a[5] === (ME && ME.id);
+    var action = self || !PERMS.manage_admins ? "—" : ab(a[4] === "Suspendido" ? "Reactivar" : "Suspender", "adt(" + i + ")");
+    return [esc(a[0]) + (self ? ' <span class="sb in">tú</span>' : ""), a[1], sb(a[2]), a[3], sb(a[4]), action];
+  });
+  var perms = PERM.map(function (p) {
+    return [p[0]].concat(p.slice(1).map(function (x) { return x ? '<span style="color:var(--gn)">✓</span>' : '<span style="color:var(--mu)">—</span>'; }));
+  });
+  return hero("Protección operativa", "Administradores", "Las cuentas de administración son independientes de las cuentas de la wallet y tienen su propia contraseña y su propio 2FA.", "users") +
+    invite +
+    cd("Cuentas de administración", "", tb(["Usuario", "Rol", "2FA", "Último acceso", "Estado", ""], rows)) +
+    cd("Permisos por rol", "", tb(["Permiso", "Super admin", "Operador", "Soporte", "Lectura"], perms));
+}
+
+var SEC_OPS = ["WITHDRAWAL", "TRANSFER", "TREASURY_REBALANCE", "GAS_REFILL", "SWEEP", "ADMIN_OPERATION"];
+
+function freezeApply(o) {
+  sens(o.est + " " + o.op, "Afecta a todos los usuarios.", 1, function (m) {
+    return api("/security/freezes", { method: "POST", body: JSON.stringify({ operation: o.op, frozen: o.est === "Congelar", reason: m }) }).then(loadAll);
+  });
+}
+
+function policyApply(o) {
+  sens("Guardar política de seguridad", o.op + " · " + o.act + " · " + o.red + ".", 1, function (m) {
+    var b = { operation: o.op, asset_code: o.act, network: o.red, min_amount: o.min || "0", enabled: !!o.on, reason: m };
+    if (o.max) b.max_amount = o.max;
+    if (o.dia) b.daily_limit = o.dia;
+    if (o.nd) b.daily_count_limit = +o.nd;
+    if (o.mes) b.monthly_limit = o.mes;
+    if (o.nm) b.monthly_count_limit = +o.nm;
+    if (o.u2) b.step_up_threshold = o.u2;
+    if (o.um) b.manual_approval_threshold = o.um;
+    return api("/security/policies", { method: "POST", body: JSON.stringify(b) }).then(loadAll);
+  });
+}
+
+function seg() {
+  var blocks = "";
+  if (PERMS.security_freeze) {
+    blocks += cd("Congelación de operaciones", "El alcance exacto depende de las operaciones admitidas por el backend.", fm("fz", [["op", "Operación", "s", "WITHDRAWAL", SEC_OPS], ["est", "Estado solicitado", "s", "Congelar", ["Congelar", "Descongelar"]]], "Aplicar cambio", freezeApply));
+  }
+  blocks += cd("Estado de congelaciones", "", tb(["Operación", "Estado", "Motivo", "Actualización"], FZ.map(function (f) { return [f[0], sb(f[1]), esc(f[2]), f[3]]; })));
+  if (PERMS.security_freeze) {
+    blocks += cd("Crear política de seguridad", "Los límites necesarios se envían como cadenas decimales.", fm("sp", [["op", "Operación", "s", "WITHDRAWAL", SEC_OPS], ["act", "Activo", "t", "USDT"], ["red", "Red", "t", "BSC"], ["min", "Importe mínimo", "n", "0"], ["max", "Importe máximo", "n"], ["dia", "Límite diario", "n"], ["nd", "Número máximo diario", "n"], ["mes", "Límite mensual", "n"], ["nm", "Número máximo mensual", "n"], ["u2", "Umbral de 2FA", "n"], ["um", "Umbral de aprobación manual", "n"], ["on", "Política habilitada", "c"]], "Guardar política", policyApply));
+  }
+  blocks += cd("Políticas registradas", "", tb(["Operación", "Activo / red", "Mínimo", "Máximo", "Estado"], SP.map(function (s) { return [s[0], s[1], s[2], s[3], sb(s[4])]; })));
+  blocks += cd("Eventos de seguridad", "Últimos eventos devueltos por el backend.", tb(["Fecha", "Tipo", "Usuario", "Detalles"], SE.map(function (e) { return [e[0], '<span class="sb in">' + e[1] + '</span>', esc(e[2]), esc(e[3])]; })));
+  return hero("Protección operativa", "Centro de seguridad", "Las congelaciones afectan operaciones reales. Usa un motivo claro y verifica el alcance.", "shield") + blocks;
+}
+
+function csum() {}
+
+function dsp(i) {
+  var d = DS[i];
+  if (!d) return;
+  api("/p2p/orders/" + d[1]).then(function (j) {
+    var o = j.order || {}, ds = j.dispute || {};
+    var html = '<h3>Disputa ' + esc(d[0]) + '</h3>' +
+      '<p>Orden ' + esc(d[1]) + ' · ' + esc(v(o, "asset_code")) + ' / ' + esc(v(o, "fiat_currency")) + '</p>' +
+      '<div class="r2"><span>Estado de la orden</span><b>' + esc(mapStatus(v(o, "status"))) + '</b></div>' +
+      '<div class="r2"><span>Importe</span><b>' + esc(money(v(o, "amount"))) + ' ' + esc(v(o, "asset_code")) + '</b></div>' +
+      '<div class="r2"><span>Comprador</span><b>' + esc(String(v(o, "buyer_id") || "—").slice(0, 8)) + '</b></div>' +
+      '<div class="r2"><span>Vendedor</span><b>' + esc(String(v(o, "seller_id") || "—").slice(0, 8)) + '</b></div>' +
+      '<div class="r2"><span>Motivo</span><b>' + esc(v(ds, "reason") || d[2]) + '</b></div>' +
+      '<div class="r2"><span>Descripción</span><b>' + esc(v(ds, "description") || "—") + '</b></div>' +
+      '<div style="display:grid;gap:10px;margin-top:16px"><button class="btn" onclick="cs();dsr(' + i + ',1)">Liberar ' + esc(v(o, "asset_code")) + ' al comprador</button><button class="btn o" onclick="cs();dsr(' + i + ',0)">Devolver ' + esc(v(o, "asset_code")) + ' al vendedor</button></div>';
+    op(html);
+  }).catch(function (x) { err(x.code || x.message || "No se pudo cargar la disputa"); });
+}
+
+function csv() {
+  var rows = [["ID", "Tipo", "Usuario", "Activo", "Cantidad", "Estado", "Hash", "Fecha"]].concat(TX);
+  var text = rows.map(function (r) {
+    return r.map(function (c) { return '"' + String(c == null ? "" : c).replace(/"/g, '""') + '"'; }).join(",");
+  }).join("\n");
+  var a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([text], { type: "text/csv;charset=utf-8" }));
+  a.download = "korzadi-transacciones.csv";
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+</script></body></html>

@@ -19,6 +19,7 @@ import (
 	"github.com/shopspring/decimal"
 
 	"korzadi-wallet/backend/internal/application/accountaccess"
+	appadmin "korzadi-wallet/backend/internal/application/admin"
 	appaffiliate "korzadi-wallet/backend/internal/application/affiliate"
 	appauth "korzadi-wallet/backend/internal/application/auth"
 	bw "korzadi-wallet/backend/internal/application/blockchainwithdrawal"
@@ -45,6 +46,7 @@ import (
 	appwatcher "korzadi-wallet/backend/internal/application/watcher"
 	"korzadi-wallet/backend/internal/domain"
 	"korzadi-wallet/backend/internal/http/handlers"
+	adminpanel "korzadi-wallet/backend/internal/http/handlers/adminpanel"
 	p2phandler "korzadi-wallet/backend/internal/http/handlers/p2p"
 	"korzadi-wallet/backend/internal/http/middleware"
 	"korzadi-wallet/backend/internal/http/router"
@@ -1111,7 +1113,10 @@ func main() {
 	// se GENERAN en el servidor; importar una clave por API solo con
 	// CUSTODY_ADMIN_KEY_IMPORT_ENABLED=true.
 	custodyAdminSvc := appcustody.NewService(custodyWalletRepo, custodyEncryptor, custodyAuditRepo, registryCheck{repo: networkAssetRepo})
-	adminOps := handlers.NewAdminOpsHandler(withdrawalSvc, custodyAdminSvc, treasurySvc, gasPolicyRepo, auditRepo, generateCustodyKey).
+	adminRepo := postgres.NewAdminRepository(pool)
+	adminAudit := appadmin.NewAuditLogger(adminRepo)
+	adminSvc := appadmin.NewService(adminRepo, encryptor, emailSender, appBaseURL)
+	adminOps := handlers.NewAdminOpsHandler(withdrawalSvc, custodyAdminSvc, treasurySvc, gasPolicyRepo, adminAudit, generateCustodyKey).
 		AllowKeyImport(os.Getenv("CUSTODY_ADMIN_KEY_IMPORT_ENABLED") == "true").
 		WithHotWalletReader(func(ctx context.Context, network, address string) (string, string, error) {
 			switch network {
@@ -1167,8 +1172,12 @@ func main() {
 			}
 		})
 
+	adminPanel := adminpanel.New(adminSvc, adminOps, securitySvc, p2pSvc, twoFactorService,
+		!strings.EqualFold(envOr("ADMIN_COOKIE_SECURE", "true"), "false"))
+
 	h := router.Handlers{
 		AdminOps:           adminOps,
+		AdminPanel:         adminPanel,
 		Auth:               handlers.NewAuthHandler(authService),
 		Account:            handlers.NewAccountHandler(accountService),
 		DestinationAdmin:   handlers.NewDestinationAdminHandler(securityDestination, auditRepo),

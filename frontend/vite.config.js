@@ -11,6 +11,7 @@ export default defineConfig({
         skipWaiting: true,
         clientsClaim: true,
         cleanupOutdatedCaches: true,
+        navigateFallbackDenylist: [/^\/admin(?:\/|$)/],
       },
       manifest: {
         name: 'Korzadi Wallet',

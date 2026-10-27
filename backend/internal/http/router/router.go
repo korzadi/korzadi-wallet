@@ -9,6 +9,7 @@ import (
 	appsecurity "korzadi-wallet/backend/internal/application/security"
 	"korzadi-wallet/backend/internal/application/twofactor"
 	"korzadi-wallet/backend/internal/http/handlers"
+	adminpanel "korzadi-wallet/backend/internal/http/handlers/adminpanel"
 	p2phandler "korzadi-wallet/backend/internal/http/handlers/p2p"
 	"korzadi-wallet/backend/internal/http/middleware"
 	"korzadi-wallet/backend/internal/infrastructure/authjwt"
@@ -43,6 +44,8 @@ type Handlers struct {
 	AdminOps *handlers.AdminOpsHandler
 	// P2P: Peer-to-peer market
 	P2P *p2phandler.Handler
+	// AdminPanel: panel de administración con cuentas propias (cookie+2FA).
+	AdminPanel *adminpanel.Handler
 }
 
 type Config struct {
@@ -223,65 +226,6 @@ func New(h Handlers, cfg Config) *gin.Engine {
 				notifications.GET("", h.Notification.List)
 				notifications.POST("/:id/read", h.Notification.MarkRead)
 			}
-
-			admin := authed.Group("/admin")
-			admin.Use(middleware.RequireRole(cfg.GetRolesForUser, "admin", "super_admin"))
-			{
-				admin.GET("/users", h.Admin.ListUsers)
-				admin.POST("/users/:id/block", h.Admin.BlockUser)
-				admin.GET("/transactions", h.Admin.ListTransactions)
-				admin.GET("/audit", h.Admin.ListAudit)
-
-				// Sandbox-only manual confirmation of fiat deposits. Fail-closed:
-				// not registered unless FIAT_SANDBOX_CONFIRM_ENABLED=true, and even
-				// then only for admin/super_admin. Must stay disabled in production
-				// (a real payment provider confirms via a signed webhook instead).
-				if cfg.FiatSandboxConfirmEnabled {
-					admin.POST("/deposits/:id/confirm", h.Deposit.Confirm)
-				}
-
-				// Bloque 8: emergency freeze, security policies, security
-				// events. Same admin/super_admin gate as the rest of
-				// /admin above — no new privilege level introduced.
-				if h.Security != nil {
-					secAdmin := admin.Group("/security")
-					{
-						secAdmin.GET("/freezes", h.Security.ListFreezes)
-						secAdmin.POST("/freezes", h.Security.SetFreeze)
-						secAdmin.GET("/policies", h.Security.ListPolicies)
-						secAdmin.POST("/policies", h.Security.UpsertPolicy)
-						secAdmin.GET("/events", h.Security.ListEvents)
-					}
-				}
-
-				if cfg.TwoFactorSvc != nil {
-					RegisterAdminOpsRoutes(admin, h.AdminOps, cfg.GetRolesForUser, handlers.TwoFAVerifyMiddleware(cfg.TwoFactorSvc))
-				}
-
-			if h.SecurityPrefs != nil {
-				sec := authed.Group("/security")
-				sec.Use(middleware.SecurityRateLimit(cfg.SecurityCounter, cfg.SecurityCfg, "security"))
-				{
-					sec.GET("/prefs", h.SecurityPrefs.GetPrefs)
-					sec.POST("/prefs", h.SecurityPrefs.UpdatePrefs)
-					sec.POST("/pin/setup", h.SecurityPrefs.SetupPin)
-					sec.POST("/pin/verify", h.SecurityPrefs.VerifyPin)
-					sec.POST("/pin/disable", h.SecurityPrefs.DisablePin)
-				}
-			}
-
-				superAdminOnly := admin.Group("")
-				superAdminOnly.Use(middleware.RequireRole(cfg.GetRolesForUser, "super_admin"))
-				{
-					superAdminOnly.POST("/users/:id/unblock", h.Admin.UnblockUser)
-					superAdminOnly.POST("/users/:id/verify-email", h.Admin.ManualVerifyEmail)
-					superAdminOnly.POST("/users/:id/reset-2fa", h.TwoFactor.AdminReset)
-					if h.DestinationAdmin != nil {
-						superAdminOnly.POST("/security/destinations", h.DestinationAdmin.Set)
-					}
-					superAdminOnly.POST("/users/:id/roles", h.Admin.AssignRole)
-				}
-			}
 		}
 
 		// Bloque 9: KYC/AML. JWT + dedicated compliance roles + step-up 2FA;
@@ -326,24 +270,8 @@ func New(h Handlers, cfg Config) *gin.Engine {
 		}
 	}
 
-	// Admin P2P routes (compliance_admin role required)
-	if h.P2P != nil && h.Compliance != nil {
-		var stepUp gin.HandlerFunc
-		if cfg.TwoFactorSvc != nil {
-			stepUp = handlers.TwoFAVerifyMiddleware(cfg.TwoFactorSvc)
-		}
-		adminP2P := api.Group("/admin/p2p")
-		adminP2P.Use(middleware.RequireRole(cfg.GetRolesForUser, "compliance_admin"))
-		if stepUp != nil {
-			adminP2P.Use(stepUp)
-		}
-		{
-			adminP2P.GET("/orders", h.P2P.AdminListOrders)
-			adminP2P.GET("/orders/:id", h.P2P.AdminGetOrder)
-			adminP2P.POST("/orders/:id/resolve", h.P2P.AdminResolveDispute)
-			adminP2P.GET("/offers", h.P2P.AdminListOffers)
-			adminP2P.POST("/offers/:id/suspend", h.P2P.AdminSuspendOffer)
-		}
+	if h.AdminPanel != nil {
+		h.AdminPanel.Register(r)
 	}
 
 	healthHandler := func(c *gin.Context) { c.JSON(200, gin.H{"status": "ok"}) }

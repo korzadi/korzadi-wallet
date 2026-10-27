@@ -681,13 +681,17 @@ func (r *SecurityFreezeRepository) Set(ctx context.Context, op security.Operatio
 	if frozen {
 		frozenAtArg = &now
 	}
+	var actor *uuid.UUID
+	if actorID != uuid.Nil {
+		actor = &actorID
+	}
 	_, err := r.pool.Exec(ctx, `
 		INSERT INTO security_freezes (operation, frozen, reason, frozen_by, frozen_at)
 		VALUES ($1, $2, $3, $4, $5)
 		ON CONFLICT (operation) DO UPDATE SET
 			frozen = EXCLUDED.frozen, reason = EXCLUDED.reason,
 			frozen_by = EXCLUDED.frozen_by, frozen_at = EXCLUDED.frozen_at, updated_at = now()
-	`, string(op), frozen, nullString(reason), actorID, frozenAtArg)
+	`, string(op), frozen, nullString(reason), actor, frozenAtArg)
 	if err != nil {
 		return fmt.Errorf("security: actualizar freeze de %s: %w", op, err)
 	}
