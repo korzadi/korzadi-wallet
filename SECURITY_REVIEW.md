@@ -1,243 +1,162 @@
-# Revisión de seguridad de Korzadi Wallet
+# Revisión de seguridad y cumplimiento funcional de Korzadi Wallet
 
 Fecha: 2026-10-28
 Repositorio: korzadi/korzadi-wallet
 
-Este documento reemplaza la revisión antigua por una versión más limpia y centrada en hallazgos actuales verificables en el código que se encuentra en el repositorio. No es un pentest completo ni una evaluación de terceros; es un análisis de seguridad basado en la revisión estática del backend, las rutas HTTP, la capa de custodia y la política de rate limiting.
+Este documento define la regla operativa que debe aplicarse en este proyecto para evitar inconsistencias entre el frontend y el backend. La regla no es opcional: si una función aparece en la interfaz, debe existir en el backend, y si existe en el backend debe estar conectada y funcionando en el frontend.
 
-## Alcance revisado
+## Regla operativa obligatoria: frontend-backend integrity
 
-- `backend/internal/http/router/router.go`
-- `backend/internal/http/middleware/redis_ratelimit.go`
-- `backend/internal/application/custody/service.go`
-- `backend/internal/application/security/velocity.go`
-- `backend/internal/application/security/*`
-- `backend/internal/application/...` relacionadas con auth, admin, withdrawals y compliance
-- `backend/internal/infrastructure/cryptutil/*`
-- `.env.example`
+Debe cumplirse siempre:
 
-## Resumen ejecutivo
+- Si aparece en el frontend, debe existir en el backend.
+- Si existe en el backend, debe estar conectado al frontend.
+- Si no existe en el backend, se crea primero en backend y luego se conecta al frontend.
+- No se permiten placeholders, demos, mensajes “próximamente”, “no disponible”, “pendiente” ni estados visuales falsos para una funcionalidad de seguridad o financiera.
+- La pantalla de seguridad no puede mostrar funciones que no estén cubiertas por endpoints reales y por una respuesta real del servidor.
 
-El código actual tiene una base sólida en varios puntos clave:
+Esto aplica a todo el proyecto, pero especialmente a:
 
-- La validación de salud de custodia está mejorada (`CheckKeyHealth` valida clave activa y capacidad de cifrado real).
-- La validación de correspondencia entre `address` y `private_key` fue agregada en `custody/service.go` antes de persistir una wallet.
-- Los endpoints más sensibles usan rate limiting fail-closed en el router.
+- seguridad
+- autenticación
+- autorización
+- 2FA
+- cambio de contraseña
+- wallets, retiros, transferencias
+- cualquier flujo financiero o de acceso sensible
 
-Sin embargo, aún quedan riesgos operativos y de diseño que dependen del entorno real y del mantenimiento del sistema:
+## Criterio correcto para cualquier funcionalidad
 
-1. Los limitadores no críticos siguen siendo `fail-open` por defecto.
-2. La velocidad/thresholding es advisory y puede ser ignorada por nuevos call sites.
-3. La seguridad del sistema sigue dependiendo de la configuración correcta de secretos, SMTP, KMS/HSM y nodos RPC en producción.
-4. La ausencia de validación y pruebas end-to-end con servicios reales sigue siendo la principal fuente de riesgo residual.
+Antes de mostrar una función al usuario, se debe verificar:
 
-No se detectó un defecto crítico de inyección o abuso directo en el código revisado que permita lectura de secretos o corrupción masiva por sí solo. El riesgo principal actual es operacional y de configuración, no trivialmente explotable desde una sola ruta pública.
+1. Endpoint en backend
+2. Handler real
+3. Validación de autenticación/autorización
+4. Lógica de servicio
+5. Conexión desde frontend (`walletApi`, `api`, etc.)
+6. Estado real del servidor en runtime
+7. Verificación manual del flujo completo
 
-## Matriz de severidad
+Si alguno de estos pasos falta, la funcionalidad no debe mostrarse o debe implementarse antes de exponerse al usuario.
 
-- Crítica: 0
-- Alta: 0
-- Media: 3
-- Baja: 3
-- Resueltas / verificadas: 2
+## Estado correcto de la pantalla de seguridad
 
-## Hallazgos abiertos
+La pantalla de seguridad debe mostrar solo funciones que existan realmente en backend.
 
-### SEC-01 - Media: los limitadores no críticos siguen siendo fail-open por defecto
+Funciones reales y conectadas en el repo actual:
 
-Archivo:
-- `backend/internal/http/middleware/redis_ratelimit.go`
-- `backend/internal/http/router/router.go`
+- 2FA
+  - GET `/api/security/2fa/status`
+  - POST `/api/security/2fa/setup`
+  - POST `/api/security/2fa/confirm`
+  - POST `/api/security/2fa/disable`
+  - POST `/api/security/2fa/recovery-codes/regenerate`
+- Cambio de contraseña
+  - POST `/api/account/change-password`
 
-Estado:
-- Parcialmente corregido
+Estas opciones están conectadas en frontend mediante:
 
-Detalle:
-`NewRedisRateLimiter` crea un limitador sin activar `failClosed`; el comportamiento por defecto permite que una falla de Redis deje pasar requests. En `router.go`, los endpoints críticos sí usan `FailClosed()`, pero la política general no está forzada globalmente ni aplicada a cada ruta no crítica.
+- `frontend/src/api/wallet.js`
+- `frontend/src/pages/Security.jsx`
 
-Riesgo:
-- Si Redis cae, la protección de abuso no se activa para rutas públicas o semi-críticas.
-- Se reduce la capacidad de detener fuerza bruta, abuso o flooding en condiciones de degradación.
+Funciones que NO deben aparecer en la pantalla porque todavía no existen en backend:
 
-Impacto:
-- Medio: afecta disponibilidad y resistencia ante abuso, aunque no rompe inmediatamente autenticación ni custodia.
+- PIN de la aplicación
+- biometría
+- gestión de dispositivos
+- cualquier otra feature que no tenga endpoint, servicio y validación real
 
-Recomendación:
-- Definir política explícita: `fail-closed` para autenticación, 2FA, retiros, transferencias y admin.
-- Mantener `fail-open` solo para endpoints no sensibles y documentarlo claramente.
-- Añadir pruebas de regresión que validen que Redis caído rechaza rutas críticas.
+Si esas funciones se desean habilitar, deben implementarse primero en backend, conectarse en frontend y luego exponerse al usuario. No se admiten mensajes tipo “próximamente” o “no disponible” en la pantalla de un flujo de seguridad funcional.
 
----
+## Política de seguridad para UI y backend
 
-### SEC-02 - Media: `VelocityTracker` es advisory y depende del caller para bloquear
+No se puede seguir un patrón de este tipo:
 
-Archivo:
-- `backend/internal/application/security/velocity.go`
-- `backend/internal/application/...` sitios que consumen el tracker
+- mostrar como activo algo que todavía no está expuesto por la API
+- mostrar datos demo o mock como si fueran reales
+- ocultar errores del backend con `.catch(() => {})`
+- mostrar textos de seguridad sin cobertura real del servidor
 
-Estado:
-- Diseñado como advisory, no como cierre de seguridad automático
+La política correcta es:
 
-Detalle:
-`VelocityTracker.Record` solo cuenta y devuelve `Exceeded`, pero no bloquea por sí mismo. Los callers deciden si interpretan ese valor como bloqueo, fricción adicional, alerta o ignorancia.
+- backend define la verdad
+- frontend refleja la verdad
+- UI no inventa funciones
+- cada control visible tiene un origen real en la API
 
-Riesgo:
-- Un nuevo call site puede “olvidar” interpretar `Exceeded` y la protección queda inefectiva.
-- La política de seguridad queda repartida entre múltiples lugares y es más frágil.
+## Hallazgos funcionales observados en la revisión actual
 
-Impacto:
-- Medio: riesgo de ausencia de control en una operación sensible si se agrega un flujo sin aplicar la regla apropiada.
-
-Recomendación:
-- Centralizar el criterio de bloqueo en una única función de guardia.
-- Forzar que los puntos críticos usen una política explícita en lugar de depender de la interpretación del caller.
-- Documentar cada regla y cada punto de decisión.
-
----
-
-### SEC-03 - Media: la seguridad del sistema sigue siendo muy dependiente del entorno real y la configuración
+### F-01: Drift entre frontend y backend en seguridad
 
 Archivo:
-- `.env.example`
-- `backend/internal/http/router/router.go`
-- `docker-compose.yml`
-- `README.md`
-
-Estado:
-- Requiere validación real en staging/producción
-
-Detalle:
-El proyecto define muchos secretos y componentes externos como variables de entorno: SMTP, claves de custody, nodos RPC, KYC, webhooks, etc. El repositorio no reemplaza la validación operacional con servicios reales.
-
-Riesgo:
-- Si una variable crítica está vacía o mal configurada, el flujo puede caer en fallo operativo o en una política insegura.
-- El riesgo no es un bug de código puro; es un riesgo de despliegue y de secret management.
-
-Impacto:
-- Medio: bloqueo funcional, riesgo de pérdida de disponibilidad o errores de firma/custodia en producción si se configuran rutas reales sin pruebas.
-
-Recomendación:
-- Validar `SMTP_HOST`, `CUSTODY_ENCRYPTION_KEYS`, `CUSTODY_ACTIVE_KEY_ID`, `BSC_RPC_URL`, `TRON_NODEREAL_URL` y demás variables en un entorno de staging.
-- Mantener un playbook de secret rotation y de backup/restore.
-- Probar cada flujo con HSM/KMS, nodos reales y correo transaccional antes de producción.
-
----
-
-### SEC-04 - Baja: el router acepta registro condicional de servicios y permite un arranque silencioso con capacidades reducidas
-
-Archivo:
+- `frontend/src/pages/Security.jsx`
+- `frontend/src/api/wallet.js`
+- `backend/internal/http/handlers/twofactor_handler.go`
+- `backend/internal/http/handlers/account_handler.go`
 - `backend/internal/http/router/router.go`
 
 Estado:
-- No es un bug crítico, pero sí un riesgo operativo
+- Requiere corrección de contrato y alineación de funcionalidad
 
-Detalle:
-Muchos handlers y servicios se registran solo si no son `nil`. Esto permite arrancar sin algunos módulos críticos y puede ocultar que la capa de seguridad o compliance no está conectada.
-
-Riesgo:
-- Un despliegue incompleto puede quedar “corriendo” sin ciertas protecciones activas, con la apariencia de que todo está en servicio.
-- Se reduce la visibilidad de configuración incompleta.
-
-Impacto:
-- Bajo: riesgo operativo y de auditoría más que de vulnerabilidad directa.
-
-Recomendación:
-- Implementar un chequeo de arranque que falle si faltan servicios críticos para producción.
-- Registrar un punto claro de “declaración de seguridad” para cada entorno.
-
----
-
-### SEC-05 - Baja: la integridad del sistema depende de una configuración de webhook/HMAC correcta y de la validación real del proveedor externo
-
-Archivo:
-- `backend/internal/http/router/router.go`
-- `backend/internal/http/middleware/...`
-- rutas de integración / compliance / VPN
-
-Estado:
-- Implementado, requiere validación real con proveedores externos
-
-Detalle:
-Se observan rutas con validación HMAC o firma de webhook, pero la seguridad efectiva depende de que las variables reales, el secreto y la cadena de confianza del proveedor estén bien configuradas en producción.
+Problema:
+- Se estaba mostrando una pantalla con elementos de seguridad que no estaban cubiertos por endpoints reales del backend.
+- Eso genera una falsa sensación de disponibilidad funcional y rompe la integridad del flujo de seguridad.
 
 Riesgo:
-- Error de configuración, secreto mal copiado, o proveedor no verificado puede romper la integridad del proceso o dejar una ruta parcialmente no protegida.
-
-Impacto:
-- Bajo: principalmente riesgo operacional y de integración.
+- confusión del usuario
+- uso indebido de features inexistentes
+- mala percepción de protección
+- errores operativos por suposición de disponibilidad
 
 Recomendación:
-- Probar los webhooks y rutas de servidor a servidor con secretos reales.
-- Mantener rotación de secretos y registro de fallos.
+- Mantener visible solo lo que ya existe
+- Implementar cualquier nueva funcionalidad primero en backend
+- Conectar la UI solo después de validar la API real
 
-## Hallazgos resueltos y verificados
-
-### RESOLVED-01 - Validación real de paridad `address/private_key` en custodia
-
-Archivo:
-- `backend/internal/application/custody/service.go`
-
-Estado:
-- Corregido y verificado
-
-Detalle:
-Antes de persistir una wallet, la aplicación compara la clave privada derivada contra la dirección recibida usando la lógica adecuada para EVM y TRON.
-
-Esto reduce el riesgo de registrar wallets mal emparejadas o importar claves inválidas.
-
----
-
-### RESOLVED-02 - `CheckKeyHealth` ya no es una validación vacía
+### F-02: placeholder visual en pantalla de seguridad
 
 Archivo:
-- `backend/internal/application/custody/service.go`
+- `frontend/src/pages/Security.jsx`
 
 Estado:
-- Corregido y verificado
+- No permitido
 
-Detalle:
-La función ahora valida la presencia de un encryptor, la existencia de una clave activa, la presencia de claves disponibles y la capacidad del cifrador para operar usando AAD de prueba.
+Problema:
+- Si un campo o bloque de seguridad no tiene backend real, no debe mostrarse como parte de la funcionalidad del usuario.
 
-Esto elimina el falso positivo de “salud OK” cuando el sistema no tiene una clave activa o no puede cifrar.
+Recomendación:
+- No renderizar “próximamente” ni “no disponible” en una funcionalidad crítica.
+- Implementar la feature en backend o quitarla de la UI.
 
-## Observaciones de diseño
+## Reglas de implementación recomendadas para el equipo
 
-### 1. Buena práctica: los endpoints críticos usan fail-closed
+1. Antes de tocar el frontend, revisar si el backend ya expone el endpoint.
+2. Si no existe, crear el endpoint y su validación antes de abrir la UI.
+3. Usar `walletApi` para centralizar la conexión.
+4. Evitar lógica de UI con textos “demo” o “mockup”.
+5. Rechazar PRs donde la interfaz muestre opciones sin backend real.
+6. Para cada pantalla de seguridad, mantener un mapeo explícito:
+   - función
+   - endpoint
+   - validación
+   - estado real
+7. En CI o review, validar que toda acción visible de la UI tenga un backend soportado.
 
-El router actual no deja al azar la protección de autenticación y operaciones financieras. Los endpoints importantes están protegidos con rate limiting fail-closed y con validaciones de 2FA / operacion guard cuando corresponden.
+## Recomendaciones de remediación prioritarias
 
-Esto es un punto positivo importante y reduce el riesgo para autenticación, retiros y transferencias.
-
-### 2. Buena práctica: la custodia no expone la clave privada en auditoría
-
-En `custody/service.go` la auditoría registra metadatos de la wallet pero no la clave privada ni el texto cifrado en bruto. Esto ayuda a evitar fugas de secretos en logs o eventos internos.
-
-### 3. Peligro residual: la seguridad efectiva sigue dependiendo de despliegue real
-
-Aunque el código está mejorado, la seguridad real del sistema se logra solo si se valida en producción con:
-
-- KMS/HSM real
-- SMTP real
-- RPC real
-- secreto de webhook y HMAC correctos
-- backups y restauración probados
-- revisión operativa del admin panel y permisos
-
-## Recomendaciones prioritarias
-
-1. Definir una política explícita de fail-closed para todos los endpoints sensibles.
-2. Revisar y centralizar todas las reglas de `VelocityTracker` para evitar que un caller las ignore.
-3. Crear un checklist de despliegue con validación real de secretos, SMTP, RPC y KMS/HSM.
-4. Añadir pruebas de integración para configuración de producción y rotación de claves.
-5. Hacer que el arranque falle en entorno de producción si faltan servicios críticos.
+1. Dejar `Security.jsx` con solo 2FA + cambio de contraseña hasta que existan más endpoints reales.
+2. Validar el contrato del backend con la UI antes de publicar.
+3. Crear una revisión de cada pantalla crítica con la misma regla: backend real -> frontend conectado -> visible.
+4. No aceptar pantallas con placeholders funcionales en autenticación, seguridad o finanzas.
+5. Tratar la seguridad como un contrato funcional y no como un componente visual aislado.
 
 ## Conclusión
 
-El proyecto tiene una base de seguridad razonable y ha corregido varios problemas importantes en custodia y validación de entradas. El riesgo residual más significativo no es un único fallo de código explotable, sino la combinación de:
+La regla correcta para este proyecto es clara y no negociable:
 
-- configuración insegura o incompleta,
-- dependencias externas sin validación real,
-- limitadores no críticos con comportamiento `fail-open`,
-- y reglas de seguridad que requieren disciplina explícita por parte de cada caller.
+- frontend no puede inventar nada
+- backend define la verdad
+- todo lo visible debe tener soporte real y conectado en la API
+- si no existe en backend, no se muestra en frontend
 
-Con estas mejoras y con validación real en staging/producción, la postura general del sistema puede ser sólida. Sin esa validación, el riesgo sigue siendo real aunque no aparezca como un defecto inmediato de explotación simple.
+La pantalla de seguridad debe reflejar exactamente lo que existe en backend y no otra cosa. La corrección de este punto es parte de la integridad funcional del sistema y, por extensión, de la seguridad operativa.
