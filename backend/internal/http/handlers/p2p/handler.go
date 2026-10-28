@@ -27,6 +27,8 @@ func getUserID(c *gin.Context) uuid.UUID {
 	return id
 }
 
+func (h *Handler) Service() *app.Service { return h.svc }
+
 func (h *Handler) ListOffers(c *gin.Context) {
 	offers, err := h.svc.ListOffers(c.Request.Context(), c.Query("asset"), c.Query("fiat"), c.Query("side"), 50, 0)
 	if err != nil {

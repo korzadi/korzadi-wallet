@@ -58,6 +58,7 @@ services:
       SMTP_PASSWORD: ${SMTP_PASSWORD:-}
       SMTP_FROM: ${SMTP_FROM:-}
       SMTP_REQUIRE_TLS: ${SMTP_REQUIRE_TLS:-true}
+      SUPPORT_EMAIL: ${SUPPORT_EMAIL:-korzadi03@gmail.com}
       EMAIL_DEV_LOG_LINKS: ${EMAIL_DEV_LOG_LINKS:-false}
       # Fase D: espera de seguridad para direcciones de retiro nuevas (0 la desactiva).
       WITHDRAWAL_NEW_DESTINATION_COOLDOWN: ${WITHDRAWAL_NEW_DESTINATION_COOLDOWN:-24h}

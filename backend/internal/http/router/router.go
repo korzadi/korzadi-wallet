@@ -1,9 +1,11 @@
 package router
 
 import (
+	"context"
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/redis/go-redis/v9"
 
 	appsecurity "korzadi-wallet/backend/internal/application/security"
@@ -46,6 +48,14 @@ type Handlers struct {
 	P2P *p2phandler.Handler
 	// AdminPanel: panel de administración con cuentas propias (cookie+2FA).
 	AdminPanel *adminpanel.Handler
+	// DB y Redis alimentan los endpoints públicos (/api/public): métricas
+	// agregadas, estado del servicio y tickets de soporte.
+	DB    *pgxpool.Pool
+	Redis *redis.Client
+	// HealthBSC/HealthTRON son comprobaciones reales de salud de los nodos.
+	// Devuelven error si el nodo no responde. Nil = no disponible.
+	HealthBSC  func(context.Context) error
+	HealthTRON func(context.Context) error
 }
 
 type Config struct {
@@ -273,6 +283,8 @@ func New(h Handlers, cfg Config) *gin.Engine {
 	if h.AdminPanel != nil {
 		h.AdminPanel.Register(r)
 	}
+
+	registerPublicRoutes(r, cfg, h)
 
 	healthHandler := func(c *gin.Context) { c.JSON(200, gin.H{"status": "ok"}) }
 	r.GET("/health", healthHandler)

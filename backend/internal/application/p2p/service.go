@@ -26,6 +26,10 @@ var (
 	ErrCommissionCalc      = errors.New("error calculando comisión")
 )
 
+// systemUserID es la cuenta reservada de la plataforma (migración 0001).
+// Su wallet es el pool donde se acumulan las comisiones del mercado P2P.
+var systemUserID = uuid.MustParse("00000000-0000-0000-0000-000000000001")
+
 type Service struct {
 	repo           *p2prepo.Repo
 	ledger         *postgres.LedgerRepository
@@ -44,6 +48,34 @@ func New(repo *p2prepo.Repo, ledger *postgres.LedgerRepository, resv *postgres.R
 		commissionRate = decimal.NewFromInt(100) // 1% default
 	}
 	return &Service{repo: repo, ledger: ledger, resv: resv, accounts: accounts, wallets: wallets, notifier: notifier, commissionRate: commissionRate}
+}
+
+// buildReleaseEntries construye el asiento de liberación del escrow. El
+// comprador recibe el importe menos la comisión y la comisión va al pool de
+// la plataforma, de modo que la suma por asset sea siempre cero.
+func buildReleaseEntries(o *p2pd.Order, sellerAccountID, buyerAccountID, clearingAccountID uuid.UUID) ([]domain.LedgerEntryInput, decimal.Decimal, error) {
+	if o.CommissionAmount.IsNegative() {
+		return nil, decimal.Zero, fmt.Errorf("%w: comisión negativa", ErrCommissionCalc)
+	}
+	buyerCredit := o.Amount
+	includeCommission := !o.CommissionAmount.IsZero()
+	if includeCommission {
+		if clearingAccountID == uuid.Nil {
+			return nil, decimal.Zero, fmt.Errorf("%w: cuenta de clearing no disponible", ErrCommissionCalc)
+		}
+		buyerCredit = o.Amount.Sub(o.CommissionAmount)
+		if buyerCredit.IsNegative() {
+			return nil, decimal.Zero, fmt.Errorf("%w: comisión %s mayor que el importe %s", ErrCommissionCalc, o.CommissionAmount.String(), o.Amount.String())
+		}
+	}
+	entries := []domain.LedgerEntryInput{
+		{WalletAccountID: sellerAccountID, AssetCode: o.AssetCode, Amount: o.Amount.Neg()},
+		{WalletAccountID: buyerAccountID, AssetCode: o.AssetCode, Amount: buyerCredit},
+	}
+	if includeCommission {
+		entries = append(entries, domain.LedgerEntryInput{WalletAccountID: clearingAccountID, AssetCode: o.AssetCode, Amount: o.CommissionAmount})
+	}
+	return entries, buyerCredit, nil
 }
 
 type noopNotifier struct{}
@@ -308,22 +340,24 @@ func (s *Service) Release(ctx context.Context, sellerID uuid.UUID, orderID uuid.
 		if err != nil {
 			return err
 		}
-		// System clearing account for commissions
-		clearingWallet, err := s.wallets.FindWalletByUserID(ctx, uuid.Nil)
+		// Pool de comisiones: cuenta reservada de la plataforma.
+		clearingWallet, err := s.wallets.FindWalletByUserID(ctx, systemUserID)
+		if err != nil {
+			return fmt.Errorf("%w: buscar wallet del sistema: %v", ErrCommissionCalc, err)
+		}
 		var clearingAccountID uuid.UUID
 		if clearingWallet != nil {
-			clearingAccountID, _ = s.accounts.FindOrCreateUserAccount(ctx, uuid.Nil, o.AssetCode)
+			clearingAccountID, err = s.accounts.FindOrCreateUserAccount(ctx, systemUserID, o.AssetCode)
+			if err != nil {
+				return fmt.Errorf("%w: cuenta de clearing: %v", ErrCommissionCalc, err)
+			}
 		}
-		// Transfer from seller escrow: buyer gets full amount, seller gets amount - commission, commission to clearing
+		entries, buyerCredit, err := buildReleaseEntries(o, sellerAccountID, buyerAccountID, clearingAccountID)
+		if err != nil {
+			return err
+		}
 		idStr := orderID.String()
 		idem := fmt.Sprintf("p2p_release:%s", idStr)
-		entries := []domain.LedgerEntryInput{
-			{WalletAccountID: sellerAccountID, AssetCode: o.AssetCode, Amount: o.Amount.Neg()},
-			{WalletAccountID: buyerAccountID, AssetCode: o.AssetCode, Amount: o.Amount},
-		}
-		if !o.CommissionAmount.IsZero() && clearingAccountID != uuid.Nil {
-			entries = append(entries, domain.LedgerEntryInput{WalletAccountID: clearingAccountID, AssetCode: o.AssetCode, Amount: o.CommissionAmount})
-		}
 		if _, err := s.ledger.ExecuteTransaction(ctx, domain.TxTypeTransfer, idem, &idStr, "P2P release", nil, entries); err != nil {
 			return err
 		}
@@ -334,8 +368,8 @@ func (s *Service) Release(ctx context.Context, sellerID uuid.UUID, orderID uuid.
 		_ = s.repo.ConsumeOfferReservation(ctx, tx, o.OfferID, o.Amount)
 		ev := &p2pd.OrderEvent{ID: uuid.New(), OrderID: orderID, ActorID: &sellerID, EventType: "released", FromStatus: &from, ToStatus: &to}
 		// Notify both parties
-		go s.notifier.Notify(context.Background(), o.BuyerID, "p2p_released", "Orden completada", fmt.Sprintf("Recibiste %s %s", o.Amount.String(), o.AssetCode))
-		go s.notifier.Notify(context.Background(), o.SellerID, "p2p_released", "Orden completada", fmt.Sprintf("Liberaste %s %s (comisión: %s)", o.Amount.String(), o.AssetCode, o.CommissionAmount.String()))
+		go s.notifier.Notify(context.Background(), o.BuyerID, "p2p_released", "Orden completada", fmt.Sprintf("Recibiste %s %s", buyerCredit.String(), o.AssetCode))
+		go s.notifier.Notify(context.Background(), o.SellerID, "p2p_released", "Orden completada", fmt.Sprintf("Liberaste %s %s (comisión: %s; el comprador recibe: %s)", o.Amount.String(), o.AssetCode, o.CommissionAmount.String(), buyerCredit.String()))
 		return s.repo.AddEvent(ctx, tx, ev)
 	})
 }
@@ -567,20 +601,20 @@ func (s *Service) AdminResolveDispute(ctx context.Context, adminID uuid.UUID, or
 			if err != nil {
 				return err
 			}
-			clearingWallet, _ := s.wallets.FindWalletByUserID(ctx, uuid.Nil)
+			clearingWallet, err := s.wallets.FindWalletByUserID(ctx, systemUserID)
+			if err != nil {
+				return fmt.Errorf("%w: buscar wallet del sistema: %v", ErrCommissionCalc, err)
+			}
 			var clearingAccountID uuid.UUID
 			if clearingWallet != nil {
-				clearingAccountID, _ = s.accounts.FindOrCreateUserAccount(ctx, uuid.Nil, o.AssetCode)
+				clearingAccountID, err = s.accounts.FindOrCreateUserAccount(ctx, systemUserID, o.AssetCode)
+				if err != nil {
+					return fmt.Errorf("%w: cuenta de clearing: %v", ErrCommissionCalc, err)
+				}
 			}
-			entries := []domain.LedgerEntryInput{
-				{WalletAccountID: sellerAccountID, AssetCode: o.AssetCode, Amount: o.Amount.Neg()},
-				{WalletAccountID: buyerAccountID, AssetCode: o.AssetCode, Amount: o.Amount},
-			}
-			// Only post the commission leg when a system clearing account
-			// exists; the existing user-facing release follows the same
-			// guard so both paths stay consistent.
-			if !o.CommissionAmount.IsZero() && clearingAccountID != uuid.Nil {
-				entries = append(entries, domain.LedgerEntryInput{WalletAccountID: clearingAccountID, AssetCode: o.AssetCode, Amount: o.CommissionAmount})
+			entries, _, err := buildReleaseEntries(o, sellerAccountID, buyerAccountID, clearingAccountID)
+			if err != nil {
+				return err
 			}
 			idStr := orderID.String()
 			idem := fmt.Sprintf("p2p_admin_release:%s", idStr)

@@ -593,3 +593,4 @@ No se proporciona un comando reproducible de restauración en el repositorio act
 ---
 
 *Actualizado según inspección de código real. No se modificaron archivos fuera de `README.md`. No se expusieron secretos ni se alteraron datos operativos. Las pruebas mencionadas corresponden a los mecanismos verificados en `docker-compose.test.yml` y `.github/workflows/backend-ci.yml`.*
+Actualización pendiente: endpoints públicos implementados (stats, rates, status, contact); PWA (manifest, sw.js, iconos); landing pública en raíz; datos mínimos marcados; tasas P2P con mediana implementada; CSP pendiente confirmación; comisiones reales no verificadas completamente; referidos no implementados; testimonios no verificados (dejar como ejemplo).

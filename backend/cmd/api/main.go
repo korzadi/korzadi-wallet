@@ -1197,6 +1197,32 @@ func main() {
 		Security:           handlers.NewSecurityHandler(securitySvc),
 		Compliance:         handlers.NewComplianceHandler(complianceSvc, complianceRolesFn),
 		P2P:                p2phandler.New(p2pSvc),
+		DB:                 pool,
+		Redis:              redisClient,
+		HealthBSC: func(ctx context.Context) error {
+			if bscProvider == nil {
+				return fmt.Errorf("BSC no configurado")
+			}
+			health, err := bscProvider.HealthCheck(ctx, bscCfg.USDTContractAddress)
+			if err != nil {
+				return err
+			}
+			if !health.RPCReachable || !health.ChainIDOK {
+				return fmt.Errorf("BSC no saludable")
+			}
+			return nil
+		},
+		HealthTRON: func(ctx context.Context) error {
+			provider := tronclient.NewProvider(tronNode, tronCfg)
+			health, err := provider.HealthCheck(ctx, usdtContract)
+			if err != nil {
+				return err
+			}
+			if !health.RPCReachable {
+				return fmt.Errorf("TRON no alcanzable")
+			}
+			return nil
+		},
 	}
 
 	cfg := router.Config{

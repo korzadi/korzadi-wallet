@@ -175,18 +175,46 @@ func TestP2P_Release_TransfersFunds(t *testing.T) {
 		t.Fatalf("mark paid: %v", err)
 	}
 
+	// El pool de comisiones es la cuenta reservada de la plataforma. Se
+	// captura su saldo antes de liberar porque la base de test puede
+	// conservar comisiones de ejecuciones anteriores.
+	systemUserID := uuid.MustParse("00000000-0000-0000-0000-000000000001")
+	clearingAcc, err := accounts.FindOrCreateUserAccount(ctx, systemUserID, "USDT")
+	if err != nil {
+		t.Fatalf("clearing account: %v", err)
+	}
+	clearingBefore, err := ledger.GetBalance(ctx, clearingAcc)
+	if err != nil {
+		t.Fatalf("clearing balance before: %v", err)
+	}
+
 	// Release by seller
 	if err := svc.Release(ctx, seller, order.ID); err != nil {
 		t.Fatalf("release: %v", err)
 	}
 
-	// Check buyer balance
+	// El comprador recibe 10 - 1 % = 9.9 y la comisión de 0.1 va al pool.
 	buyerAcc, _ := accounts.FindOrCreateUserAccount(ctx, buyer, "USDT")
-	bal, _ := ledger.GetBalance(ctx, buyerAcc)
-	if !bal.Equal(decimal.NewFromInt(10)) {
-		t.Fatalf("buyer balance: %s, expected 10", bal.String())
+	buyerBal, _ := ledger.GetBalance(ctx, buyerAcc)
+	if !buyerBal.Equal(decimal.RequireFromString("9.9")) {
+		t.Fatalf("buyer balance: %s, expected 9.9", buyerBal.String())
 	}
-	t.Logf("buyer received: %s", bal.String())
+
+	sellerAcc, _ := accounts.FindOrCreateUserAccount(ctx, seller, "USDT")
+	sellerBal, _ := ledger.GetBalance(ctx, sellerAcc)
+	if !sellerBal.Equal(decimal.NewFromInt(990)) {
+		t.Fatalf("seller balance: %s, expected 990", sellerBal.String())
+	}
+
+	clearingAfter, err := ledger.GetBalance(ctx, clearingAcc)
+	if err != nil {
+		t.Fatalf("clearing balance after: %v", err)
+	}
+	clearingDelta := clearingAfter.Sub(clearingBefore)
+	if !clearingDelta.Equal(decimal.RequireFromString("0.1")) {
+		t.Fatalf("clearing delta: %s, expected 0.1", clearingDelta.String())
+	}
+	t.Logf("buyer=%s seller=%s clearing_delta=%s", buyerBal.String(), sellerBal.String(), clearingDelta.String())
 }
 
 func TestP2P_Cancel_ReturnsEscrow(t *testing.T) {
