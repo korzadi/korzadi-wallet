@@ -1,10 +1,22 @@
 <!doctype html>
-<html lang="es"><head><meta charset="utf-8">
+<html lang="es"><head><meta charset="utf-8"><script>try{var __t=localStorage.getItem("kz-th");if(__t)document.documentElement.setAttribute("data-theme",__t)}catch(e){}</script><meta name="theme-color" content="#050B1F"><link rel="manifest" href="/manifest.webmanifest"><link rel="icon" href="/icon.svg" type="image/svg+xml"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Korzadi">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Korzadi – Wallet Custodial + P2P</title>
+<meta name="description" content="Wallet custodial y mercado P2P. Compra, vende, envía y recibe criptomonedas de forma rápida, segura y sencilla.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://wallet.korzadi.com/">
+<meta property="og:title" content="Korzadi – Wallet Custodial + P2P">
+<meta property="og:description" content="Wallet custodial y mercado P2P. Compra, vende y opera con cripto de forma segura.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://wallet.korzadi.com/">
+<meta property="og:image" content="https://wallet.korzadi.com/icon-512.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Korzadi – Wallet Custodial + P2P">
+<meta name="twitter:description" content="Wallet custodial y mercado P2P para operar con cripto de forma segura.">
+<meta name="twitter:image" content="https://wallet.korzadi.com/icon-512.png">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#050B1F;--ink:#fff;--mut:#A9B8DA;--blue:#1A63F0;--cy:#33B5FF;--line:#1B2B5E;--card:#0B1633;--lbg:#F4F7FD;--lk:#0B1B3F;--lm:#41527C;--lb:#1558E0;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+:root{--bg:#050B1F;--ink:#fff;--mut:#A9B8DA;--blue:#1A63F0;--cy:#33B5FF;--line:#1B2B5E;--card:#0B1633;--lbg:#F4F7FD;--lk:#0B1B3F;--lm:#41527C;--lb:#1558E0;--sf:#0b1d57;--sf2:#071030;--bd:#2a4aa8;--ft:#040818;color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 @media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--lbg:#0A1226;--lk:#EAF0FF;--lm:#9FB0D6;--lb:#5C9BFF}}
 :root[data-theme="dark"]{--lbg:#0A1226;--lk:#EAF0FF;--lm:#9FB0D6;--lb:#5C9BFF}
 html{scroll-behavior:smooth;scroll-padding-top:env(safe-area-inset-top,0px)}
@@ -77,13 +89,74 @@ footer{display:flex;gap:14px;align-items:center;flex-wrap:wrap;padding:22px 6vw;
 .cd{display:flex;gap:8px;justify-content:center;margin:18px 0 4px}.cd .ip{width:44px;text-align:center;padding:0;font-size:20px}
 .x{position:absolute;right:8px;top:8px;width:44px;height:44px;background:none;border:0;color:#A9B8DA;font-size:20px}
 @keyframes fi{from{opacity:0}}
-</style></head><body>
+section[id]{scroll-margin-top:72px}
+#sp{position:fixed;top:0;left:0;height:3px;width:0;background:linear-gradient(90deg,#1A63F0,#33D0FF);z-index:90}
+.hm{display:none;width:44px;height:44px;border-radius:12px;border:1px solid #1B2B5E;background:none;color:#fff;place-items:center}
+.links a.on{color:#fff;border-color:var(--cy)}
+.sec{position:relative;padding:76px 6vw}.sec h2.t{font-size:clamp(28px,4vw,42px);font-weight:800;text-align:center;line-height:1.15}.sec .st{color:var(--mut);text-align:center;max-width:620px;margin:14px auto 44px;line-height:1.6;font-size:16px}
+.dk{background:linear-gradient(180deg,#050B1F,#071443)}.dk2{background:#071030;border-block:1px solid var(--line)}
+.stp{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px;max-width:1150px;margin:0 auto}
+.stp>div{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:24px;transition:.3s;line-height:1.55;font-size:14px;color:var(--mut)}.stp>div:hover{transform:translateY(-6px);border-color:var(--cy);box-shadow:0 18px 40px #1a63f040}.stp b{display:block;color:#fff;font-size:17px;margin-bottom:8px}
+.num{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,#1A63F0,#33B5FF);display:grid;place-items:center;font-weight:800;margin-bottom:16px;color:#fff}
+.esc{max-width:1150px;margin:32px auto 0;background:var(--card);border:1px solid var(--line);border-radius:20px;padding:26px;display:flex;align-items:center;justify-content:space-around;gap:16px;flex-wrap:wrap;text-align:center}
+.nd{min-width:130px}.nd i{display:grid;place-items:center;width:64px;height:64px;border-radius:50%;background:#0b1d57;margin:0 auto 10px;color:var(--cy)}.nd b{display:block;font-size:14px}.nd small{color:var(--mut);font-size:12px}
+.nd.c i{background:linear-gradient(135deg,#1A63F0,#0A2E9A);color:#fff;animation:pu 2.4s ease-in-out infinite}
+.ar{flex:1;min-width:60px;height:2px;background:repeating-linear-gradient(90deg,var(--cy) 0 8px,transparent 8px 16px);background-size:32px 2px;animation:mv 1s linear infinite;border-radius:2px}
+.stt{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:24px;max-width:1000px;margin:0 auto;text-align:center}.stt b{display:block;font-size:44px;font-weight:800;background:linear-gradient(90deg,#2F8BFF,#33D0FF);-webkit-background-clip:text;background-clip:text;color:transparent}.stt span{color:var(--mut);font-size:13px;line-height:1.5;display:block}
+.calc{max-width:520px;margin:0 auto;background:var(--card);border:1px solid var(--line);border-radius:22px;padding:22px;box-shadow:0 24px 60px #0a2a9a40}
+.cr label{display:block;font-size:12px;color:var(--mut);margin-bottom:8px;font-weight:600}.ci{display:flex;gap:10px}
+.calc input,.calc select{min-height:52px;border-radius:12px;border:1px solid #2a3f85;background:#071030;color:#fff;font:inherit;font-size:18px;padding:0 14px;min-width:0}.calc input{flex:1;font-weight:700}.calc select{font-size:15px}.calc input:focus,.calc select:focus{outline:2px solid var(--cy);outline-offset:1px}
+.cs{display:block;margin:12px auto;width:44px;height:44px;border-radius:50%;border:1px solid #2a3f85;background:#0b1d57;color:#fff;font-size:20px;transition:transform .4s}.cs:hover{transform:rotate(180deg)}
+.cn{color:var(--mut);font-size:12px;line-height:1.5;margin-top:14px;text-align:center}
+.mq{overflow:hidden;-webkit-mask-image:linear-gradient(90deg,transparent,#000 10%,#000 90%,transparent);mask-image:linear-gradient(90deg,transparent,#000 10%,#000 90%,transparent)}.mq div{display:flex;gap:14px;width:max-content;animation:mq 32s linear infinite}.mq:hover div{animation-play-state:paused}
+.pl2{border:1px solid #2a4aa8;background:#0b1d57;border-radius:30px;padding:12px 22px;font-size:15px;font-weight:600;white-space:nowrap}
+.sg2{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px;max-width:1150px;margin:0 auto}
+.cd2{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px;transition:.3s;display:grid;gap:8px}.cd2:hover{transform:translateY(-6px);border-color:var(--cy)}.cd2 b{font-size:16px}.cd2 span{color:var(--mut);font-size:14px;line-height:1.5}
+.rv .cd2{opacity:0}.rv.in .cd2{opacity:1;animation:up .6s both;animation-delay:calc(var(--i)*70ms)}
+#fq{max-width:760px;margin:0 auto;display:grid;gap:12px}
+details.fq{background:var(--card);border:1px solid var(--line);border-radius:16px;transition:border-color .3s}details.fq[open]{border-color:var(--cy)}
+details.fq summary{list-style:none;cursor:pointer;min-height:56px;padding:16px 20px;font-weight:600;font-size:16px;display:flex;justify-content:space-between;align-items:center;gap:12px}details.fq summary::-webkit-details-marker{display:none}
+details.fq summary::after{content:"+";font-size:24px;color:var(--cy);transition:transform .3s}details.fq[open] summary::after{transform:rotate(45deg)}
+details.fq p{padding:0 20px 18px;color:var(--mut);line-height:1.65;font-size:15px;animation:up .4s both}
+.cta2{max-width:1000px;margin:0 auto;border-radius:28px;padding:54px 28px;text-align:center;background:linear-gradient(135deg,#1A63F0,#0A2E9A);box-shadow:0 30px 80px #1a63f066;position:relative;overflow:hidden}.cta2::after{content:"";position:absolute;right:-60px;top:-60px;width:220px;height:220px;border-radius:50%;background:rgba(255,255,255,.12);animation:pu 6s ease-in-out infinite}
+.cta2 h2{font-size:clamp(26px,4vw,38px);font-weight:800;position:relative}.cta2 p{margin:12px auto 26px;max-width:520px;line-height:1.6;color:#DCE5FA;position:relative}.cta2 .bt{background:#fff;color:#0A2E9A;border-color:#fff;min-height:52px;padding:0 34px;border-radius:30px;font-size:16px;position:relative}
+.ft2{background:#040818;padding:50px 6vw 26px;border-top:1px solid var(--line);color:var(--mut);font-size:14px}.fg3{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:30px;max-width:1150px;margin:0 auto}.fg3 b{display:block;color:#fff;margin-bottom:12px;font-size:14px}.fg3 a{display:block;padding:7px 0;color:var(--mut);transition:.2s}.fg3 a:hover{color:#fff}.fg3 p{line-height:1.6;margin-top:12px;max-width:280px}
+.fb{max-width:1150px;margin:34px auto 0;padding-top:20px;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-size:13px;align-items:center}.fb select{background:#071030;color:#fff;border:1px solid #2a3f85;border-radius:10px;min-height:40px;padding:0 10px;font:inherit}
+#up{position:fixed;right:18px;bottom:calc(18px + env(safe-area-inset-bottom,0px));z-index:80;width:48px;height:48px;border-radius:50%;border:0;background:var(--blue);color:#fff;font-size:20px;box-shadow:0 10px 30px #1a63f088;opacity:0;pointer-events:none;transform:translateY(12px);transition:.3s}#up.on{opacity:1;pointer-events:auto;transform:none}
+@keyframes mv{to{background-position:32px 0}}@keyframes mq{to{transform:translateX(-50%)}}
+@media(max-width:900px){.hm{display:grid}.links.open{display:flex;position:absolute;top:100%;left:0;right:0;flex-direction:column;gap:0;background:#050B1F;padding:8px 6vw 14px;border-bottom:1px solid var(--line)}.links.open a{padding:14px 0;font-size:16px;border-bottom:1px solid var(--line)}.fg3{grid-template-columns:1fr 1fr}.ar{display:none}.esc{justify-content:center}}
+@media(max-width:520px){.fg3{grid-template-columns:1fr}.sec{padding:56px 5vw}}
+@media(prefers-reduced-motion:reduce){.mq div,.ar{animation:none!important}.rv .cd2{opacity:1}}
+.tb2{width:44px;height:44px;border-radius:12px;border:1px solid var(--line);background:none;color:var(--ink);display:grid;place-items:center;transition:.2s;flex:none}.tb2:hover{border-color:var(--cy)}.tb2 svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.to{display:flex;gap:12px;align-items:center;width:100%;text-align:left;padding:14px;margin-top:10px;border-radius:14px;border:1px solid var(--bd);background:var(--sf2);color:inherit;min-height:60px;font:inherit;cursor:pointer;transition:.25s}.to[aria-pressed="true"]{border-color:var(--cy);box-shadow:0 0 0 1px var(--cy)}.to small{display:block;color:var(--mut);font-size:12px;margin-top:2px}.to svg{width:22px;height:22px;fill:none;stroke:var(--cy);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.ex{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:#FBBF24;border:1px solid currentColor;border-radius:20px;padding:3px 10px}.ex.live{color:#34D399}
+.tst{position:fixed;left:50%;bottom:calc(86px + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);background:var(--ink);color:var(--bg);padding:12px 18px;border-radius:12px;font-size:14px;font-weight:600;opacity:0;pointer-events:none;transition:.35s;z-index:120;max-width:90%;text-align:center}.tst.on{opacity:1;transform:translate(-50%,0)}
+.rtr{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:14px}.rtc{font-size:12px;color:var(--mut)}.rtc.on{color:#34D399}.rfb{width:44px;height:44px;border-radius:50%;border:1px solid var(--bd);background:var(--sf);color:var(--ink);font-size:18px}.rfb.sp{animation:spin .7s linear}
+.dot{width:10px;height:10px;border-radius:50%;background:#34D399;animation:pu 2s infinite;flex:none}
+.stx{max-width:820px;margin:0 auto}.sov{display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px 20px}.sov.w .dot{background:#FBBF24}.sov b{flex:1;min-width:200px}
+.srv{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px 20px;margin-top:12px}.sh2{display:flex;justify-content:space-between;gap:10px;margin-bottom:10px}.sbx{font-size:12px;font-weight:600;color:#34D399;background:rgba(52,211,153,.13);border-radius:20px;padding:4px 10px}.sbx.w{color:#FBBF24;background:rgba(251,191,36,.13)}
+.bars{display:flex;gap:2px;height:30px}.bars i{flex:1;border-radius:2px;background:#34D399;transform-origin:bottom;animation:grow .6s both}.bars i.w{background:#FBBF24}.srv small{display:block;margin-top:8px;color:var(--mut);font-size:12px}
+.tfx{max-width:960px;margin:0 auto;background:var(--card);border:1px solid var(--line);border-radius:18px;overflow:hidden}.tr{display:grid;grid-template-columns:1.2fr 1fr 1.4fr 1.6fr;gap:12px;padding:16px 20px;font-size:14px;align-items:center}.tr+.tr{border-top:1px solid var(--line)}.tr.h{font-size:11px;letter-spacing:.8px;text-transform:uppercase;color:var(--mut);background:var(--sf2);font-weight:600}.tr span{color:var(--mut)}
+.refc{max-width:960px;margin:24px auto 0;background:linear-gradient(135deg,rgba(26,99,240,.22),var(--card));border:1px solid var(--line);border-radius:20px;padding:26px;display:grid;grid-template-columns:1.2fr 1fr;gap:26px;align-items:center}.refc h3{font-size:22px;margin-bottom:8px}.refc p{color:var(--mut);line-height:1.6;font-size:14px}.rs{margin:12px 0 0 18px;color:var(--mut);font-size:14px;line-height:1.8}.refc label{display:block;font-size:12px;color:var(--mut);margin-bottom:8px;font-weight:600}.refc input{flex:1;min-width:0;min-height:48px;border-radius:12px;border:1px solid var(--bd);background:var(--sf2);color:var(--ink);padding:0 14px;font:inherit;font-size:14px}
+.tg{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;max-width:1100px;margin:0 auto}.tc{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px;display:grid;gap:12px;transition:.3s}.tc:hover{transform:translateY(-6px);border-color:var(--cy)}.tc q{font-size:15px;line-height:1.6;quotes:none}.tc .au{display:flex;gap:10px;align-items:center;font-size:13px;flex-wrap:wrap}.tc .au small{color:var(--mut);display:block}.s5{color:#FBBF24;letter-spacing:2px}.av3{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#1A63F0,#0B3BB0);color:#fff;display:grid;place-items:center;font-weight:700;font-size:13px;flex:none}
+.hs{max-width:520px;margin:0 auto 26px}.gi{width:100%;min-height:52px;border-radius:14px;border:1px solid var(--bd);background:var(--sf2);color:var(--ink);padding:0 18px;font:inherit;font-size:15px}.gi:focus{outline:2px solid var(--cy)}
+.gx{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;max-width:1100px;margin:0 auto}.gc{text-align:left;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px;color:var(--ink);display:grid;gap:10px;font:inherit;cursor:pointer;transition:.3s}.gc:hover{transform:translateY(-6px);border-color:var(--cy);box-shadow:0 18px 40px #1a63f040}.gc b{font-size:17px}.gc span{color:var(--mut);font-size:14px;line-height:1.5}.gc small{color:var(--cy);font-weight:600;font-size:13px}
+.sb2{display:inline-block;width:fit-content;background:var(--sf);color:var(--cy);font-size:11px;font-weight:700;border-radius:20px;padding:4px 10px}.em2{grid-column:1/-1;text-align:center;color:var(--mut);padding:30px}.gst{margin:0 0 0 20px;display:grid;gap:12px;line-height:1.6;font-size:14px}
+.spx{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;max-width:1000px;margin:0 auto 26px}.sc3{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px;display:grid;gap:8px;transition:.3s}.sc3:hover{transform:translateY(-6px);border-color:var(--cy)}.sc3 b{font-size:16px}.sc3 span{color:var(--mut);font-size:14px;line-height:1.5}.sc3 .bt{margin-top:6px}.sc3 .bt[disabled]{opacity:.5;cursor:not-allowed}
+.cfm{max-width:620px;margin:0 auto;background:var(--card);border:1px solid var(--line);border-radius:20px;padding:24px}.cfm h3{font-size:20px}.cfm label{display:block;font-size:12px;color:var(--mut);margin:12px 0 6px;font-weight:600}.cfm input,.cfm select,.cfm textarea{width:100%;min-height:48px;border-radius:12px;border:1px solid var(--bd);background:var(--sf2);color:var(--ink);padding:0 14px;font:inherit;font-size:15px}.cfm textarea{padding:12px 14px;min-height:110px;resize:vertical}.cfm .er{color:#F87171;font-size:12px;min-height:16px;margin-top:8px}
+.appc{max-width:1000px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:30px;background:linear-gradient(135deg,rgba(26,99,240,.22),var(--card));border:1px solid var(--line);border-radius:26px;padding:40px;flex-wrap:wrap}.appc h2{font-size:clamp(24px,3.4vw,34px);font-weight:800}.appc p{color:var(--mut);margin:12px 0 22px;line-height:1.6;max-width:460px}.ab2{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.phx{width:150px;height:290px;border-radius:30px;border:6px solid #1B2547;background:linear-gradient(180deg,#071443,#050B1F);display:grid;place-items:center;animation:fl 6s ease-in-out infinite;flex:none;box-shadow:0 24px 60px #0a2a9a66}
+@keyframes grow{from{transform:scaleY(0)}}@keyframes spin{to{transform:rotate(360deg)}}
+@media(max-width:800px){.refc{grid-template-columns:1fr}.appc{padding:28px 22px}}
+@media(max-width:700px){.tr{grid-template-columns:1fr;gap:4px}.tr.h{display:none}.tr [data-l]::before{content:attr(data-l) ": ";font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--mut)}}
+@media(prefers-reduced-motion:reduce){.bars i,.phx,.dot,.rfb.sp{animation:none!important}}
+@media(prefers-color-scheme:light){:root:not([data-theme="dark"]){--bg:#EEF3FB;--ink:#0B1B3F;--mut:#4A5B82;--cy:#0B6FC2;--blue:#1558E0;--line:#D3DDF0;--card:#FFFFFF;--lbg:#FFFFFF;--lk:#0B1B3F;--lm:#41527C;--lb:#1558E0;--sf:#E6EEFB;--sf2:#F4F7FD;--bd:#B9C9EA;--ft:#E6EDF9;color-scheme:light}:root:not([data-theme="dark"]) body{background-color:var(--bg)}:root:not([data-theme="dark"]) body::before{background:var(--bg)}:root:not([data-theme="dark"]) nav{background:rgba(238,243,251,.9)}:root:not([data-theme="dark"]) .links a:hover,:root:not([data-theme="dark"]) .links .on,:root:not([data-theme="dark"]) .links a.on{color:var(--ink)}:root:not([data-theme="dark"]) .bt{color:var(--ink)}:root:not([data-theme="dark"]) .bt.f{color:#fff}:root:not([data-theme="dark"]) .cta2 .bt{color:#0A2E9A}:root:not([data-theme="dark"]) .hm{color:var(--ink);border-color:var(--line)}:root:not([data-theme="dark"]) .hm svg{stroke:var(--ink)!important}:root:not([data-theme="dark"]) .hero{background:radial-gradient(ellipse at 78% 45%,rgba(26,99,240,.22) 0,transparent 55%),linear-gradient(180deg,#EEF3FB,#DCE8FA)}:root:not([data-theme="dark"]) .orb{opacity:.18}:root:not([data-theme="dark"]) .pill{border-color:var(--bd);background:var(--sf)}:root:not([data-theme="dark"]) .gr,:root:not([data-theme="dark"]) .stt b{background:linear-gradient(90deg,#1558E0,#0B7DD6);-webkit-background-clip:text;background-clip:text;color:transparent}:root:not([data-theme="dark"]) .sub{color:#33456E}:root:not([data-theme="dark"]) .tri b,:root:not([data-theme="dark"]) .strip b,:root:not([data-theme="dark"]) .stp b,:root:not([data-theme="dark"]) .fg3 b{color:var(--ink)}:root:not([data-theme="dark"]) .fg3 a:hover{color:var(--ink)}:root:not([data-theme="dark"]) .ph,:root:not([data-theme="dark"]) .lap{color:#fff;--mut:#A9B8DA;--line:#1B2B5E;--ink:#fff;--card:#0B1633;--cy:#33B5FF;--blue:#1A63F0}:root:not([data-theme="dark"]) .strip,:root:not([data-theme="dark"]) .dk2{background:var(--sf2)}:root:not([data-theme="dark"]) .dk{background:linear-gradient(180deg,var(--bg),#E3ECFA)}:root:not([data-theme="dark"]) .ft2{background:var(--ft)}:root:not([data-theme="dark"]) .ft2 .logo{color:var(--ink)!important}:root:not([data-theme="dark"]) .mc{background:#fff;color:var(--ink);border-color:var(--line)}:root:not([data-theme="dark"]) .tb{background:var(--sf)}:root:not([data-theme="dark"]) .tb button,:root:not([data-theme="dark"]) .fl,:root:not([data-theme="dark"]) .x{color:var(--mut)}:root:not([data-theme="dark"]) .tb .on{color:#fff}:root:not([data-theme="dark"]) .ip,:root:not([data-theme="dark"]) .calc input,:root:not([data-theme="dark"]) .calc select,:root:not([data-theme="dark"]) .fb select{border-color:var(--bd);background:var(--sf2);color:var(--ink)}:root:not([data-theme="dark"]) .mc [style*="A9B8DA"]{color:var(--mut)!important}:root:not([data-theme="dark"]) .cs{border-color:var(--bd);background:var(--sf);color:var(--ink)}:root:not([data-theme="dark"]) .pl2{border-color:var(--bd);background:var(--sf)}:root:not([data-theme="dark"]) .nd i{background:var(--sf)}:root:not([data-theme="dark"]) .nd.c i{background:linear-gradient(135deg,#1A63F0,#0A2E9A);color:#fff}:root:not([data-theme="dark"]) .links.open{background:var(--bg)}:root:not([data-theme="dark"]) .lt{border-block:1px solid var(--line)}:root:not([data-theme="dark"]) .ex{color:#B45309}:root:not([data-theme="dark"]) .ex.live,:root:not([data-theme="dark"]) .sbx,:root:not([data-theme="dark"]) .rtc.on{color:#0E8F63}:root:not([data-theme="dark"]) .sbx.w{color:#B45309}}:root[data-theme="light"]{--bg:#EEF3FB;--ink:#0B1B3F;--mut:#4A5B82;--cy:#0B6FC2;--blue:#1558E0;--line:#D3DDF0;--card:#FFFFFF;--lbg:#FFFFFF;--lk:#0B1B3F;--lm:#41527C;--lb:#1558E0;--sf:#E6EEFB;--sf2:#F4F7FD;--bd:#B9C9EA;--ft:#E6EDF9;color-scheme:light}:root[data-theme="light"] body{background-color:var(--bg)}:root[data-theme="light"] body::before{background:var(--bg)}:root[data-theme="light"] nav{background:rgba(238,243,251,.9)}:root[data-theme="light"] .links a:hover,:root[data-theme="light"] .links .on,:root[data-theme="light"] .links a.on{color:var(--ink)}:root[data-theme="light"] .bt{color:var(--ink)}:root[data-theme="light"] .bt.f{color:#fff}:root[data-theme="light"] .cta2 .bt{color:#0A2E9A}:root[data-theme="light"] .hm{color:var(--ink);border-color:var(--line)}:root[data-theme="light"] .hm svg{stroke:var(--ink)!important}:root[data-theme="light"] .hero{background:radial-gradient(ellipse at 78% 45%,rgba(26,99,240,.22) 0,transparent 55%),linear-gradient(180deg,#EEF3FB,#DCE8FA)}:root[data-theme="light"] .orb{opacity:.18}:root[data-theme="light"] .pill{border-color:var(--bd);background:var(--sf)}:root[data-theme="light"] .gr,:root[data-theme="light"] .stt b{background:linear-gradient(90deg,#1558E0,#0B7DD6);-webkit-background-clip:text;background-clip:text;color:transparent}:root[data-theme="light"] .sub{color:#33456E}:root[data-theme="light"] .tri b,:root[data-theme="light"] .strip b,:root[data-theme="light"] .stp b,:root[data-theme="light"] .fg3 b{color:var(--ink)}:root[data-theme="light"] .fg3 a:hover{color:var(--ink)}:root[data-theme="light"] .ph,:root[data-theme="light"] .lap{color:#fff;--mut:#A9B8DA;--line:#1B2B5E;--ink:#fff;--card:#0B1633;--cy:#33B5FF;--blue:#1A63F0}:root[data-theme="light"] .strip,:root[data-theme="light"] .dk2{background:var(--sf2)}:root[data-theme="light"] .dk{background:linear-gradient(180deg,var(--bg),#E3ECFA)}:root[data-theme="light"] .ft2{background:var(--ft)}:root[data-theme="light"] .ft2 .logo{color:var(--ink)!important}:root[data-theme="light"] .mc{background:#fff;color:var(--ink);border-color:var(--line)}:root[data-theme="light"] .tb{background:var(--sf)}:root[data-theme="light"] .tb button,:root[data-theme="light"] .fl,:root[data-theme="light"] .x{color:var(--mut)}:root[data-theme="light"] .tb .on{color:#fff}:root[data-theme="light"] .ip,:root[data-theme="light"] .calc input,:root[data-theme="light"] .calc select,:root[data-theme="light"] .fb select{border-color:var(--bd);background:var(--sf2);color:var(--ink)}:root[data-theme="light"] .mc [style*="A9B8DA"]{color:var(--mut)!important}:root[data-theme="light"] .cs{border-color:var(--bd);background:var(--sf);color:var(--ink)}:root[data-theme="light"] .pl2{border-color:var(--bd);background:var(--sf)}:root[data-theme="light"] .nd i{background:var(--sf)}:root[data-theme="light"] .nd.c i{background:linear-gradient(135deg,#1A63F0,#0A2E9A);color:#fff}:root[data-theme="light"] .links.open{background:var(--bg)}:root[data-theme="light"] .lt{border-block:1px solid var(--line)}:root[data-theme="light"] .ex{color:#B45309}:root[data-theme="light"] .ex.live,:root[data-theme="light"] .sbx,:root[data-theme="light"] .rtc.on{color:#0E8F63}:root[data-theme="light"] .sbx.w{color:#B45309}</style></head><body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><linearGradient id="kg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3FD0FF"/><stop offset="1" stop-color="#1F4DFF"/></linearGradient><symbol id="kz" viewBox="0 0 44 44"><path fill="url(#kg)" d="M2 2h9v40H2zM14 26L31 2h12L22 30zM17 25l26 17H30L14 34z"/></symbol></defs></svg>
-<nav><a class="logo" href="#"><svg width="38" height="38" aria-hidden="true"><use href="#kz"/></svg>Korzadi</a>
-<div class="links"><a class="on" href="#">Inicio</a><a href="#feat">Wallet</a><a href="#p2p">P2P</a><a href="#feat">Historial</a><a href="#seg">Soporte</a></div>
-<div class="nr"><button class="bt" onclick="op(1)">Iniciar sesión</button><button class="bt f" onclick="op(2)">Crear cuenta</button></div></nav>
+<div id="sp"></div><nav><a class="logo" href="#"><svg width="38" height="38" aria-hidden="true"><use href="#kz"/></svg>Korzadi</a>
+<div class="links" id="lks"><a class="on" href="#top">Inicio</a><a href="#como">Cómo funciona</a><a href="#p2p">P2P</a><a href="#capas">Seguridad</a><a href="#guias">Guías</a><a href="#soporte">Soporte</a></div>
+<div class="nr"><button class="tb2" id="thb" aria-label="Apariencia y colores" onclick="oth()"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18c1.1 0 1.5-.8 1.2-1.6-.3-.9.2-1.9 1.3-1.9H17a4 4 0 0 0 4-4C21 6.6 17 3 12 3zM7.5 12h.01M9.5 8h.01M14.5 8h.01"/></svg></button><button class="bt" onclick="op(1)">Iniciar sesión</button><button class="bt f" onclick="op(2)">Crear cuenta</button></div><button class="hm" id="hm" aria-label="Abrir menú" aria-expanded="false"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" style="stroke:#fff;width:22px;height:22px"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button></nav>
 
-<section class="hero"><div class="orb" style="width:340px;height:340px;right:-60px;top:20px"></div><div class="orb" style="width:220px;height:220px;left:30%;bottom:-80px;animation-delay:-3s"></div>
+<section class="hero" id="top"><div class="orb" style="width:340px;height:340px;right:-60px;top:20px"></div><div class="orb" style="width:220px;height:220px;left:30%;bottom:-80px;animation-delay:-3s"></div>
 <div style="position:relative;z-index:3">
 <div class="pill u"><svg class="ic" style="width:18px;height:18px" viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/></svg>Wallet Custodial + P2P</div>
 <h1 class="u" style="animation-delay:.1s"><svg width="72" height="72" aria-hidden="true"><use href="#kz"/></svg>Korzadi</h1>
@@ -113,7 +186,30 @@ footer{display:flex;gap:14px;align-items:center;flex-wrap:wrap;padding:22px 6vw;
 <div class="ph b" style="text-align:center"><div class="ok"><svg width="40" height="40" viewBox="0 0 24 24"><path pathLength="1" d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div><b style="font-size:15px">¡Compra exitosa!</b><div style="color:var(--mut);margin:6px 0 18px">Has recibido 200.00 USDT</div><div class="pb"><span style="padding:10px">Ver detalle</span></div><div style="color:#5C9BFF;margin-top:12px">Volver al inicio</div></div></div>
 <div class="rv" id="seg"><div class="logo" style="color:var(--lk);font-size:44px"><svg width="52" height="52" aria-hidden="true"><use href="#kz"/></svg>Korzadi</div><h4>Seguridad y confianza en cada operación</h4><p>Somos una plataforma custodial, donde tus fondos están protegidos y siempre bajo tu control. Combinamos la libertad del P2P con la seguridad de una wallet profesional.</p>
 <div class="bd"><div><svg class="ic" style="width:26px;height:26px" viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6zM9 12l2 2 4-4"/></svg>KYC/AML<br>Verificado</div><div><svg class="ic" style="width:26px;height:26px" viewBox="0 0 24 24"><path d="M6 11h12v9H6zM8 11V8a4 4 0 0 1 8 0v3"/></svg>Cifrado de extremo<br>a extremo</div><div><svg class="ic" style="width:26px;height:26px" viewBox="0 0 24 24"><path d="M4 14v-2a8 8 0 0 1 16 0v2M4 14h3v5H5a1 1 0 0 1-1-1zM20 14h-3v5h2a1 1 0 0 0 1-1z"/></svg>Soporte 24/7<br>en español</div></div></div></section>
-<footer><b style="display:flex;gap:6px;align-items:center;color:var(--lk)"><svg width="22" height="22"><use href="#kz"/></svg>Korzadi</b>Más que una wallet, es tu puente al mundo cripto.</footer>
+<section class="sec dk" id="como"><h2 class="t rv">Cómo funciona <span class="gr">Korzadi</span></h2><p class="st rv">Compra y vende USDT en cuatro pasos, con tus fondos protegidos en cada operación.</p>
+<div class="stp"><div class="rv"><div class="num">1</div><b>Crea tu cuenta</b>Regístrate con tu correo, activa el 2FA y crea tu PIN de seguridad.</div><div class="rv" style="transition-delay:.1s"><div class="num">2</div><b>Verifica tu identidad</b>Completa el KYC para operar en el mercado P2P.</div><div class="rv" style="transition-delay:.2s"><div class="num">3</div><b>Elige una oferta</b>Compara precios en CUP, USD, EUR, MLC o saldo ETECSA. Los USDT quedan en escrow.</div><div class="rv" style="transition-delay:.3s"><div class="num">4</div><b>Paga y recibe</b>Envía el pago, sube tu comprobante y recibe tus USDT cuando el vendedor confirme.</div></div>
+<div class="esc rv"><div class="nd"><i><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" style="width:30px;height:30px"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4 21a8 8 0 0 1 16 0"/></svg></i><b>Vendedor</b><small>USDT bloqueados</small></div><div class="ar"></div><div class="nd c"><i><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" style="width:30px;height:30px"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6zM9 12l2 2 4-4"/></svg></i><b>Escrow Korzadi</b><small>Retiene los USDT</small></div><div class="ar"></div><div class="nd"><i><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" style="width:30px;height:30px"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4 21a8 8 0 0 1 16 0"/></svg></i><b>Comprador</b><small>Paga y recibe</small></div></div></section>
+<section class="sec dk2"><div class="stt"><div class="rv"><b class="cn1" data-t="5">0</b><span>monedas: CUP, USD, EUR, MLC y saldo ETECSA</span></div><div class="rv" style="transition-delay:.1s"><b class="cn1" data-t="16">0</b><span>zonas para entrega de efectivo</span></div><div class="rv" style="transition-delay:.2s"><b class="cn1" data-t="30">0</b><span>minutos para pagar cada orden</span></div><div class="rv" style="transition-delay:.3s"><b>24/7</b><span>soporte en español</span></div></div></section>
+<section class="sec dk" id="calc"><h2 class="t rv">Calcula tu <span class="gr">operación</span></h2><p class="st rv">Convierte entre USDT y las monedas que se usan en Cuba. Las tasas son de ejemplo.</p>
+<div class="calc rv"><div class="cr"><label for="ca">Envías</label><div class="ci"><input id="ca" type="number" inputmode="decimal" value="100" min="0"><select id="cf" aria-label="Moneda que envías"></select></div></div><button class="cs" id="cw" aria-label="Invertir monedas">⇅</button><div class="cr"><label for="cb">Recibes</label><div class="ci"><input id="cb" readonly aria-live="polite"><select id="ct" aria-label="Moneda que recibes"></select></div></div><div class="rtr"><span class="rtc" id="rtc"></span><button class="rfb" id="rfb" aria-label="Actualizar tasas">↻</button></div><div class="cn" id="cn"></div><button class="bt f" style="width:100%;margin-top:16px;min-height:50px" onclick="op(2)">Crear cuenta y operar</button></div></section>
+<section class="sec dk2" style="padding-block:40px"><div class="mq" aria-label="Métodos de pago y monedas"><div id="mqx"></div></div></section>
+<section class="sec dk" id="capas"><h2 class="t rv">Seguridad <span class="gr">por capas</span></h2><p class="st rv">Cada operación pasa por varias protecciones, desde tu cuenta hasta el escrow.</p><div class="sg2 rv" id="sgx"></div></section>
+<section class="sec dk2" id="estado"><h2 class="t rv">Estado del <span class="gr">servicio</span></h2><p class="st rv">Consulta si todo está funcionando: API, depósitos, retiros, mercado P2P y nodos.</p><div class="stx rv" id="stx"></div></section>
+<section class="sec dk" id="numeros"><h2 class="t rv">Korzadi en <span class="gr">números</span></h2><div class="stt rv" id="nmx" style="margin-top:34px"></div><div style="text-align:center;margin-top:18px" id="nmb"></div></section>
+<section class="sec dk2" id="tarifas"><h2 class="t rv">Comisiones y <span class="gr">límites</span></h2><p class="st rv">Transparencia total: lo que pagas y hasta cuánto puedes operar. <span class="ex">Valores de ejemplo</span></p><div class="tfx rv" id="tfx"></div><div class="refc rv" id="rfx"></div></section>
+<section class="sec dk" id="opiniones"><h2 class="t rv">Testimonios de nuestra <span class="gr">comunidad</span></h2><p class="st rv">Experiencias compartidas por personas que usan Korzadi.</p><div class="tg rv" id="opx"></div><div style="text-align:center;margin-top:26px"><a class="bt" href="#soporte" style="display:inline-grid;place-items:center">Cuéntanos tu experiencia</a></div></section>
+<section class="sec dk2" id="guias"><h2 class="t rv">Guías y <span class="gr">centro de ayuda</span></h2><p class="st rv">Tutoriales paso a paso para sacarle el máximo a Korzadi.</p><div class="hs rv"><input id="gq" class="gi" type="search" placeholder="Buscar en la ayuda" aria-label="Buscar en la ayuda"></div><div class="gx rv" id="gx"></div></section>
+<section class="sec dk" id="faq"><h2 class="t rv">Preguntas <span class="gr">frecuentes</span></h2><p class="st rv">Lo que más nos preguntan antes de empezar.</p><div id="fq" class="rv"></div></section>
+<section class="sec dk2" id="soporte"><h2 class="t rv">Soporte y <span class="gr">comunidad</span></h2><p class="st rv">Estamos para ayudarte, todos los días y en español. Nunca te pediremos tu contraseña ni tus códigos 2FA.</p><div class="spx rv" id="spx"></div><div class="cfm rv" id="cfx"></div></section>
+<section class="sec dk" id="app"><div class="appc rv"><div><h2>Instala Korzadi en tu celular</h2><p>Accede más rápido desde tu pantalla de inicio, a pantalla completa y con la misma seguridad.</p><div class="ab2" id="abx"></div></div><div class="phx" aria-hidden="true"><svg width="64" height="64"><use href="#kz"/></svg></div></div></section>
+<section class="sec dk2"><div class="cta2 rv"><h2>Empieza hoy con Korzadi</h2><p>Crea tu cuenta, protege tus fondos y opera en el mercado P2P con escrow en cada orden.</p><button class="bt" onclick="op(2)">Crear cuenta gratis →</button></div></section>
+<footer class="ft2"><div class="fg3"><div><a class="logo" href="#top" style="color:#fff;padding:0"><svg width="34" height="34" aria-hidden="true"><use href="#kz"/></svg>Korzadi</a><p>Wallet custodial y mercado P2P pensado para Cuba.</p></div><div><b>Producto</b><a href="#como">Cómo funciona</a><a href="#p2p">Mercado P2P</a><a href="#calc">Conversor</a><a href="#tarifas">Comisiones y límites</a><a href="#guias">Guías y ayuda</a></div><div><b>Seguridad</b><a href="#capas">Protección por capas</a><a href="#faq">Preguntas frecuentes</a><a href="#estado">Estado del servicio</a><a href="#seg">Confianza</a></div><div><b>Legal</b><a href="/terminos">Términos y condiciones</a><a href="/privacidad">Política de privacidad</a><a href="/kyc-aml">Política KYC/AML</a></div></div>
+<div class="fb"><span>© 2026 Korzadi. Más que una wallet, es tu puente al mundo cripto.</span><select aria-label="Idioma"><option>Español</option><option>English</option></select></div></footer>
+<div class="md" id="thm" role="dialog" aria-modal="true" aria-labelledby="tht"><div class="mc"><button class="x" onclick="cth()" aria-label="Cerrar">✕</button><h3 id="tht" style="font-size:20px;margin-top:6px">Apariencia</h3><p style="font-size:13px;margin:8px 0 4px;line-height:1.5;color:var(--mut)">Elige cómo se ve la interfaz. Se guarda solo en este navegador.</p><div id="tho"></div></div></div>
+<div class="md" id="gdm" role="dialog" aria-modal="true"><div class="mc" style="max-width:520px"><button class="x" onclick="cgd()" aria-label="Cerrar">✕</button><div id="gdb" style="padding-top:6px"></div></div></div>
+<div class="tst" id="tst" role="status"></div>
+<button id="up" aria-label="Volver arriba" onclick="scrollTo({top:0,behavior:'smooth'})">↑</button>
+
 <div class="md" id="md" role="dialog" aria-modal="true" aria-labelledby="mt"><div class="mc"><button class="x" onclick="cl()" aria-label="Cerrar">✕</button>
 <div class="logo" style="font-size:22px"><svg width="30" height="30" aria-hidden="true"><use href="#kz"/></svg>Korzadi</div>
 <div id="s1"><div class="tb"><button id="t1" class="on" onclick="tab(1)">Iniciar sesión</button><button id="t2" onclick="tab(2)">Crear cuenta</button></div><h3 id="mt" style="font-size:20px">Bienvenido de nuevo</h3>
@@ -123,18 +219,13 @@ footer{display:flex;gap:14px;align-items:center;flex-wrap:wrap;padding:22px 6vw;
 <label class="fl" for="p">Contraseña</label><div style="position:relative"><input class="ip" id="p" type="password" autocomplete="current-password"><button type="button" id="vw" aria-label="Mostrar contraseña" style="position:absolute;right:0;top:0;min-width:56px;height:46px;background:none;border:0;color:#33B5FF;font-size:13px;font-weight:600">Ver</button></div>
 <div id="cf" hidden><label class="fl" for="p2">Confirmar contraseña</label><input class="ip" id="p2" type="password" autocomplete="new-password"></div>
 <div class="er" id="er" role="alert"></div><button class="bt f" id="sb" style="width:100%;min-height:48px;margin-top:6px">Iniciar sesión</button></form></div>
-<div id="s2" hidden><h3 style="font-size:20px;margin-top:20px">Verificación en 2 pasos</h3><p id="s2p" style="color:#A9B8DA;font-size:14px;margin-top:8px;line-height:1.5">Ingresa el código de 6 dígitos de tu app de autenticación.</p><div class="cd" id="cd"></div><input class="ip" id="kzrecovery" type="text" autocomplete="one-time-code" maxlength="19" placeholder="XXXX-XXXX-XXXX-XXXX" aria-label="Código de recuperación" hidden><div class="er" id="er2" role="alert" style="text-align:center"></div><button class="bt f" onclick="ver()" style="width:100%;min-height:48px;margin-top:6px">Verificar</button><button class="bt" type="button" id="kztoggle" onclick="kzToggleRecovery()" style="width:100%;min-height:44px;margin-top:8px;background:none;color:#33B5FF">Usar código de recuperación</button><button class="bt" type="button" onclick="kzCancelLogin2FA()" style="width:100%;min-height:44px;margin-top:2px;background:none;color:#A9B8DA">Volver</button></div>
+<div id="s2" hidden><h3 style="font-size:20px;margin-top:20px">Verificación en 2 pasos</h3><p style="color:#A9B8DA;font-size:14px;margin-top:8px;line-height:1.5">Ingresa el código de 6 dígitos de tu app de autenticación.</p><div class="cd" id="cd"></div><div class="er" id="er2" role="alert" style="text-align:center"></div><button class="bt f" onclick="ver()" style="width:100%;min-height:48px;margin-top:6px">Verificar</button></div>
 <div id="s3" hidden style="text-align:center"><div class="ok" style="margin-top:34px"><svg width="40" height="40" viewBox="0 0 24 24" aria-hidden="true"><path pathLength="1" d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div><h3 style="font-size:20px">¡Listo!</h3><p id="ms" style="color:#A9B8DA;margin:8px 0 18px;font-size:14px;line-height:1.5"></p><button class="bt f" onclick="cl()" style="width:100%;min-height:48px">Ir a mi wallet</button></div></div></div>
 <script>
-var A=[["USDT","Tether","$1,250.00","1,250.00 USDT","#26A17B","₮"],["BTC","Bitcoin","$640.32","0.0087 BTC","#F7931A","₿"],["ETH","Ethereum","$420.15","0.1643 ETH","#627EEA","Ξ"],["BNB","BNB","$180.21","0.312 BNB","#F3BA2F","B"]];
-var O=[["Compra USDT (P2P)","Hace 12 min","+250.00 USDT","#26A17B","₮","#34D399"],["Venta BTC (P2P)","Hace 32 min","+0.0021 BTC","#F7931A","₿","#34D399"],["Envío ETH","Hace 45 min","-0.015 ETH","#627EEA","Ξ","#F87171"]];
-var F=[["CryptoFast","1.00 USDT = 1.00 USD","Límite: 50 – 5,000 USD","#3B6BFF","C"],["GlobalTraders","1.00 USDT = 1.00 USD","Límite: 100 – 10,000 USD","#3B6BFF","G"],["CoinDirect","1.00 USDT = 1.03 USD","Límite: 200 – 8,000 USD","#F7931A","D"]];
 function $(i){return document.getElementById(i)}
-$("as").innerHTML=A.map(function(a){return '<div class="row"><div class="co" style="background:'+a[4]+'">'+a[5]+'</div><div><b>'+a[0]+'</b><small>'+a[1]+'</small></div><div class="r"><b>'+a[2]+'</b><small>'+a[3]+'</small></div></div>'}).join("");
-$("ops").innerHTML=O.map(function(o){return '<div class="row"><div class="co" style="background:'+o[3]+'">'+o[4]+'</div><div><b>'+o[0]+'</b><small>'+o[1]+'</small></div><div class="r" style="color:'+o[5]+'"><b>'+o[2]+'</b></div></div>'}).join("");
-$("of").innerHTML=F.map(function(f){return '<div class="of"><div class="co" style="background:'+f[3]+'">'+f[4]+'</div><div><b>'+f[0]+'</b><small>'+f[1]+'</small><small>'+f[2]+'</small></div><button>Comprar</button></div>'}).join("");
-document.querySelectorAll(".cnt").forEach(function(el){var t=2458.32,s=performance.now();(function f(n){var p=Math.min((n-s)/1800,1),v=t*(1-Math.pow(1-p,3));el.textContent=v.toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});if(p<1)requestAnimationFrame(f)})(s)});
-setInterval(function(){var r=document.querySelectorAll("#as .row");var x=r[Math.floor(Math.random()*r.length)];x.classList.remove("pulse");void x.offsetWidth;x.classList.add("pulse")},2500);
+$("as").innerHTML='<p class="em2">Los saldos reales aparecerán al conectar tu cuenta.</p>';
+$("ops").innerHTML='<p class="em2">No hay operaciones verificadas para mostrar aquí.</p>';
+$("of").innerHTML='<p class="em2">Las ofertas reales estarán disponibles cuando el mercado las proporcione.</p>';
 var io=new IntersectionObserver(function(e){e.forEach(function(x){if(x.isIntersecting){x.target.classList.add("in");io.unobserve(x.target)}})},{threshold:.15});
 document.querySelectorAll(".rv").forEach(function(e){io.observe(e)});
 var mode=1,last=null;
@@ -144,10 +235,251 @@ function cl(){$("md").classList.remove("on");document.body.style.overflow="";if(
 function tab(m){mode=m;$("t1").className=m==1?"on":"";$("t2").className=m==2?"on":"";$("nm").hidden=$("cf").hidden=m==1;$("mt").textContent=m==1?"Bienvenido de nuevo":"Crea tu cuenta";$("sb").textContent=m==1?"Iniciar sesión":"Crear cuenta";$("p").autocomplete=m==1?"current-password":"new-password";$("er").textContent="";show("s1")}
 $("vw").onclick=function(){var p=$("p"),h=p.type=="password";p.type=h?"text":"password";this.textContent=h?"Ocultar":"Ver"};
 var cs=[];for(var i=0;i<6;i++){(function(i){var c=document.createElement("input");c.className="ip";c.maxLength=1;c.inputMode="numeric";c.setAttribute("aria-label","Dígito "+(i+1));c.oninput=function(){c.value=c.value.replace(/\D/g,"");if(c.value&&cs[i+1])cs[i+1].focus()};c.onkeydown=function(e){if(e.key=="Backspace"&&!c.value&&cs[i-1])cs[i-1].focus()};c.onpaste=function(e){var t=(e.clipboardData.getData("text")||"").replace(/\D/g,"").slice(0,6);if(t){e.preventDefault();cs.forEach(function(x,k){x.value=t[k]||""});cs[Math.min(t.length,5)].focus()}};cs.push(c);$("cd").appendChild(c)})(i)}
-function sub(ev){ev.preventDefault();var e=$("e").value.trim(),p=$("p").value,er="";if(mode==2&&$("n").value.trim().length<2)er="Escribe tu nombre completo.";else if(!/^\S+@\S+\.\S+$/.test(e))er="Ingresa un correo válido.";else if(p.length<8)er="La contraseña debe tener al menos 8 caracteres.";else if(mode==2&&p!==$("p2").value)er="Las contraseñas no coinciden.";$("er").textContent=er;if(er)return;show("s2");cs.forEach(function(x){x.value=""});cs[0].focus()}
-function ver(){if(cs.some(function(x){return !x.value})){$("er2").textContent="Ingresa los 6 dígitos.";return}$("er2").textContent="";$("ms").textContent=mode==1?"Sesión verificada. Esto es una demostración: todavía no está conectada al backend.":"Tu cuenta de ejemplo fue creada. Esto es una demostración: todavía no está conectada al backend.";show("s3")}
+function persistLandingSession(body){
+var access=body&&(body.access_token||body.accessToken||body.token);
+var refresh=body&&(body.refresh_token||body.refreshToken);
+if(!access)throw new Error("El servidor no devolvió un token de acceso.");
+try{
+localStorage.setItem("korzadi_access_token",access);
+if(refresh)localStorage.setItem("korzadi_refresh_token",refresh);
+if(body.user)localStorage.setItem("korzadi_user",JSON.stringify(body.user));
+}catch(e){throw new Error("No se pudo guardar la sesión en este navegador.");}
+}
+function finishLandingAuth(message){
+challengeToken="";
+$("ms").textContent=message;
+var btn=$("s3").querySelector("button");
+if(btn)btn.onclick=function(){window.location.href="/dashboard"};
+show("s3");
+}
+function sub(ev){
+ev.preventDefault();
+var e=$("e").value.trim(),p=$("p").value,er="",first="",last="";
+if(mode==2){
+var names=$("n").value.trim().split(/\s+/);
+if(names.length<2||!names[0]||!names.slice(1).join(" "))er="Escribe tu nombre y apellido.";
+else{first=names.shift();last=names.join(" ");}
+}
+if(!er&&!/^\S+@\S+\.\S+$/.test(e))er="Ingresa un correo válido.";
+else if(!er&&p.length<10)er="La contraseña debe tener al menos 10 caracteres.";
+else if(!er&&mode==2&&p!==$("p2").value)er="Las contraseñas no coinciden.";
+$("er").textContent=er;
+if(er)return;
+$("er2").textContent="";
+var endpoint=mode==1?"/api/auth/login":"/api/auth/register";
+var payload=mode==1?{email:e,password:p}:{email:e,password:p,first_name:first,last_name:last};
+fetch(endpoint,{method:"POST",headers:{"Content-Type":"application/json",Accept:"application/json"},body:JSON.stringify(payload)})
+.then(function(r){return r.json().then(function(j){return{ok:r.ok,j:j}})})
+.then(function(x){
+if(!x.ok||!x.j){$("er").textContent=(x.j&&(x.j.message||x.j.error))||"No se pudo completar la solicitud.";return}
+if(mode==1&&x.j.two_factor_required){
+if(!x.j.challenge_token){$("er").textContent="El servidor no devolvió el desafío 2FA.";return}
+challengeToken=x.j.challenge_token;
+show("s2");
+return;
+}
+persistLandingSession(x.j);
+finishLandingAuth(mode==1?"Sesión iniciada correctamente.":"Cuenta creada. Comprueba tu correo si necesitas verificarlo.");
+})
+.catch(function(err){$("er").textContent=err.message||"Error al conectar con el backend."});
+}function ver(){
+if(cs.some(function(x){return !x.value})){$("er2").textContent="Ingresa los 6 dígitos.";return}
+var code=cs.map(function(x){return x.value}).join("");
+if(!challengeToken){$("er2").textContent="No hay desafío activo. Inicia sesión de nuevo.";return}
+fetch("/api/auth/login/2fa",{method:"POST",headers:{"Content-Type":"application/json",Accept:"application/json"},body:JSON.stringify({challenge_token:challengeToken,code:code})})
+.then(function(r){return r.json().then(function(j){return{ok:r.ok,j:j}})})
+.then(function(x){
+if(!x.ok||!x.j){$("er2").textContent=(x.j&&(x.j.message||x.j.error))||"Código 2FA incorrecto o expirado.";return}
+persistLandingSession(x.j);
+finishLandingAuth("Sesión verificada correctamente.");
+})
+.catch(function(err){$("er2").textContent=err.message||"Error al conectar con el backend."});
+}
 document.addEventListener("keydown",function(e){if(e.key=="Escape")cl()});
 $("md").addEventListener("click",function(e){if(e.target==this)cl()});
-</script>
-<!-- KZ_INTEGRATION: puente de navegación; no altera el diseño original -->
-<script src="/kz-integration.js"></script></body></html>
+var IC2={sh:"M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z",lk:"M6 11h12v9H6zM8 11V8a4 4 0 0 1 8 0v3",ky:"M14 10a4 4 0 1 0-3.9 3.1L4 19.2V21h3v-2h2v-2h1.6l1.5-1.5A4 4 0 0 0 14 10z",sw:"M7 7h13M16 3l4 4-4 4M17 17H4M8 13l-4 4 4 4",kc:"M15 20v-1.5a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4V20M8.5 10a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7M16 11l2 2 4-4",fp:"M12 11v3.5M8.5 14a3.5 3.5 0 0 1 7 0M5 12a7 7 0 0 1 14 0M4.5 17c1 .5 1.7 1.5 2 3M19.5 17c-1 .5-1.7 1.5-2 3",ml:"M3 5h18v14H3zM3 6l9 7 9-7",ls:"M9 6h11M9 12h11M9 18h11M4.5 6h.01M4.5 12h.01M4.5 18h.01",hs:"M4 14v-2a8 8 0 0 1 16 0v2M4 14h3v5H5a1 1 0 0 1-1-1zM20 14h-3v5h2a1 1 0 0 0 1-1z"};
+function ik(k){return '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="'+IC2[k]+'"/></svg>'}
+var CAP=[
+["sh","Protección de cuenta","Consulta las medidas de seguridad disponibles en tu cuenta."],
+["lk","Autenticación y acceso","Utiliza las opciones de autenticación habilitadas para tu usuario. La disponibilidad de cada función debe verificarse."],
+["ky","Verificación de identidad (KYC)","Los requisitos de verificación se aplican según el proceso habilitado en la plataforma."],
+["sw","Control de operaciones","Revisa el activo, la red, el importe y el destino antes de confirmar cualquier operación."],
+["ml","Avisos y comunicaciones","Consulta las notificaciones disponibles en tu cuenta y los canales oficiales de soporte."],
+["hs","Ayuda ante incidencias","Contacta con soporte si detectas una operación desconocida o un posible problema de seguridad."]
+];
+$("sgx").innerHTML=CAP.map(function(c,i){
+return '<div class="cd2" style="--i:'+i+'">'+ik(c[0])+'<b>'+c[1]+'</b><span>'+c[2]+'</span></div>'
+}).join("");
+$("mqx").innerHTML='<span class="pl2">Los métodos de pago disponibles se mostrarán en cada oferta válida.</span>';
+/* KORZADI_TARIFAS_EJEMPLO_V1: datos ilustrativos, no tarifas vigentes. */
+(function renderLandingFeeExamples(){
+  var rows=[
+    ["Operaciones P2P","Ejemplo: 0,5 %","Por operación","Pendiente de tarifa oficial"],
+    ["Depósitos cripto","Ejemplo: 0","Puede existir comisión de red","Verificar por red y activo"],
+    ["Retiros cripto","Ejemplo: importe de red","Según activo y red","Confirmar antes de habilitar"],
+    ["Límite mínimo","Ejemplo: 10 USDT","Por orden P2P","Pendiente de configuración real"],
+    ["Límite máximo","Ejemplo: 1.000 USDT","Por orden P2P","Pendiente de configuración real"]
+  ];
+  var table='<div class="tr h"><b>Concepto</b><b>Valor ilustrativo</b><b>Aplicación</b><b>Estado</b></div>';
+  table+=rows.map(function(r){
+    return '<div class="tr">'+r.map(function(v){return '<span>'+v+'</span>'}).join('')+'</div>';
+  }).join('');
+  var target=$("tfx");
+  if(target) target.innerHTML=table;
+
+  var refs=$("rfx");
+  if(refs){
+    refs.innerHTML=
+      '<div class="cd2"><b>Importante: cifras de ejemplo</b>'+
+      '<span>Los porcentajes e importes mostrados son ilustrativos. No representan las tarifas oficiales de Korzadi ni garantizan límites operativos.</span></div>'+
+      '<div class="cd2"><b>Antes de operar</b>'+
+      '<span>Consulta las condiciones de la operación y la comisión que muestre la plataforma antes de confirmar. Las tarifas reales deberán conectarse a la configuración del backend.</span></div>';
+  }
+})();
+var FQ=[
+["¿Qué significa una wallet custodial?","En una wallet custodial, el servicio administra la custodia de los activos. Revisa los términos y las condiciones de Korzadi antes de depositar fondos."],
+["¿Cómo compro o vendo USDT?","Consulta las ofertas que estén realmente disponibles en el mercado P2P y verifica el precio, los límites y las condiciones antes de aceptar una orden."],
+["¿Qué métodos de pago puedo utilizar?","Los métodos admitidos deben aparecer en la oferta concreta. No envíes pagos por métodos que no estén indicados en la orden."],
+["¿Cómo contacto con soporte?","Puedes escribir a korzadi03@gmail.com para consultas generales. No incluyas contraseñas, códigos 2FA ni claves privadas en el mensaje."]
+];
+$("fq").innerHTML=FQ.map(function(f){return '<details class="fq"><summary>'+f[0]+'</summary><p>'+f[1]+'</p></details>'}).join("");
+document.querySelectorAll("details.fq").forEach(function(d){d.addEventListener("toggle",function(){if(d.open)document.querySelectorAll("details.fq").forEach(function(o){if(o!==d)o.open=false})})});
+var R={USDT:1},RN={USDT:"USDT"};
+["cf","ct"].forEach(function(id){
+$(id).innerHTML='<option value="USDT">USDT</option>';
+});
+function cc(){var a=+$("ca").value||0,f=$("cf").value,t=$("ct").value,v=a/R[f]*R[t];$("cb").value=v.toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});$("cn").textContent="1 "+f+" ≈ "+(R[t]/R[f]).toLocaleString("en-US",{maximumFractionDigits:4})+" "+t+". El precio final lo define cada oferta P2P."}
+["ca","cf","ct"].forEach(function(id){$(id).addEventListener("input",cc)});$("cw").onclick=function(){var f=$("cf").value;$("cf").value=$("ct").value;$("ct").value=f;cc()};cc();
+var cio=new IntersectionObserver(function(e){e.forEach(function(x){if(x.isIntersecting){var el=x.target,t=+el.dataset.t,s=performance.now();(function f(n){var p=Math.min((n-s)/1400,1);el.textContent=Math.round(t*(1-Math.pow(1-p,3)));if(p<1)requestAnimationFrame(f)})(s);cio.unobserve(el)}})},{threshold:.5});document.querySelectorAll(".cn1").forEach(function(e){cio.observe(e)});
+$("hm").onclick=function(){var o=$("lks").classList.toggle("open");this.setAttribute("aria-expanded",o)};document.querySelectorAll("#lks a").forEach(function(a){a.onclick=function(){$("lks").classList.remove("open");$("hm").setAttribute("aria-expanded","false")}});
+var SEC2=["top","como","p2p","capas","guias","soporte"];
+function scr(){var h=document.documentElement,p=(h.scrollTop||document.body.scrollTop)/((h.scrollHeight-h.clientHeight)||1)*100;$("sp").style.width=p+"%";$("up").classList.toggle("on",h.scrollTop>600);var c="top";SEC2.forEach(function(id){var e=$(id);if(e&&e.getBoundingClientRect().top<=140)c=id});document.querySelectorAll("#lks a").forEach(function(a){a.classList.toggle("on",a.getAttribute("href")=="#"+c)})}
+addEventListener("scroll",scr,{passive:true});scr();
+
+var KZ={api:"/api/public",pwa:true,links:{telegram:"https://t.me/KorzadiBot",whatsapp:"https://wa.me/17869877548",email:"korzadi03@gmail.com"}};
+var challengeToken = "";
+/* Los datos públicos se muestran únicamente cuando responde el backend. */
+function nf(n){return Number(n).toLocaleString("en-US")}
+var tmo;function tstf(t){var e=$("tst");e.textContent=t;e.classList.add("on");clearTimeout(tmo);tmo=setTimeout(function(){e.classList.remove("on")},2400)}
+function jget(p,cb){if(!KZ.api||!window.fetch)return;fetch(KZ.api+p,{headers:{Accept:"application/json"}}).then(function(r){if(!r.ok)throw 0;return r.json()}).then(cb).catch(function(){})}
+var io2=new IntersectionObserver(function(es){es.forEach(function(x){if(x.isIntersecting){var el=x.target,t=+el.dataset.t,pf=el.dataset.p||"",sf=el.dataset.s||"",s=performance.now();(function f(n){var p=Math.min((n-s)/1400,1);el.textContent=pf+nf(Math.round(t*(1-Math.pow(1-p,3))))+sf;if(p<1)requestAnimationFrame(f)})(s);io2.unobserve(el)}})},{threshold:.5});
+var RTT=0,RTL=false,RLN=0;
+function rtc(){
+var c=$("rtc");
+if(!c)return;
+if(RTL&&RLN>0){
+c.className="rtc on";
+c.textContent="Tasas recibidas del mercado · "+RLN+" monedas · actualizado hace "+Math.max(0,Math.round((Date.now()-RTT)/1000))+" s";
+}else{
+c.className="rtc";
+c.textContent="No hay tasas reales disponibles";
+}
+}
+function lrt(){
+jget("/rates",function(j){
+var r=j&&j.rates,n=0;
+if(!r||typeof r!=="object")return;
+Object.keys(r).forEach(function(k){
+var v=Number(r[k]);
+if(Number.isFinite(v)&&v>0){R[k]=v;RN[k]=k;n++;}
+});
+if(!R.USDT){R.USDT=1;RN.USDT="USDT";}
+["cf","ct"].forEach(function(id){
+var old=$(id).value;
+$(id).innerHTML=Object.keys(R).map(function(k){
+return '<option value="'+k+'">'+RN[k]+'</option>';
+}).join("");
+if(R[old])$(id).value=old;
+});
+RLN=Object.keys(R).filter(function(k){return k!=="USDT"}).length;
+RTL=true;
+RTT=Date.now();
+rtc();
+cc();
+});
+}
+$("rfb").onclick=function(){
+var b=this;
+b.classList.remove("sp");void b.offsetWidth;b.classList.add("sp");
+lrt();
+};
+rtc();lrt();
+setInterval(rtc,1000);
+setInterval(lrt,30000);
+var SV=[];
+function rst(){
+var root=$("stx");
+if(!root)return;
+if(!SV.length){
+root.innerHTML='<p class="em2">Estado del sistema no disponible. No se ha recibido información del servidor.</p>';
+return;
+}
+root.innerHTML=SV.map(function(s){
+var state=String(s.state||"Estado desconocido");
+var ok=/operativo|healthy|ok/i.test(state);
+return '<div class="srv"><div class="sh2"><b>'+String(s.name||"Servicio")+'</b><span class="sbx'+(ok?"":" w")+'">'+state+'</span></div></div>';
+}).join("");
+}
+rst();
+jget("/status",function(j){
+if(j&&Array.isArray(j.services)){
+SV=j.services;
+rst();
+}
+});
+var NM=[],NL=false;
+function rn(){
+var root=$("nmx"),badge=$("nmb");
+if(!root||!badge)return;
+if(!NL||!NM.length){
+root.innerHTML='<p class="em2">Las estadísticas verificadas no están disponibles.</p>';
+badge.innerHTML='<span class="ex">Sin datos confirmados</span>';
+return;
+}
+root.innerHTML=NM.map(function(n){
+return '<div><b>'+n[1]+n[2]+'</b><span>'+n[0]+'</span></div>';
+}).join("");
+badge.innerHTML='<span class="ex live">Datos recibidos del backend</span>';
+}
+rn();
+jget("/stats",function(j){
+if(!j||typeof j!=="object")return;
+var fields=[
+["Usuarios",j.users,"",""],
+["Volumen 24 h",j.volume24h,"",""],
+["Órdenes completadas",j.orders,"",""],
+["Disputas resueltas",j.disputesResolvedPct,"%",""]
+];
+NM=fields.filter(function(n){return Number.isFinite(Number(n[1]))&&n[1]!==null&&n[1]!=="";})
+.map(function(n){return[n[0],Number(n[1]).toLocaleString("en-US",{maximumFractionDigits:2}),n[2],n[3]];});
+NL=true;
+rn();
+});
+function cpy(){var v=$("rl").value;try{navigator.clipboard.writeText(v).then(function(){tstf("Enlace copiado")},function(){$("rl").select();tstf("Selecciona y copia el enlace")})}catch(e){$("rl").select();tstf("Selecciona y copia el enlace")}}
+$("opx").innerHTML='<div class="tc" style="grid-column:1/-1">'
++'<p>En Korzadi valoramos las experiencias y opiniones de las personas que utilizan nuestra plataforma.</p>'
++'<p>Los testimonios que publiquemos procederán de usuarios reales que hayan compartido voluntariamente su experiencia y autorizado su publicación. Respetaremos el sentido original de sus comentarios y no presentaremos opiniones individuales como garantía de resultados para otros usuarios.</p>'
++'<p>La publicación de testimonios estará sujeta al consentimiento de sus autores y a la protección de sus datos personales. Cuando corresponda, indicaremos si el testimonio fue incentivado o si existe alguna relación relevante con Korzadi.</p>'
++'<p>Si un usuario retira su autorización, revisaremos la retirada y dejaremos de utilizar el testimonio en los canales bajo nuestro control, sin perjuicio de las obligaciones legales aplicables.</p>'
++'<p><b>¿Quieres compartir tu experiencia?</b><br>Si has utilizado Korzadi y deseas compartir tu opinión, puedes contactar con nosotros en <a href="mailto:korzadi03@gmail.com">korzadi03@gmail.com</a>. La participación es voluntaria y no necesitas publicar una opinión positiva para participar.</p>'
++'</div>';
+var GD=[{t:"Cómo comprar USDT",g:"Primeros pasos",m:3,d:"De tu primera oferta al USDT en tu wallet.",s:["Crea tu cuenta y activa el 2FA y tu PIN.","Completa la verificación KYC.","Entra al mercado P2P y filtra por moneda y método de pago.","Elige una oferta e indica el monto. Los USDT del vendedor quedan en escrow.","Paga con el método indicado y sube tu comprobante.","Espera la confirmación del vendedor: recibirás los USDT en tu wallet."]},{t:"Cómo funciona el escrow",g:"Seguridad",m:2,d:"Por qué tu dinero está protegido en cada orden.",s:["Al crear la orden, Korzadi retiene los USDT del vendedor.","El comprador paga y sube su comprobante.","El vendedor verifica el pago.","Solo entonces Korzadi libera los USDT al comprador.","Si hay un problema, los fondos permanecen retenidos hasta resolver la disputa."]},{t:"Cómo vender USDT",g:"P2P",m:3,d:"Publica una oferta o toma una existente.",s:["Entra al P2P y toca Crear oferta, o elige una oferta de compra.","Define precio, límites, métodos de pago y provincias para efectivo.","Tus USDT quedan en escrow mientras dure la orden.","Cuando el comprador pague, revisa su comprobante y comprueba tu cuenta.","Libera los USDT solo si ya recibiste el pago."]},{t:"Cómo abrir una disputa",g:"Soporte",m:2,d:"Qué hacer si algo no sale como esperabas.",s:["Entra a la orden y toca Abrir disputa.","Elige el motivo y describe lo ocurrido.","Soporte revisa el chat y los comprobantes de ambas partes.","Los USDT permanecen congelados en escrow hasta que se resuelva.","Puedes añadir evidencia adicional mientras la disputa está abierta."]},{t:"Cómo proteger tu cuenta",g:"Seguridad",m:3,d:"Las medidas que más te cuidan.",s:["Activa el 2FA con una app autenticadora.","Crea tu PIN de 4 dígitos para transferencias, pagos y retiros.","Guarda tus códigos de recuperación fuera de línea.","Activa las alertas por correo y el bloqueo de la app.","Nunca compartas tu contraseña, tu PIN ni tus códigos: Korzadi no te los pedirá."]},{t:"Cómo depositar y retirar",g:"Wallet",m:3,d:"Mueve fondos de forma segura.",s:["Para depositar, elige la red y copia la dirección que te muestra la app.","Envía solo el activo y la red indicados.","Para retirar, necesitas tener 2FA o PIN activados.","Revisa con cuidado la dirección y la red antes de confirmar.","Algunos retiros pueden pasar por revisión antes de procesarse."]}];
+function rg(){var q=($("gq").value||"").trim().toLowerCase(),r=GD.filter(function(x){return(x.t+" "+x.g+" "+x.d).toLowerCase().indexOf(q)>-1});$("gx").innerHTML=r.length?r.map(function(x){return '<button class="gc" onclick="ogd('+GD.indexOf(x)+')"><span class="sb2">'+x.g+'</span><b>'+x.t+'</b><span>'+x.d+'</span><small>'+x.m+' min · Ver guía →</small></button>'}).join(""):'<div class="em2">No encontramos guías para esa búsqueda.</div>'}
+$("gq").addEventListener("input",rg);rg();
+function ogd(i){var x=GD[i];$("gdb").innerHTML='<span class="sb2">'+x.g+'</span><h3 style="font-size:22px;margin:10px 0 14px">'+x.t+'</h3><ol class="gst">'+x.s.map(function(s){return '<li>'+s+'</li>'}).join("")+'</ol><button class="bt f" style="width:100%;margin-top:18px;min-height:48px" onclick="cgd();op(2)">Crear cuenta</button>';$("gdm").classList.add("on")}
+function cgd(){$("gdm").classList.remove("on")}
+var SPC=[["Telegram","telegram","Comunidad y soporte rápido."],["WhatsApp","whatsapp","Escríbenos desde tu celular."],["Correo","email","Para consultas más detalladas."]];
+$("spx").innerHTML=SPC.map(function(c){var u=KZ.links[c[1]];return '<div class="sc3"><b>'+c[0]+'</b><span>'+c[2]+'</span>'+(u?'<a class="bt f" href="'+(c[1]=="email"?"mailto:":"")+u+'" target="_blank" rel="noopener" style="display:grid;place-items:center">Abrir</a>':'<button class="bt" disabled>Próximamente</button>')+'</div>'}).join("");
+function rcf(){$("cfx").innerHTML='<h3>Escríbenos</h3><label for="kfn">Nombre</label><input id="kfn" autocomplete="name"><label for="kfe">Correo electrónico</label><input id="kfe" type="email" autocomplete="email"><label for="kfa">Asunto</label><select id="kfa"><option>Consulta general</option><option>Problema con una orden</option><option>Reporte de seguridad</option><option>Compartir mi experiencia</option></select><label for="kfm">Mensaje</label><textarea id="kfm" maxlength="800"></textarea><div style="position:absolute;left:-9999px" aria-hidden="true"><label for="kfw">No rellenar</label><input id="kfw" name="website" tabindex="-1" autocomplete="off"></div><div class="er" id="kfr" role="alert"></div><button class="bt f" id="kfs" style="width:100%;min-height:50px" onclick="scf()">Enviar mensaje</button>'}
+function scf(){var e="";if($("kfn").value.trim().length<2)e="Escribe tu nombre.";else if(!/^\S+@\S+\.\S+$/.test($("kfe").value.trim()))e="Ingresa un correo válido.";else if($("kfm").value.trim().length<10)e="Escribe tu mensaje (mínimo 10 caracteres).";$("kfr").textContent=e;if(e)return;var b=$("kfs");b.disabled=true;b.textContent="Enviando...";fetch(KZ.api+"/contact",{method:"POST",headers:{"Content-Type":"application/json",Accept:"application/json"},body:JSON.stringify({name:$("kfn").value.trim(),email:$("kfe").value.trim(),subject:$("kfa").value,message:$("kfm").value.trim(),website:$("kfw").value})}).then(function(r){return r.json().then(function(j){return{ok:r.ok,j:j}})}).then(function(x){if(!x.ok||!x.j||!x.j.ticket)throw 0;$("cfx").innerHTML='<div style="text-align:center;padding:10px"><h3>¡Mensaje enviado!</h3><p style="color:var(--mut);line-height:1.6;margin:10px 0 16px">Te responderemos al correo indicado. Tu ticket es <b>'+x.j.ticket+'</b>.</p><button class="bt" onclick="rcf()">Enviar otro</button></div>'}).catch(function(){$("kfr").textContent="No se pudo enviar. Intenta de nuevo en un momento.";b.disabled=false;b.textContent="Enviar mensaje"})}
+rcf();
+var DP=null;addEventListener("beforeinstallprompt",function(e){e.preventDefault();DP=e});
+$("abx").innerHTML='<button class="bt f" style="min-height:52px;padding:0 28px" onclick="ipw()">Instalar app</button><span class="pl2" style="opacity:.65">Google Play · Próximamente</span><span class="pl2" style="opacity:.65">App Store · Próximamente</span>';
+function ipw(){if(DP){DP.prompt();DP=null;return}$("gdb").innerHTML='<h3 style="font-size:22px;margin-bottom:14px">Instalar Korzadi</h3><ol class="gst"><li><b>Android (Chrome):</b> menú ⋮ → Instalar app o Añadir a la pantalla de inicio.</li><li><b>iPhone (Safari):</b> botón Compartir → Añadir a pantalla de inicio.</li><li><b>PC (Chrome o Edge):</b> icono de instalar en la barra de direcciones.</li></ol>';$("gdm").classList.add("on")}
+if(KZ.pwa&&"serviceWorker" in navigator)navigator.serviceWorker.register("/sw.js",{scope:"/"}).catch(function(){});
+var TI={light:["Claro","Fondo luminoso y alto contraste","M12 16a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"],dark:["Oscuro","Superficie profunda para poca luz","M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"],auto:["Automático","Sigue la preferencia del sistema","M3 4h18v12H3zM8 20h8M12 16v4"]};
+function th2(v){document.documentElement.setAttribute("data-theme",v);try{localStorage.setItem("kz-th",v)}catch(e){}var l=v=="light"||(v=="auto"&&window.matchMedia&&matchMedia("(prefers-color-scheme:light)").matches),m=document.querySelector('meta[name="theme-color"]');if(m)m.content=l?"#EEF3FB":"#050B1F";oth(1)}
+function oth(k){var c=document.documentElement.getAttribute("data-theme")||"auto";$("tho").innerHTML=Object.keys(TI).map(function(v){var t=TI[v];return '<button class="to" aria-pressed="'+(c==v)+'" onclick="th2(\''+v+'\')"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+t[2]+'"/></svg><span style="flex:1"><b>'+t[0]+'</b><small>'+t[1]+'</small></span>'+(c==v?'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>':"")+'</button>'}).join("");$("thm").classList.add("on")}
+function cth(){$("thm").classList.remove("on")}
+document.addEventListener("keydown",function(e){if(e.key=="Escape"){cth();cgd()}});[$("thm"),$("gdm")].forEach(function(m){m.addEventListener("click",function(e){if(e.target==this)this.classList.remove("on")})});
+</script></body></html>
