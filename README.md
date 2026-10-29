@@ -172,6 +172,7 @@ The project includes a dedicated review in `SECURITY_REVIEW.md`. The current sta
 
 No claim of full production readiness should be made without completing the checks defined in the security review and the production checklist.
 
+<<<<<<< HEAD
 ## 9. Production readiness gate
 
 Before production deployment, the platform should verify at least:
@@ -210,4 +211,52 @@ This repository is primarily a Go backend with a React frontend. The codebase is
 - `infrastructure/backup/README.md`
 - `AGENTS.md`
 
+=======
+## Regla operativa obligatoria global: integridad frontend-backend
+
+- Quien te pidió que eliminaras. Yo te pedí que conectaras los endpoints a esas referencias. Si no existían en el backend, los creas en el backend y luego los conectas al frontend.
+- Tienes prohibido eliminar funciones visibles en la UI (`Security.jsx`, `Dashboard.jsx`, etc.) a menos que sea para reemplazarlas con datos reales del backend (`endpoints` reales, `handlers`, `servicios`, `repositorios`, `respuestas del servidor`).
+- No se permite eliminar elementos como “PIN de la aplicación”, “Biometría” o “Gestión de dispositivos” sin primero verificar si existe un endpoint real (`/api/security/prefs`, `/api/security/pin/*`), y si existe, conectarlo (`walletApi`); si no existe, implementarlo primero en backend (`router`, `handler`, `service`, `repo`) y luego conectarlo en frontend.
+- Cada control visible debe tener un origen real en la API (`backend/internal/http/router/router.go`, `handlers`, `application`). Si no existe en el backend, no se oculta ni se elimina: se implementa primero.
+- No se permiten placeholders, demos ni mensajes “próximamente”, “no disponible” o “pendiente” en flujos críticos (autenticación, seguridad, finanzas, P2P).
+
+## 9. Production readiness gate
+
+Before production deployment, the platform should verify at least:
+
+- Secret and key rotation strategy is documented and tested
+- Critical admin endpoints remain fail-closed under Redis outage or backend failure
+- Custody encryption health checks are confirmed in the actual runtime environment
+- Private key import and wallet matching logic is tested in staging with real keys
+- RPC providers and blockchain watchers are validated against the target network
+- Email, KYC, and monitoring systems are working end-to-end
+- Backups and restore procedures are tested
+- Security review findings are re-checked after any change in auth, custody, or financial flow
+
+## 10. Repository language composition
+
+This repository is primarily a Go backend with a React frontend. The codebase is not a single-language monolith; it mixes:
+
+- Go services and APIs for backend logic, accounting, custody, and infrastructure
+- JavaScript/TypeScript/React for the UI layer
+- SQL migrations for data schema evolution
+- Docker and shell configuration for deployment and local stacking
+
+## 11. Recommended next steps
+
+1. Validate runtime configuration in a staging environment
+2. Re-test critical flows with real secrets and production-like network conditions
+3. Complete the security review follow-ups and document residual risk
+4. Run a production readiness checklist before enabling customer-facing operations
+5. Keep the README and security review aligned with the code as the architecture evolves
+
+## 12. Links to project docs
+
+- `SECURITY_REVIEW.md`
+- `docs/PRODUCCION_CHECKLIST.md`
+- `docs/admin_setup.md`
+- `infrastructure/backup/README.md`
+- `AGENTS.md`
+
+>>>>>>> 2e65856 (chore: correcion 1)
 This repository is suitable for development and controlled integration testing, but it requires disciplined operational review before being trusted with production funds or customer assets.

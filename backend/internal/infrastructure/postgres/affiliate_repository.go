@@ -11,13 +11,13 @@ import (
 )
 
 type Affiliate struct {
-	ID               uuid.UUID
-	UserID           uuid.UUID
-	AffiliateCode    string
-	Status           string
-	CommissionRate   decimal.Decimal
-	TotalReferrals   int
-	TotalCommissions decimal.Decimal
+	ID               uuid.UUID       `json:"id"`
+	UserID           uuid.UUID       `json:"user_id"`
+	AffiliateCode    string          `json:"affiliate_code"`
+	Status           string          `json:"status"`
+	CommissionRate   decimal.Decimal `json:"commission_rate"`
+	TotalReferrals   int             `json:"total_referrals"`
+	TotalCommissions decimal.Decimal `json:"total_commissions"`
 }
 
 type AffiliateRepository struct{ pool *pgxpool.Pool }

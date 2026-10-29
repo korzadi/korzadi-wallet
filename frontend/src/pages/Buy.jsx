@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Lock, ShieldCheck } from 'lucide-react';
+import { Info } from 'lucide-react';
 import WalletLayout from '../components/WalletLayout';
 import Coin from '../components/Coin';
 
@@ -21,10 +21,10 @@ export default function Buy() {
       <div className="kz-seg" style={{ marginTop: 14 }}>
         {[50, 100, 200, 500].map((v) => <button key={v} onClick={() => setAmount(String(v))}>${v}</button>)}
       </div>
-      <div className="kz-note warn">La compra con {tab.toLowerCase()} estará disponible pronto.</div>
-      <button className="kz-btn" disabled>Comprar</button>
-      <div style={{ display: 'flex', justifyContent: 'space-around', marginTop: 18, color: '#8da4c1', fontSize: 12 }}>
-        <span><Lock size={12} /> Pago seguro</span><span><ShieldCheck size={12} /> Procesado por terceros</span>
+      <div className="alert alert-error">Las compras con tarjeta o transferencia aún no están habilitadas. Usa el mercado P2P o un depósito verificable.</div>
+      <button className="kz-btn" disabled title="Disponible cuando se integre un proveedor de pagos verificado">Comprar</button>
+      <div style={{ display: 'flex', justifyContent: 'center', marginTop: 18, color: '#8da4c1', fontSize: 12 }}>
+        <span><Info size={12} /> No se realizará ningún cargo mientras el servicio esté deshabilitado.</span>
       </div>
     </WalletLayout>
   );

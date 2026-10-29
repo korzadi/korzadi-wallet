@@ -54,7 +54,7 @@ export default function WalletLayout({ title, back = true, tabs = true, children
           ) : (
             <header className="wa-top">
               <div className="wa-brand"><span className="kz-logo">K</span>Korzadi</div>
-              <button className="kz-iconbtn" aria-label="Notificaciones"><Bell size={20} /></button>
+              <Link to="/notifications" className="kz-iconbtn" aria-label="Notificaciones"><Bell size={20} /></Link>
               <button className="kz-iconbtn" aria-label="Tema" onClick={() => setThemeOpen(!themeOpen)}><Sun size={20} /></button>
               <Link to="/profile" className="kz-avatar sm">{user.initials}</Link>
             </header>

@@ -130,6 +130,13 @@ func New(h Handlers, cfg Config) *gin.Engine {
 			if h.Account != nil {
 				authed.POST("/account/change-password", authLimiter.Middleware(), h.Account.ChangePassword)
 			}
+			authed.POST("/buy",
+				financialLimiter.Middleware(),
+				middleware.IdempotencyKeyRequired(),
+				middleware.SecurityRateLimit(cfg.SecurityCounter, cfg.SecurityCfg, "buy"),
+				middleware.OperationGuard(cfg.SecuritySvc, appsecurity.OpBuy),
+				h.Wallet.Buy)
+
 			wallet := authed.Group("/wallet")
 			{
 				wallet.GET("/balances", h.Wallet.Balances)
@@ -224,6 +231,18 @@ func New(h Handlers, cfg Config) *gin.Engine {
 				security.POST("/recovery-codes/regenerate", h.TwoFactor.RegenerateRecoveryCodes)
 			}
 
+			if h.SecurityPrefs != nil {
+				prefs := authed.Group("/security")
+				prefs.Use(authLimiter.Middleware(), middleware.SecurityRateLimit(cfg.SecurityCounter, cfg.SecurityCfg, "security_prefs"))
+				{
+					prefs.GET("/prefs", h.SecurityPrefs.GetPrefs)
+					prefs.POST("/pin/setup", h.SecurityPrefs.SetupPin)
+					prefs.POST("/pin/verify", h.SecurityPrefs.VerifyPin)
+					prefs.POST("/pin/disable", h.SecurityPrefs.DisablePin)
+					prefs.POST("/prefs", h.SecurityPrefs.UpdatePrefs)
+				}
+			}
+
 			affiliateGroup := authed.Group("/affiliate")
 			{
 				affiliateGroup.GET("", h.Affiliate.Me)
@@ -253,19 +272,31 @@ func New(h Handlers, cfg Config) *gin.Engine {
 			p2p := authed.Group("/p2p")
 			{
 				p2p.GET("/offers", h.P2P.ListOffers)
-				p2p.POST("/offers", h.P2P.CreateOffer)
 				p2p.GET("/offers/mine", h.P2P.MyOffers)
 				p2p.GET("/offers/:id", h.P2P.GetOffer)
-				p2p.PATCH("/offers/:id", h.P2P.UpdateOffer)
-				p2p.POST("/orders", h.P2P.CreateOrder)
 				p2p.GET("/orders", h.P2P.MyOrders)
 				p2p.GET("/orders/:id", h.P2P.GetOrder)
-				p2p.POST("/orders/:id/pay", h.P2P.MarkPaid)
-				p2p.POST("/orders/:id/release", h.P2P.Release)
-				p2p.POST("/orders/:id/cancel", h.P2P.Cancel)
-				p2p.POST("/orders/:id/dispute", h.P2P.OpenDispute)
 				p2p.GET("/orders/:id/messages", h.P2P.Messages)
-				p2p.POST("/orders/:id/messages", h.P2P.SendMessage)
+
+				// Toda mutación P2P mueve o bloquea fondos: mismo límite
+				// financiero, rate limit y kill-switch de transferencias que
+				// el resto de operaciones con dinero.
+				p2pMoney := p2p.Group("")
+				p2pMoney.Use(
+					financialLimiter.Middleware(),
+					middleware.SecurityRateLimit(cfg.SecurityCounter, cfg.SecurityCfg, "p2p"),
+					middleware.OperationGuard(cfg.SecuritySvc, appsecurity.OpTransfer),
+				)
+				{
+					p2pMoney.POST("/offers", h.P2P.CreateOffer)
+					p2pMoney.PATCH("/offers/:id", h.P2P.UpdateOffer)
+					p2pMoney.POST("/orders", middleware.IdempotencyKeyRequired(), h.P2P.CreateOrder)
+					p2pMoney.POST("/orders/:id/pay", h.P2P.MarkPaid)
+					p2pMoney.POST("/orders/:id/release", h.P2P.Release)
+					p2pMoney.POST("/orders/:id/cancel", h.P2P.Cancel)
+					p2pMoney.POST("/orders/:id/dispute", h.P2P.OpenDispute)
+				}
+				p2p.POST("/orders/:id/messages", middleware.SecurityRateLimit(cfg.SecurityCounter, cfg.SecurityCfg, "p2p_message"), h.P2P.SendMessage)
 			}
 		}
 

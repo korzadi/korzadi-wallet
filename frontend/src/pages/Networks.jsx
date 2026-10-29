@@ -32,13 +32,7 @@ export default function Networks() {
             <span className={`kz-radio ${sel === k ? 'on' : ''}`} />
           </button>
         ))}
-        {SOON_NETWORKS.map((n) => (
-          <div key={n.label} className="kz-row" style={{ opacity: 0.5, cursor: 'default' }}>
-            <span className="kz-coin" style={{ background: n.color, width: 40, height: 40 }}>{n.label[0]}</span>
-            <div className="main"><strong>{n.label}</strong><small>{n.assets}</small></div>
-            <span className="kz-badge soon">Pronto</span>
-          </div>
-        ))}
+
       </div>
       <div className="kz-note"><Info size={18} style={{ flex: "none" }} />Asegúrate de seleccionar la misma red en el envío y en la recepción.</div>
     </WalletLayout>

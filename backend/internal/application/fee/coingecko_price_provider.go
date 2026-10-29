@@ -105,7 +105,14 @@ func (p *CoinGeckoPriceProvider) GetPrice(
 		return Price{}, fmt.Errorf("fee: no se pudo crear request CoinGecko: %w", err)
 	}
 	if p.apiKey != "" {
-		req.Header.Set("x-cg-demo-api-key", p.apiKey)
+		// CoinGecko usa cabeceras distintas para la API Pro y la Demo.
+		// Elegir según el host evita enviar la cabecera equivocada (que
+		// provoca 401/403 con claves demo o pro).
+		if strings.Contains(p.baseURL, "pro-api.coingecko.com") {
+			req.Header.Set("x-cg-pro-api-key", p.apiKey)
+		} else {
+			req.Header.Set("x-cg-demo-api-key", p.apiKey)
+		}
 	}
 
 	resp, err := p.httpClient.Do(req)

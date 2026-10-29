@@ -144,6 +144,7 @@ const (
 	TxTypeFee        TransactionType = "fee"
 	TxTypeAdjustment TransactionType = "adjustment"
 	TxTypeVPNPayment TransactionType = "vpn_payment"
+	TxTypeBuy        TransactionType = "buy"
 )
 
 type TransactionStatus string

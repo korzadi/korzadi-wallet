@@ -4,10 +4,13 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { registerSW } from 'virtual:pwa-register';
 import './index.css';
 import './kz.css';
+import { hasSession, refreshSession } from './api/client';
 import Landing from './pages/Landing';
+import Welcome from './pages/Welcome';
 import Buy from './pages/Buy';
 import Networks from './pages/Networks';
 import Transfer from './pages/Transfer';
+import Withdraw from './pages/Withdraw';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import VerifyEmail from './pages/VerifyEmail';
@@ -29,6 +32,11 @@ import P2PMyOffers from './pages/p2p/MyOffers';
 import P2PMyOrders from './pages/p2p/MyOrders';
 import P2POfferDetail from './pages/p2p/OfferDetail';
 import P2POrderDetail from './pages/p2p/OrderDetail';
+import Affiliate from './pages/Affiliate';
+import Notifications from './pages/Notifications';
+import PublicInfo from './pages/PublicInfo';
+import VPN from './pages/VPN';
+import FeesEstimate from './pages/FeesEstimate';
 
 
 
@@ -59,9 +67,25 @@ registerSW({
 });
 
 function RequireAuth({ children }) {
-  const token = localStorage.getItem('korzadi_access_token') || '';
-  const isValidJWT = /^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(token);
-  return isValidJWT ? children : <Navigate to="/login" replace />;
+  const [ready, setReady] = React.useState(false);
+  const [allowed, setAllowed] = React.useState(false);
+
+  React.useEffect(() => {
+    let active = true;
+    if (hasSession()) {
+      setAllowed(true);
+      setReady(true);
+      return () => { active = false; };
+    }
+    refreshSession()
+      .then(() => { if (active) setAllowed(true); })
+      .catch(() => { if (active) setAllowed(false); })
+      .finally(() => { if (active) setReady(true); });
+    return () => { active = false; };
+  }, []);
+
+  if (!ready) return null;
+  return allowed ? children : <Navigate to="/login" replace />;
 }
 
 ReactDOM.createRoot(document.getElementById('root')).render(
@@ -69,7 +93,8 @@ ReactDOM.createRoot(document.getElementById('root')).render(
     <ThemeInit />
     <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Navigate to="/WalletApp.html" replace />} />
+          <Route path="/" element={<Landing />} />
+          <Route path="/welcome" element={<Welcome />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/verify-email" element={<VerifyEmail />} />
@@ -85,7 +110,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
           <Route path="/send" element={<RequireAuth><Send /></RequireAuth>} />
           <Route path="/receive" element={<RequireAuth><Receive /></RequireAuth>} />
           <Route path="/deposits" element={<RequireAuth><Deposits /></RequireAuth>} />
-          <Route path="/withdraw" element={<Navigate to="/send" replace />} />
+          <Route path="/withdraw" element={<RequireAuth><Withdraw /></RequireAuth>} />
           <Route path="/withdrawals" element={<RequireAuth><Withdrawals /></RequireAuth>} />
           <Route path="/kyc" element={<RequireAuth><KYC /></RequireAuth>} />
           <Route path="/security" element={<RequireAuth><Security /></RequireAuth>} />
@@ -96,8 +121,14 @@ ReactDOM.createRoot(document.getElementById('root')).render(
           <Route path="/p2p/my-orders" element={<RequireAuth><P2PMyOrders /></RequireAuth>} />
           <Route path="/p2p/offers/:id" element={<RequireAuth><P2POfferDetail /></RequireAuth>} />
           <Route path="/p2p/orders/:id" element={<RequireAuth><P2POrderDetail /></RequireAuth>} />
+          <Route path="/affiliate" element={<RequireAuth><Affiliate /></RequireAuth>} />
+          <Route path="/notifications" element={<RequireAuth><Notifications /></RequireAuth>} />
+          <Route path="/vpn" element={<RequireAuth><VPN /></RequireAuth>} />
+          <Route path="/fees" element={<RequireAuth><FeesEstimate /></RequireAuth>} />
+          <Route path="/info" element={<PublicInfo />} />
+          <Route path="/public" element={<PublicInfo />} />
 
-          <Route path="/wallet" element={<Navigate to="/WalletApp.html" replace />} />
+          <Route path="/wallet" element={<Navigate to="/dashboard" replace />} />
 
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

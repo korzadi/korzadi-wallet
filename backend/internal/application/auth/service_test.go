@@ -132,14 +132,18 @@ func TestRegisterLoginRefreshAndLogout(t *testing.T) {
 	if registered.User.Status != domain.UserStatusPendingVerification || repos.wallets[registered.User.ID] == nil || repos.accounts != 1 {
 		t.Fatalf("registration did not provision pending user/wallet/account")
 	}
-	claims, err := manager.ValidateAccessToken(registered.AccessToken)
-	if err != nil || claims.UserID != registered.User.ID.String() {
-		t.Fatalf("invalid access token claims=%+v err=%v", claims, err)
+	if registered.AccessToken != "" || registered.RefreshToken != "" {
+		t.Fatal("register must not issue tokens before email verification")
 	}
+	repos.users[registered.User.ID].Status = domain.UserStatusActive
 
 	loggedIn, err := svc.Login(ctx, registered.User.Email, "a-strong-test-password", "127.0.0.1", "test")
 	if err != nil || loggedIn.RefreshToken == "" {
 		t.Fatalf("login failed: result=%v err=%v", loggedIn, err)
+	}
+	claims, err := manager.ValidateAccessToken(loggedIn.AccessToken)
+	if err != nil || claims.UserID != registered.User.ID.String() {
+		t.Fatalf("invalid access token claims=%+v err=%v", claims, err)
 	}
 	rotated, err := svc.Refresh(ctx, loggedIn.RefreshToken, "127.0.0.1", "test")
 	if err != nil || rotated.RefreshToken == loggedIn.RefreshToken {

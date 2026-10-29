@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { UserPlus, AlertCircle } from 'lucide-react';
-import api, { setTokens } from '../api/client';
+import api, { setTokens as setTokenFallback } from '../api/client';
 
 export default function Register() {
   const [form, setForm] = useState({ first_name: '', last_name: '', email: '', password: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [registered, setRegistered] = useState(false);
   const navigate = useNavigate();
 
   function update(field) {
@@ -19,14 +20,36 @@ export default function Register() {
     setLoading(true);
     try {
       const { data } = await api.post('/api/auth/register', form);
-      localStorage.setItem('korzadi_user', JSON.stringify(data.user || {}));
-      setTokens(data.access_token || data.accessToken || data.token, data.refresh_token || data.refreshToken || '');
-      navigate('/dashboard');
+      if (data?.requires_email_verification) {
+        setRegistered(true);
+        return;
+      }
+      if (data?.access_token) {
+        localStorage.setItem('korzadi_user', JSON.stringify(data.user || {}));
+        setTokenFallback(data.access_token);
+        navigate('/dashboard');
+      }
     } catch (err) {
       setError(err.response?.data?.message || 'No se pudo crear la cuenta');
     } finally {
       setLoading(false);
     }
+  }
+
+  if (registered) {
+    return (
+      <div className="auth-screen">
+        <div className="auth-card">
+          <div className="brand-mark">K</div>
+          <h1>Revisa tu correo</h1>
+          <p className="subtitle">Te enviamos un enlace para verificar tu cuenta. Debes confirmarlo antes de iniciar sesión.</p>
+          <Link to="/login" className="btn-primary" style={{ textAlign: 'center', textDecoration: 'none' }}>
+            Ir a iniciar sesión
+          </Link>
+          <p className="switch-link">¿No recibiste el correo? Revisa spam o solicita uno nuevo desde el inicio de sesión.</p>
+        </div>
+      </div>
+    );
   }
 
   return (

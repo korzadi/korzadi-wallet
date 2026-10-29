@@ -31,7 +31,7 @@ export default function Send() {
   const continuar = async (e) => {
     e.preventDefault(); setBusy(true); setError('');
     try {
-      const { data } = await walletApi.estimateFee({ network, asset, amount });
+      const { data } = await walletApi.estimateFee({ operation: 'withdrawal', network, asset, amount });
       setQuote(data);
     } catch (err) { setError(errMsg(err, 'No se pudo calcular la comisión')); }
     finally { setBusy(false); }

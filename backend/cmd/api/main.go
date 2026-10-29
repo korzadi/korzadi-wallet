@@ -88,7 +88,11 @@ func main() {
 	if kpErr != nil {
 		log.Fatalf("configuración de claves de custodia inválida: %v", kpErr)
 	}
+	tronNetworkRaw := os.Getenv("TRON_NETWORK")
 	tronNetwork := envOr("TRON_NETWORK", "testnet")
+	if tronNetworkRaw == "" {
+		log.Println("ADVERTENCIA CRÍTICA: TRON_NETWORK no definido explícitamente — se usa 'testnet' por defecto. Para producción debe establecerse TRON_NETWORK=mainnet (o testnet explícitamente) en .env.")
+	}
 	usdtContract := mustEnv("TRON_USDT_CONTRACT")
 	// Fail fast: the configured USDT TRC-20 contract must be on the allow-list.
 	// mainnet → ONLY Tether's official contract; testnet → TRON_USDT_TESTNET_ALLOWLIST.
@@ -1172,18 +1176,24 @@ func main() {
 			}
 		})
 
+	depositHandler := handlers.NewDepositHandler(depositService)
+	destinationAdminHandler := handlers.NewDestinationAdminHandler(securityDestination, auditRepo)
 	adminPanel := adminpanel.New(adminSvc, adminOps, securitySvc, p2pSvc, twoFactorService,
-		!strings.EqualFold(envOr("ADMIN_COOKIE_SECURE", "true"), "false"))
+		!strings.EqualFold(envOr("ADMIN_COOKIE_SECURE", "true"), "false")).
+		WithDepositConfirm(depositHandler, fiatSandboxConfirm).
+		WithDestinationAdmin(destinationAdminHandler)
+	authHandler := handlers.NewAuthHandler(authService).
+		SetCookieSecure(!strings.EqualFold(envOr("AUTH_COOKIE_SECURE", "false"), "false"))
 
 	h := router.Handlers{
 		AdminOps:           adminOps,
 		AdminPanel:         adminPanel,
-		Auth:               handlers.NewAuthHandler(authService),
+		Auth:               authHandler,
 		Account:            handlers.NewAccountHandler(accountService),
-		DestinationAdmin:   handlers.NewDestinationAdminHandler(securityDestination, auditRepo),
+		DestinationAdmin:   destinationAdminHandler,
 		Wallet:             handlers.NewWalletHandler(walletRepo, ledgerRepo, transferService, feePriceProvider),
 		Addresses:          addressHandler,
-		Deposit:            handlers.NewDepositHandler(depositService),
+		Deposit:            depositHandler,
 		BlockchainDeposits: handlers.NewBlockchainDepositHandler(blockchainDepositHistory),
 		Fees:               feeHandler,
 		Withdrawal:         handlers.NewBlockchainWithdrawalHandler(withdrawalSvc),

@@ -55,6 +55,12 @@ func (s *Service) Enroll(ctx context.Context, userID uuid.UUID) (*postgres.Affil
 	return a, nil
 }
 
+// Me devuelve el afiliado existente sin crear uno. Un GET nunca debe tener
+// efectos secundarios.
+func (s *Service) Me(ctx context.Context, userID uuid.UUID) (*postgres.Affiliate, error) {
+	return s.repo.FindByUserID(ctx, userID)
+}
+
 // RegisterReferral vincula un nuevo usuario referido a un afiliado por su código.
 func (s *Service) RegisterReferral(ctx context.Context, affiliateCode string, referredUserID uuid.UUID) error {
 	aff, err := s.repo.FindByCode(ctx, affiliateCode)

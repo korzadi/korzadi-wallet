@@ -30,8 +30,13 @@ func AuthRequired(jwtMgr *authjwt.Manager) gin.HandlerFunc {
 
 func RequireRole(getRolesFn func(userID string) ([]string, error), allowed ...string) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		userID, _ := c.Get("user_id")
-		roles, err := getRolesFn(userID.(string))
+		raw, ok := c.Get("user_id")
+		userID, isString := raw.(string)
+		if !ok || !isString || userID == "" {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "user_id_missing"})
+			return
+		}
+		roles, err := getRolesFn(userID)
 		if err != nil {
 			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "no se pudo verificar rol"})
 			return
@@ -109,8 +114,9 @@ func CORSConfig(allowedOrigins map[string]bool) gin.HandlerFunc {
 			c.Header("Access-Control-Allow-Origin", origin)
 			c.Header("Access-Control-Allow-Credentials", "true")
 		}
-		c.Header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS")
-		c.Header("Access-Control-Allow-Headers", "Authorization,Content-Type,Idempotency-Key,X-2FA-Code")
+		c.Header("Vary", "Origin")
+		c.Header("Access-Control-Allow-Methods", "GET,POST,PUT,PATCH,DELETE,OPTIONS")
+		c.Header("Access-Control-Allow-Headers", "Authorization,Content-Type,Idempotency-Key,X-2FA-Code,X-PIN-Code")
 		if c.Request.Method == http.MethodOptions {
 			c.AbortWithStatus(http.StatusNoContent)
 			return

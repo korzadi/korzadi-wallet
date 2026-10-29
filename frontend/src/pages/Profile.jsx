@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowDownToLine, ArrowUpRight, ChevronRight, HelpCircle, Info, Settings, ShieldCheck, UserCheck } from 'lucide-react';
-import { clearTokens } from '../api/client';
+import api, { clearTokens } from '../api/client';
 import { walletApi } from '../api/wallet';
 import { getUser } from '../lib/user';
 import WalletLayout from '../components/WalletLayout';
@@ -14,7 +14,11 @@ export default function Profile() {
     walletApi.kycStatus().then(({ data }) => setKyc(String(data?.status || '').toLowerCase())).catch((e) => { console.error("Frontend error:", e); });
   }, []);
 
-  const logout = () => { clearTokens(); window.location.href = '/'; };
+  const logout = async () => {
+    try { await api.post('/api/auth/logout'); } catch { /* la cookie se limpia localmente igual */ }
+    clearTokens();
+    window.location.href = '/';
+  };
   const verified = ['approved', 'verified', 'completed'].includes(kyc);
 
   const Row = ({ to, icon: Icon, label, badge }) => {

@@ -118,10 +118,15 @@ export default function Security() {
   const [msg, setMsg] = useState('');
   const [error, setError] = useState('');
 
+  const [prefs, setPrefs] = useState(null);
+
   useEffect(() => {
     walletApi.get2FAStatus()
       .then((r) => { setEnabled(!!r.data?.enabled); setRemaining(r.data?.recovery_codes_remaining ?? 0); })
-      .catch((e) => { console.error("Frontend error:", e); });
+      .catch((e) => { setError(e.response?.data?.message || 'No se pudo obtener el estado del 2FA.'); });
+    walletApi.getSecurityPrefs()
+      .then((r) => { setPrefs(r.data || null); })
+      .catch((e) => { setError(e.response?.data?.message || 'No se pudo cargar las preferencias de seguridad.'); });
   }, []);
 
   const start = async () => {
@@ -135,8 +140,6 @@ export default function Security() {
     catch (e) { setError(e.response?.data?.error || 'Código inválido'); }
   };
 
-  const soon = [['PIN de la aplicación', 'Usa un PIN para acceder'], ['Biometría', 'Huella o reconocimiento facial'], ['Gestión de dispositivos', 'Dispositivos autorizados']];
-
   return (
     <WalletLayout title="Seguridad" tabs={false}>
       <div className="kz-card" style={{ padding: '0 14px' }}>
@@ -144,12 +147,24 @@ export default function Security() {
           <div className="main"><strong>Autenticación de dos factores (2FA)</strong><small>Protege tu cuenta con 2FA</small></div>
           <button className={`kz-switch ${enabled ? 'on' : ''}`} onClick={() => !enabled && !setup && start()} aria-label="Activar 2FA" />
         </div>
-        {soon.map(([t, s]) => (
-          <div className="kz-row" key={t}>
-            <div className="main"><strong>{t}</strong><small>{s}</small></div>
-            <span className="kz-badge soon">Pronto</span>
-          </div>
-        ))}
+        {prefs ? (
+          <>
+            <div className="kz-row">
+              <div className="main"><strong>PIN de la aplicación</strong><small>Usa un PIN para acceder</small></div>
+              <span className={`kz-badge ${prefs.pin_enabled ? 'on' : ''}`}>{prefs.pin_enabled ? 'Activo' : 'Inactivo'}</span>
+            </div>
+            <div className="kz-row">
+              <div className="main"><strong>Biometría</strong><small>Huella o reconocimiento facial</small></div>
+              <span className={`kz-badge ${prefs.biometric_enabled ? 'on' : ''}`}>{prefs.biometric_enabled ? 'Activo' : 'Inactivo'}</span>
+            </div>
+            <div className="kz-row">
+              <div className="main"><strong>Gestión de dispositivos</strong><small>Dispositivos autorizados</small></div>
+              <span className={`kz-badge ${prefs.app_lock_enabled ? 'on' : ''}`}>{prefs.app_lock_enabled ? 'Activo' : 'Inactivo'}</span>
+            </div>
+          </>
+        ) : (
+          <div className="kz-hint">Cargando preferencias de seguridad...</div>
+        )}
       </div>
 
       {setup && (

@@ -36,7 +36,7 @@ export default function Login() {
     }
     clearTokens();
     localStorage.setItem('korzadi_user', JSON.stringify(data.user || {}));
-    setTokens(data.access_token, data.refresh_token || '');
+    setTokens(data.access_token);
   }
 
   async function handleSubmit(e) {

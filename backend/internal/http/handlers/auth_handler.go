@@ -4,6 +4,7 @@ import (
 	"errors"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 
@@ -12,12 +13,50 @@ import (
 	"korzadi-wallet/backend/internal/domain"
 )
 
+const (
+	refreshCookieName = "kz_refresh"
+	refreshCookiePath = "/api/auth"
+)
+
 type AuthHandler struct {
-	service *auth.Service
+	service      *auth.Service
+	cookieSecure bool
 }
 
 func NewAuthHandler(s *auth.Service) *AuthHandler {
 	return &AuthHandler{service: s}
+}
+
+// SetCookieSecure enables the Secure flag on the refresh cookie. It must be
+// true in production (HTTPS); false is only for local HTTP development.
+func (h *AuthHandler) SetCookieSecure(secure bool) *AuthHandler {
+	h.cookieSecure = secure
+	return h
+}
+
+func (h *AuthHandler) setRefreshCookie(c *gin.Context, token string, expires time.Time) {
+	if token == "" {
+		return
+	}
+	if expires.IsZero() {
+		expires = time.Now().Add(24 * time.Hour)
+	}
+	maxAge := int(time.Until(expires).Seconds())
+	if maxAge < 60 {
+		maxAge = 60
+	}
+	c.SetSameSite(http.SameSiteStrictMode)
+	c.SetCookie(refreshCookieName, token, maxAge, refreshCookiePath, "", h.cookieSecure, true)
+}
+
+func (h *AuthHandler) clearRefreshCookie(c *gin.Context) {
+	c.SetSameSite(http.SameSiteStrictMode)
+	c.SetCookie(refreshCookieName, "", -1, refreshCookiePath, "", h.cookieSecure, true)
+}
+
+func (h *AuthHandler) respondSession(c *gin.Context, status int, result *auth.AuthResult) {
+	h.setRefreshCookie(c, result.RefreshToken, result.RefreshExpiresAt)
+	c.JSON(status, authResponse(result))
 }
 
 type registerRequest struct {
@@ -43,7 +82,15 @@ func (h *AuthHandler) Register(c *gin.Context) {
 		respondDomainError(c, err)
 		return
 	}
-	c.JSON(http.StatusCreated, authResponse(result))
+	if result.AccessToken == "" {
+		c.JSON(http.StatusCreated, gin.H{
+			"user":                        userResponse(result.User),
+			"requires_email_verification": true,
+			"message":                     "cuenta creada; verifica tu correo electrónico para iniciar sesión",
+		})
+		return
+	}
+	h.respondSession(c, http.StatusCreated, result)
 }
 
 type loginRequest struct {
@@ -71,7 +118,7 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		})
 		return
 	}
-	c.JSON(http.StatusOK, authResponse(result))
+	h.respondSession(c, http.StatusOK, result)
 }
 
 type loginTwoFactorRequest struct {
@@ -94,49 +141,69 @@ func (h *AuthHandler) LoginTwoFactor(c *gin.Context) {
 		respondDomainError(c, err)
 		return
 	}
-	c.JSON(http.StatusOK, authResponse(result))
+	h.respondSession(c, http.StatusOK, result)
 }
 
 type refreshRequest struct {
-	RefreshToken string `json:"refresh_token" binding:"required"`
+	RefreshToken string `json:"refresh_token"`
+}
+
+// refreshTokenFromRequest prefers the HttpOnly cookie and keeps accepting a
+// body token only for backward compatibility with sessions issued before the
+// cookie migration.
+func (h *AuthHandler) refreshTokenFromRequest(c *gin.Context) string {
+	var req refreshRequest
+	_ = c.ShouldBindJSON(&req)
+	if req.RefreshToken != "" {
+		return req.RefreshToken
+	}
+	token, _ := c.Cookie(refreshCookieName)
+	return token
 }
 
 func (h *AuthHandler) Refresh(c *gin.Context) {
-	var req refreshRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	token := h.refreshTokenFromRequest(c)
+	if token == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "refresh_token_required", "message": "no hay sesión renovable"})
 		return
 	}
-	result, err := h.service.Refresh(c.Request.Context(), req.RefreshToken, c.ClientIP(), c.Request.UserAgent())
+	result, err := h.service.Refresh(c.Request.Context(), token, c.ClientIP(), c.Request.UserAgent())
 	if err != nil {
+		h.clearRefreshCookie(c)
 		respondDomainError(c, err)
 		return
 	}
-	c.JSON(http.StatusOK, authResponse(result))
+	h.respondSession(c, http.StatusOK, result)
 }
 
 func (h *AuthHandler) Logout(c *gin.Context) {
-	var req refreshRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	token := h.refreshTokenFromRequest(c)
+	if token == "" {
+		h.clearRefreshCookie(c)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "refresh_token_required"})
 		return
 	}
-	if err := h.service.Logout(c.Request.Context(), req.RefreshToken); err != nil {
+	if err := h.service.Logout(c.Request.Context(), token); err != nil {
+		h.clearRefreshCookie(c)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "error al cerrar sesión"})
 		return
 	}
+	h.clearRefreshCookie(c)
 	c.JSON(http.StatusOK, gin.H{"message": "sesión cerrada"})
+}
+
+func userResponse(u *domain.User) gin.H {
+	return gin.H{
+		"id": u.ID, "email": u.Email, "first_name": u.FirstName,
+		"last_name": u.LastName, "status": u.Status,
+	}
 }
 
 func authResponse(r *auth.AuthResult) gin.H {
 	return gin.H{
-		"user": gin.H{
-			"id": r.User.ID, "email": r.User.Email, "first_name": r.User.FirstName,
-			"last_name": r.User.LastName, "status": r.User.Status,
-		},
-		"access_token":  r.AccessToken,
-		"refresh_token": r.RefreshToken,
-		"expires_at":    r.ExpiresAt,
+		"user":         userResponse(r.User),
+		"access_token": r.AccessToken,
+		"expires_at":   r.ExpiresAt,
 	}
 }
 
@@ -153,7 +220,8 @@ func respondDomainError(c *gin.Context, err error) {
 		case "invalid_credentials", "invalid_refresh", "refresh_expired",
 			"invalid_2fa_challenge", "2fa_challenge_expired", "2fa_required":
 			status = http.StatusUnauthorized
-		case "account_locked", "refresh_reuse_detected", "invalid_2fa_code":
+		case "account_locked", "refresh_reuse_detected", "invalid_2fa_code",
+			"email_not_verified", "account_deleted":
 			status = http.StatusForbidden
 		case "2fa_unavailable":
 			status = http.StatusServiceUnavailable

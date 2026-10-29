@@ -18,12 +18,9 @@ type Handler struct {
 func New(svc *app.Service) *Handler { return &Handler{svc: svc} }
 
 func getUserID(c *gin.Context) uuid.UUID {
+	// La identidad sale exclusivamente del JWT validado por el middleware.
+	// Nunca se acepta X-User-ID ni otro encabezado controlado por el cliente.
 	id, _ := uuid.Parse(c.GetString("user_id"))
-	if id == uuid.Nil {
-		if v := c.GetHeader("X-User-ID"); v != "" {
-			id, _ = uuid.Parse(v)
-		}
-	}
 	return id
 }
 

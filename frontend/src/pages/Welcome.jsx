@@ -1,7 +1,8 @@
 import { Link, Navigate } from 'react-router-dom';
+import { hasSession } from '../api/client';
 
 export default function Welcome() {
-  if (localStorage.getItem('korzadi_access_token')) return <Navigate to="/dashboard" replace />;
+  if (hasSession()) return <Navigate to="/dashboard" replace />;
   return (
     <div className="kz-welcome">
       <div className="big">K</div>

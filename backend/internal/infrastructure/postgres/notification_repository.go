@@ -23,12 +23,12 @@ func (r *NotificationRepository) Notify(ctx context.Context, userID uuid.UUID, e
 }
 
 type NotificationRow struct {
-	ID        uuid.UUID
-	EventType string
-	Title     string
-	Body      string
-	ReadAt    *string
-	CreatedAt string
+	ID        uuid.UUID `json:"id"`
+	EventType string    `json:"event_type"`
+	Title     string    `json:"title"`
+	Body      string    `json:"body"`
+	ReadAt    *string   `json:"read_at"`
+	CreatedAt string    `json:"created_at"`
 }
 
 func (r *NotificationRepository) ListByUser(ctx context.Context, userID uuid.UUID, limit, offset int) ([]NotificationRow, error) {

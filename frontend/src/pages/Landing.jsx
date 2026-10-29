@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
-import api, { clearTokens, getAccessToken, setTokens } from '../api/client';
+import api, { clearTokens, hasSession, setTokens } from '../api/client';
 import { getUser, showAsset } from '../lib/user';
 import './landing.css';
 
@@ -77,12 +77,13 @@ function Reveal({ children, delay = 0 }) {
 
 function useLandingData() {
   const [data, setData] = useState(INITIAL_DATA);
+  const [loadError, setLoadError] = useState('');
 
   useEffect(() => {
     let alive = true;
 
     async function load() {
-      if (!getAccessToken()) return;
+      if (!hasSession()) return;
 
       const next = {
         ...INITIAL_DATA,
@@ -105,7 +106,8 @@ function useLandingData() {
           };
         });
         next.demo.total = false;
-      } catch {
+      } catch (e) {
+        setLoadError('No se pudo cargar los datos de balance.');
         // Sin datos simulados; se mantiene vacío.
       }
 
@@ -127,8 +129,9 @@ function useLandingData() {
             sign: n < 0 ? '#F87171' : '#34D399',
           };
         });
-        next.demo.ops = false;
-      } catch {
+
+      } catch (e) {
+        setLoadError('No se pudo cargar las transacciones recientes.');
         // No hay datos simulados; se mantiene vacío.
       }
 
@@ -145,8 +148,9 @@ function useLandingData() {
             glyph,
           };
         });
-        next.demo.offers = false;
-      } catch {
+
+      } catch (e) {
+        setLoadError('No se pudo cargar las ofertas P2P.');
         // Sin datos simulados; se mantiene vacío.
       }
 
@@ -157,15 +161,15 @@ function useLandingData() {
     return () => { alive = false; };
   }, []);
 
-  return data;
+  return { data, loadError };
 }
 
 export default function Landing() {
   const navigate = useNavigate();
-  const data = useLandingData();
+  const { data, loadError } = useLandingData();
   const user = getUser();
   const userName = user.name || 'Alexander';
-  const [authenticatedAtMount] = useState(() => !!getAccessToken());
+  const [authenticatedAtMount] = useState(() => hasSession());
 
   const [modalOpen, setModalOpen] = useState(false);
   const [mode, setMode] = useState(1);
@@ -181,6 +185,7 @@ export default function Landing() {
   const [mfaError, setMfaError] = useState('');
   const [mfaBusy, setMfaBusy] = useState(false);
   const [successMsg, setSuccessMsg] = useState('');
+  const [requiresLogin, setRequiresLogin] = useState(false);
   const [code, setCode] = useState(['', '', '', '', '', '']);
   const [challengeToken, setChallengeToken] = useState('');
   const [useRecovery, setUseRecovery] = useState(false);
@@ -270,7 +275,7 @@ export default function Landing() {
     }
     clearTokens();
     localStorage.setItem('korzadi_user', JSON.stringify(body?.user || {}));
-    setTokens(accessToken, body?.refresh_token || body?.refreshToken || '');
+    setTokens(accessToken);
   }
 
   async function handleSubmit(e) {
@@ -313,6 +318,7 @@ export default function Landing() {
           setTimeout(() => codeRefs.current[0]?.focus(), 60);
         } else {
           persistSession(body);
+          setRequiresLogin(false);
           setChallengeToken('');
           setSuccessMsg('Sesión verificada correctamente.');
           setStep('s3');
@@ -325,8 +331,13 @@ export default function Landing() {
           password,
         });
         if (flow !== flowId.current) return;
-        persistSession(body);
-        setSuccessMsg('Tu cuenta fue creada correctamente. Te enviamos un correo para verificarla.');
+        if (body?.access_token) {
+          persistSession(body);
+          setSuccessMsg('Tu cuenta fue creada correctamente.');
+        } else {
+          setRequiresLogin(true);
+          setSuccessMsg('Tu cuenta fue creada. Revisa tu correo y verifica la cuenta antes de iniciar sesión.');
+        }
         setStep('s3');
       }
     } catch (err) {
@@ -360,6 +371,7 @@ export default function Landing() {
       });
       if (flow !== flowId.current) return;
       persistSession(body);
+      setRequiresLogin(false);
       setChallengeToken('');
       setSuccessMsg('Sesión verificada correctamente.');
       setStep('s3');
@@ -432,11 +444,11 @@ export default function Landing() {
 
   function goToWallet() {
     closeModal();
-    navigate('/dashboard');
+    navigate(requiresLogin ? '/login' : '/dashboard');
   }
 
   function openOffer() {
-    if (getAccessToken()) navigate('/p2p');
+    if (hasSession()) navigate('/p2p');
     else openModal(1);
   }
 
@@ -684,6 +696,11 @@ export default function Landing() {
       </section>
 
       <footer>
+        {loadError && (
+          <div style={{ color: '#F87171', fontSize: 12, marginBottom: 12, textAlign: 'center' }}>
+            {loadError}
+          </div>
+        )}
         <b style={{ display: 'flex', gap: 6, alignItems: 'center', color: 'var(--lk)' }}>
           <svg width="22" height="22" aria-hidden="true"><use href="#kz" /></svg>Korzadi
         </b>
@@ -802,7 +819,7 @@ export default function Landing() {
               <h3 style={{ fontSize: 20 }}>¡Listo!</h3>
               <p id="ms" style={{ color: '#A9B8DA', margin: '8px 0 18px', fontSize: 14, lineHeight: 1.5 }}>{successMsg}</p>
               <button className="bt f" type="button" onClick={goToWallet} style={{ width: '100%', minHeight: 48 }}>
-                Ir a mi wallet
+                {requiresLogin ? 'Iniciar sesión' : 'Ir a mi wallet'}
               </button>
             </div>
           )}

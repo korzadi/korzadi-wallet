@@ -61,3 +61,18 @@ func TestRespondFeeError_DoesNotLeakProviderDetails(t *testing.T) {
 		t.Fatalf("body may leak details: %s", rec.Body.String())
 	}
 }
+
+func TestWalletHandler_BuyIsDisabled(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	rec := httptest.NewRecorder()
+	ctx, _ := gin.CreateTestContext(rec)
+	ctx.Request = httptest.NewRequest(http.MethodPost, "/buy", nil)
+	h := NewWalletHandler(nil, nil, nil, nil)
+	h.Buy(ctx)
+	if rec.Code != http.StatusServiceUnavailable {
+		t.Fatalf("status=%d body=%s", rec.Code, rec.Body.String())
+	}
+	if !strings.Contains(rec.Body.String(), "buy_not_available") {
+		t.Fatalf("unexpected body: %s", rec.Body.String())
+	}
+}

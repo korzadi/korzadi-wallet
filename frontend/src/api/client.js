@@ -4,30 +4,44 @@ const API_URL = import.meta.env.VITE_API_URL || '';
 
 export const api = axios.create({
   baseURL: API_URL,
+  withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
   },
   timeout: 20000,
 });
 
-export function setTokens(accessToken, refreshToken = '') {
-  if (accessToken) {
-    localStorage.setItem('korzadi_access_token', accessToken);
-  }
+// El access token vive solo en memoria. El refresh token lo guarda el backend
+// en una cookie HttpOnly; nunca se expone a JavaScript.
+let accessToken = localStorage.getItem('korzadi_access_token') || '';
+if (accessToken) {
+  // Migración de sesiones antiguas: el token deja de persistir en disco.
+  localStorage.removeItem('korzadi_access_token');
+}
 
-  if (refreshToken) {
-    localStorage.setItem('korzadi_refresh_token', refreshToken);
+export function setTokens(token = '') {
+  accessToken = token || '';
+  if (accessToken) {
+    localStorage.setItem('korzadi_auth', '1');
   }
 }
 
 export function clearTokens() {
+  accessToken = '';
   localStorage.removeItem('korzadi_access_token');
   localStorage.removeItem('korzadi_refresh_token');
   localStorage.removeItem('korzadi_user');
+  localStorage.removeItem('korzadi_auth');
 }
 
 export function getAccessToken() {
-  return localStorage.getItem('korzadi_access_token');
+  return accessToken;
+}
+
+export function hasSession() {
+  return Boolean(accessToken || localStorage.getItem('korzadi_auth') ||
+    localStorage.getItem('korzadi_refresh_token') ||
+    localStorage.getItem('korzadi_user'));
 }
 
 export function idempotencyKey() {
@@ -53,16 +67,15 @@ let refreshing = false;
 let refreshPromise = null;
 
 async function refreshAccessToken() {
-  const refreshToken = localStorage.getItem('korzadi_refresh_token');
-
-  if (!refreshToken) {
-    throw new Error('No refresh token');
-  }
+  // Compatibilidad: si quedó un refresh token de la versión anterior,
+  // se envía una sola vez para migrar a la cookie HttpOnly.
+  const legacyRefreshToken = localStorage.getItem('korzadi_refresh_token');
 
   const response = await axios.post(
     `${API_URL}/api/auth/refresh`,
-    { refresh_token: refreshToken },
+    legacyRefreshToken ? { refresh_token: legacyRefreshToken } : {},
     {
+      withCredentials: true,
       headers: {
         'Content-Type': 'application/json',
       },
@@ -71,24 +84,20 @@ async function refreshAccessToken() {
   );
 
   const data = response.data || {};
+  const token = data.access_token || data.accessToken || data.token;
 
-  const accessToken =
-    data.access_token ||
-    data.accessToken ||
-    data.token;
-
-  const newRefreshToken =
-    data.refresh_token ||
-    data.refreshToken ||
-    refreshToken;
-
-  if (!accessToken) {
+  if (!token) {
     throw new Error('Refresh response without access token');
   }
 
-  setTokens(accessToken, newRefreshToken);
+  setTokens(token);
+  localStorage.removeItem('korzadi_refresh_token');
 
-  return accessToken;
+  return token;
+}
+
+export async function refreshSession() {
+  return refreshAccessToken();
 }
 
 api.interceptors.response.use(
@@ -156,12 +165,10 @@ export const authAPI = {
     }),
 
   refresh: () =>
-    api.post('/api/auth/refresh', {
-      refresh_token: localStorage.getItem('korzadi_refresh_token'),
-    }),
+    axios.post(`${API_URL}/api/auth/refresh`, {}, { withCredentials: true, timeout: 20000 }),
 
   logout: () =>
-    api.post('/api/auth/logout'),
+    axios.post(`${API_URL}/api/auth/logout`, {}, { withCredentials: true, timeout: 20000 }),
 };
 
 // =========================

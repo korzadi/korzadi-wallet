@@ -31,12 +31,29 @@ type Handler struct {
 	twofactor *apptwofactor.Service
 	secure    bool
 	limiter   *ipLimiter
+
+	deposit               *handlers.DepositHandler
+	depositConfirmEnabled bool
+	destinations          *handlers.DestinationAdminHandler
 }
 
 func New(svc *appadmin.Service, adminOps *handlers.AdminOpsHandler, security *appsecurity.Service,
 	p2p *appp2p.Service, twofactor *apptwofactor.Service, secureCookie bool) *Handler {
 	return &Handler{svc: svc, adminOps: adminOps, security: security, p2p: p2p,
 		twofactor: twofactor, secure: secureCookie, limiter: newIPLimiter()}
+}
+
+// WithDepositConfirm enables the admin confirmation route only when the
+// deployment explicitly allows sandbox fiat confirmations.
+func (h *Handler) WithDepositConfirm(dep *handlers.DepositHandler, enabled bool) *Handler {
+	h.deposit = dep
+	h.depositConfirmEnabled = enabled
+	return h
+}
+
+func (h *Handler) WithDestinationAdmin(dest *handlers.DestinationAdminHandler) *Handler {
+	h.destinations = dest
+	return h
 }
 
 func (h *Handler) Register(r *gin.Engine) {
@@ -86,6 +103,12 @@ func (h *Handler) Register(r *gin.Engine) {
 		fin.POST("/treasury/policies/:id/enabled", h.sensitive, h.adminOps.SetTreasuryPolicyEnabled)
 		fin.GET("/gas-station/policies/:wallet_id", h.adminOps.GetGasPolicy)
 		fin.PUT("/gas-station/policies/:wallet_id", h.sensitive, h.adminOps.PutGasPolicy)
+		if h.deposit != nil && h.depositConfirmEnabled {
+			fin.POST("/deposits/:id/confirm", h.sensitive, h.deposit.Confirm)
+		}
+		if h.destinations != nil {
+			fin.POST("/destinations", h.sensitive, h.destinations.Set)
+		}
 	}
 
 	if h.p2p != nil {

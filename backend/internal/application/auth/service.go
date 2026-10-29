@@ -78,10 +78,11 @@ type RegisterInput struct {
 }
 
 type AuthResult struct {
-	User         *domain.User
-	AccessToken  string
-	RefreshToken string
-	ExpiresAt    time.Time
+	User             *domain.User
+	AccessToken      string
+	RefreshToken     string
+	ExpiresAt        time.Time
+	RefreshExpiresAt time.Time
 
 	// TwoFactorRequired is true when the password was correct but the account
 	// has 2FA enabled. In that case AccessToken/RefreshToken are empty and
@@ -136,7 +137,9 @@ func (s *Service) Register(ctx context.Context, in RegisterInput, ip, userAgent 
 		}
 	}
 
-	return s.issueTokens(ctx, user, ip, userAgent, false)
+	// El registro no crea sesión: la cuenta queda pendiente hasta que el
+	// usuario confirme el correo. Esto evita cuentas no verificadas con acceso.
+	return &AuthResult{User: user}, nil
 }
 
 func (s *Service) Login(ctx context.Context, email, password, ip, userAgent string) (*AuthResult, error) {
@@ -167,6 +170,15 @@ func (s *Service) Login(ctx context.Context, email, password, ip, userAgent stri
 	}
 
 	_ = s.users.ResetFailedLogin(ctx, user.ID)
+
+	// Una cuenta eliminada no debe poder autenticarse aunque conozca la
+	// contraseña. Una cuenta pendiente tampoco recibe sesión hasta verificar.
+	if user.Status == domain.UserStatusDeleted {
+		return nil, domain.ErrInvalidCredentials
+	}
+	if user.Status == domain.UserStatusPendingVerification {
+		return nil, &domain.DomainError{Code: "email_not_verified", Message: "verifica tu correo electrónico antes de iniciar sesión"}
+	}
 
 	// AUDIT FIX (CRITICAL): a user with 2FA used to receive a full session as
 	// soon as the password was valid. Check the 2FA state server-side BEFORE
@@ -404,5 +416,8 @@ func (s *Service) issueTokensWithFamily(ctx context.Context, user *domain.User, 
 		return nil, err
 	}
 
-	return &AuthResult{User: user, AccessToken: access, RefreshToken: refreshPlain, ExpiresAt: exp}, nil
+	return &AuthResult{
+		User: user, AccessToken: access, RefreshToken: refreshPlain,
+		ExpiresAt: exp, RefreshExpiresAt: session.ExpiresAt,
+	}, nil
 }

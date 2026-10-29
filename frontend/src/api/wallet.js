@@ -75,6 +75,25 @@ export const walletApi = {
   regenerateRecoveryCodes: (password, code) =>
     api.post('/api/security/2fa/recovery-codes/regenerate', { password, code }),
 
+  buy: (data) =>
+    api.post('/api/buy', data),
+
+  // Security Preferences (PIN, biometría, gestión de dispositivos)
+  getSecurityPrefs: () =>
+    api.get('/api/security/prefs'),
+
+  setupPin: (pin, current_password) =>
+    api.post('/api/security/pin/setup', { pin, current_password }),
+
+  verifyPin: (pin) =>
+    api.post('/api/security/pin/verify', { pin }),
+
+  disablePin: (current_password) =>
+    api.post('/api/security/pin/disable', { current_password }),
+
+  updateSecurityPrefs: (data) =>
+    api.post('/api/security/prefs', data),
+
   // KYC
   kycStatus: () =>
     api.get('/api/kyc/status'),
@@ -94,6 +113,9 @@ export const walletApi = {
   // Affiliate
   affiliate: () =>
     api.get('/api/affiliate'),
+
+  affiliateEnroll: () =>
+    api.post('/api/affiliate'),
 
   // P2P Market
   p2pOffers: (params = {}) =>
@@ -153,4 +175,5 @@ export const walletApi = {
     api.post(`/api/p2p/orders/${id}/messages`, { message }, {
       headers: { 'Idempotency-Key': idempotencyKey() },
     }),
+
 };

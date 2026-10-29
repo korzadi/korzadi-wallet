@@ -28,7 +28,7 @@ export default function Transfer() {
     try {
       const { data } = await api.post(
         '/api/wallet/transfers',
-        { receiver_user_id: receiverId, asset_code: 'USD', amount, note },
+        { recipient: receiverId, asset: 'USD', amount, note },
         { headers: { 'Idempotency-Key': idempotencyKey() } }
       );
       setResult(data);

@@ -26,12 +26,24 @@ func (h *AffiliateHandler) Enroll(c *gin.Context) {
 
 // GET /api/affiliate — devuelve el estado de afiliado del usuario actual.
 func (h *AffiliateHandler) Me(c *gin.Context) {
-	aff, err := h.service.Enroll(c.Request.Context(), currentUserID(c)) // idempotente: crea si no existe
+	aff, err := h.service.Me(c.Request.Context(), currentUserID(c))
 	if err != nil {
 		respondDomainError(c, err)
 		return
 	}
-	c.JSON(http.StatusOK, aff)
+	if aff == nil {
+		c.JSON(http.StatusOK, gin.H{"enrolled": false})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"enrolled":          true,
+		"id":                aff.ID,
+		"status":            aff.Status,
+		"affiliate_code":    aff.AffiliateCode,
+		"commission_rate":   aff.CommissionRate,
+		"total_referrals":   aff.TotalReferrals,
+		"total_commissions": aff.TotalCommissions,
+	})
 }
 
 type registerReferralRequest struct {

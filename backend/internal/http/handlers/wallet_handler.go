@@ -176,7 +176,7 @@ func (h *WalletHandler) CreateTransfer(c *gin.Context) {
 		// Bloque 8: only consulted when the amount crosses this
 		// operation's step-up threshold; harmless (ignored) otherwise.
 		TwoFACode: c.GetHeader("X-2FA-Code"),
-		PinCode:    c.GetHeader("X-PIN-Code"),
+		PinCode:   c.GetHeader("X-PIN-Code"),
 	}
 	// recipient is either a verified email or a raw internal user ID —
 	// never trust it as an arbitrary field name, resolve strictly one way
@@ -238,8 +238,32 @@ func (h *WalletHandler) GetTransfer(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"transfer": view})
 }
 
+func (h *WalletHandler) Buy(c *gin.Context) {
+	// No existe un proveedor de pago real conectado. La versión anterior
+	// acreditaba saldo contra una cuenta de sistema sin cobro alguno; ese
+	// camino se elimina y la compra queda cerrada hasta integrar un proveedor
+	// con confirmación verificable (webhook firmado + orden de compra).
+	c.JSON(http.StatusServiceUnavailable, gin.H{
+		"error":   "buy_not_available",
+		"message": "las compras con tarjeta o transferencia aún no están habilitadas; usa P2P o un depósito verificable",
+	})
+}
+
 func currentUserID(c *gin.Context) uuid.UUID {
-	raw, _ := c.Get("user_id")
-	id, _ := uuid.Parse(raw.(string))
+	raw, ok := c.Get("user_id")
+	if !ok || raw == nil {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "user_id_missing"})
+		return uuid.Nil
+	}
+	str, ok := raw.(string)
+	if !ok || str == "" {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "user_id_invalid"})
+		return uuid.Nil
+	}
+	id, err := uuid.Parse(str)
+	if err != nil || id == uuid.Nil {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "user_id_invalid"})
+		return uuid.Nil
+	}
 	return id
 }

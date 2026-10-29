@@ -39,12 +39,13 @@ const (
 	OpGasRefill         OperationType = "GAS_REFILL"
 	OpSweep             OperationType = "SWEEP"
 	OpAdminOperation    OperationType = "ADMIN_OPERATION"
+	OpBuy              OperationType = "BUY"
 )
 
 // Valid reports whether op is one of the known operation types.
 func (op OperationType) Valid() bool {
 	switch op {
-	case OpWithdrawal, OpTransfer, OpTreasuryRebalance, OpGasRefill, OpSweep, OpAdminOperation:
+	case OpWithdrawal, OpTransfer, OpTreasuryRebalance, OpGasRefill, OpSweep, OpAdminOperation, OpBuy:
 		return true
 	default:
 		return false

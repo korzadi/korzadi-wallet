@@ -58,6 +58,14 @@ func (s *Service) Charge(ctx context.Context, in ChargeInput) (*ChargeResult, er
 	if err != nil {
 		return nil, err
 	}
+	// La contrapartida del cobro es la cuenta del sistema. Sin este asiento
+	// el ledger rechaza la transacción por no sumar cero (el débito solo
+	// "desaparecía" del balance).
+	systemWalletID := uuid.MustParse("00000000-0000-0000-0000-000000000002")
+	systemAccount, err := s.wallets.GetOrCreateAccount(ctx, systemWalletID, in.AssetCode)
+	if err != nil {
+		return nil, err
+	}
 
 	order := &postgres.PaymentOrder{
 		ID: uuid.New(), UserID: in.UserID, Source: "korzadivpn", ExternalOrderID: in.ExternalOrderID,
@@ -71,7 +79,10 @@ func (s *Service) Charge(ctx context.Context, in ChargeInput) (*ChargeResult, er
 	ref := order.ID.String()
 	ledgerTx, err := s.ledger.ExecuteTransaction(ctx, domain.TxTypeVPNPayment, order.IdempotencyKey, &ref,
 		"Pago de plan KorzadiVPN, orden "+in.ExternalOrderID, &in.UserID,
-		[]domain.LedgerEntryInput{{WalletAccountID: account.ID, AssetCode: in.AssetCode, Amount: in.Amount.Neg()}})
+		[]domain.LedgerEntryInput{
+			{WalletAccountID: account.ID, AssetCode: in.AssetCode, Amount: in.Amount.Neg()},
+			{WalletAccountID: systemAccount.ID, AssetCode: in.AssetCode, Amount: in.Amount},
+		})
 	if err != nil {
 		_ = s.orders.UpdateStatus(ctx, order.ID, "failed", nil)
 		if err == domain.ErrInsufficientFunds {

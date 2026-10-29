@@ -139,3 +139,22 @@ func TestRespondDomainError_Login2FACodes(t *testing.T) {
 		}
 	}
 }
+
+func TestAuthHandler_RefreshCookieIsHttpOnlyAndStrict(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	rec := httptest.NewRecorder()
+	ctx, _ := gin.CreateTestContext(rec)
+	h := NewAuthHandler(nil).SetCookieSecure(true)
+	h.setRefreshCookie(ctx, "token-value", time.Now().Add(time.Hour))
+	cookies := rec.Result().Cookies()
+	if len(cookies) != 1 {
+		t.Fatalf("cookies=%d", len(cookies))
+	}
+	cookie := cookies[0]
+	if cookie.Name != refreshCookieName || !cookie.HttpOnly || !cookie.Secure {
+		t.Fatalf("unexpected cookie: %+v", cookie)
+	}
+	if cookie.SameSite != http.SameSiteStrictMode || cookie.Path != refreshCookiePath {
+		t.Fatalf("unexpected cookie attrs: %+v", cookie)
+	}
+}

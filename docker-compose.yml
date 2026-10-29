@@ -69,11 +69,16 @@ services:
       DIDIT_WEBHOOK_SECRET: ${DIDIT_WEBHOOK_SECRET:-}
       DIDIT_BASE_URL: ${DIDIT_BASE_URL:-https://verification.didit.me}
       DIDIT_WORKFLOW_ID: ${DIDIT_WORKFLOW_ID:-}
-      TRUSTED_PROXIES: ${TRUSTED_PROXIES:-}
+      # Caddy conecta al backend por la red Docker. Sin esto Gin ignoraría
+      # X-Forwarded-For y todos los usuarios compartirían la IP del proxy
+      # para rate limits y auditoría. Limitar a rangos privados + loopback.
+      TRUSTED_PROXIES: ${TRUSTED_PROXIES:-127.0.0.1/32,::1/128,172.16.0.0/12,10.0.0.0/8,192.168.0.0/16}
       # Varias réplicas / apagado ordenado
       SHUTDOWN_WORKER_TIMEOUT_SECONDS: ${SHUTDOWN_WORKER_TIMEOUT_SECONDS:-60}
       MIGRATE_LOCK_TIMEOUT_SECONDS: ${MIGRATE_LOCK_TIMEOUT_SECONDS:-120}
       ADVISORY_LOCK_MAX_CONNS: ${ADVISORY_LOCK_MAX_CONNS:-8}
+      AUTH_COOKIE_SECURE: ${AUTH_COOKIE_SECURE:-true}
+      FIAT_SANDBOX_CONFIRM_ENABLED: ${FIAT_SANDBOX_CONFIRM_ENABLED:-false}
       HOT_LOCK_WAIT_SECONDS: ${HOT_LOCK_WAIT_SECONDS:-30}
       # Registrar claves de custodia enviadas por API (por defecto OFF: se generan en el servidor)
       CUSTODY_ADMIN_KEY_IMPORT_ENABLED: ${CUSTODY_ADMIN_KEY_IMPORT_ENABLED:-false}
@@ -86,7 +91,7 @@ services:
       CUSTODY_ENCRYPTION_KEYS: ${CUSTODY_ENCRYPTION_KEYS:-}
       CUSTODY_ACTIVE_KEY_ID: ${CUSTODY_ACTIVE_KEY_ID:-}
       CUSTODY_ENCRYPTION_KEY: ${CUSTODY_ENCRYPTION_KEY:-}
-      TRON_NETWORK: ${TRON_NETWORK:-testnet}
+      TRON_NETWORK: ${TRON_NETWORK:-mainnet}
       TRON_DEPOSIT_WATCHER_ENABLED: ${TRON_DEPOSIT_WATCHER_ENABLED:-false}
       TRON_API_KEY: ${TRON_API_KEY:-}
       TRON_USDT_CONTRACT: ${TRON_USDT_CONTRACT:?debe definirse en .env}
@@ -154,7 +159,7 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
       args:
-        VITE_API_URL: https://wallet.korzadi.com
+        VITE_API_URL: ${VITE_API_URL:-https://wallet.korzadi.com}
     restart: unless-stopped
     depends_on:
       backend:

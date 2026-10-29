@@ -236,20 +236,16 @@ function tab(m){mode=m;$("t1").className=m==1?"on":"";$("t2").className=m==2?"on
 $("vw").onclick=function(){var p=$("p"),h=p.type=="password";p.type=h?"text":"password";this.textContent=h?"Ocultar":"Ver"};
 var cs=[];for(var i=0;i<6;i++){(function(i){var c=document.createElement("input");c.className="ip";c.maxLength=1;c.inputMode="numeric";c.setAttribute("aria-label","Dígito "+(i+1));c.oninput=function(){c.value=c.value.replace(/\D/g,"");if(c.value&&cs[i+1])cs[i+1].focus()};c.onkeydown=function(e){if(e.key=="Backspace"&&!c.value&&cs[i-1])cs[i-1].focus()};c.onpaste=function(e){var t=(e.clipboardData.getData("text")||"").replace(/\D/g,"").slice(0,6);if(t){e.preventDefault();cs.forEach(function(x,k){x.value=t[k]||""});cs[Math.min(t.length,5)].focus()}};cs.push(c);$("cd").appendChild(c)})(i)}
 function persistLandingSession(body){
-var access=body&&(body.access_token||body.accessToken||body.token);
-var refresh=body&&(body.refresh_token||body.refreshToken);
-if(!access)throw new Error("El servidor no devolvió un token de acceso.");
 try{
-localStorage.setItem("korzadi_access_token",access);
-if(refresh)localStorage.setItem("korzadi_refresh_token",refresh);
 if(body.user)localStorage.setItem("korzadi_user",JSON.stringify(body.user));
+localStorage.setItem("korzadi_auth","1");
 }catch(e){throw new Error("No se pudo guardar la sesión en este navegador.");}
 }
-function finishLandingAuth(message){
+function finishLandingAuth(message,next){
 challengeToken="";
 $("ms").textContent=message;
 var btn=$("s3").querySelector("button");
-if(btn)btn.onclick=function(){window.location.href="/dashboard"};
+if(btn)btn.onclick=function(){window.location.href=next||"/dashboard"};
 show("s3");
 }
 function sub(ev){
@@ -278,8 +274,12 @@ challengeToken=x.j.challenge_token;
 show("s2");
 return;
 }
+if(mode==1){
 persistLandingSession(x.j);
-finishLandingAuth(mode==1?"Sesión iniciada correctamente.":"Cuenta creada. Comprueba tu correo si necesitas verificarlo.");
+finishLandingAuth("Sesión iniciada correctamente.","/dashboard");
+}else{
+finishLandingAuth("Cuenta creada. Revisa tu correo y verifica la cuenta antes de iniciar sesión.","/login");
+}
 })
 .catch(function(err){$("er").textContent=err.message||"Error al conectar con el backend."});
 }function ver(){
